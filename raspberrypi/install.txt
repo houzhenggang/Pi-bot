@@ -1,0 +1,14 @@
+
+
+at the pi command prompt
+
+download from github
+
+1> git clone https://github.com/kieranwyse/Rover
+change to the directory
+
+2>cd Rover/raspberryPi
+
+compile the program
+
+3> g++ robot1_2.c -I/usr/local/include -L/usr/local/lib -lwiringPi -lpthread
