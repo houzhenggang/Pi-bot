@@ -5,8 +5,8 @@
 
 InterInterface::InterInterface(int pin) {
   _pin = pin;
-  wiringPiISR (_pin, INT_EDGE_RISING, &trigLowHigh) ;
-  wiringPiISR (_pin, INT_EDGE_FALLING, &trigHighLow) ;
+  wiringPiISR (_pin, INT_EDGE_RISING, &(InterInterface::trigLowHigh)) ;
+  wiringPiISR (_pin, INT_EDGE_FALLING, &(InterInterface::trigHighLow)) ;
 }
 
 
