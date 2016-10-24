@@ -53,9 +53,6 @@
 #ifndef _QUEUEARRAY_H
 #define _QUEUEARRAY_H
 
-// include Arduino basic header.
-#include <Arduino.h>
-
 // the definition of the queue class.
 template<typename T>
 class QueueArray {
@@ -68,7 +65,7 @@ class QueueArray {
 
     // add an item to the queue.
     void enqueue (const T i);
-    
+
     // remove an item from the queue.
     T dequeue ();
 
@@ -172,7 +169,7 @@ void QueueArray<T>::resize (const int s) {
   // if there is a memory allocation error.
   if (temp == NULL)
     exit ("QUEUE: insufficient memory to initialize temporary queue.");
-  
+
   // copy the items from the old queue to the new one.
   for (int i = 0; i < items; i++)
     temp[i] = contents[(head + i) % size];
@@ -200,7 +197,7 @@ void QueueArray<T>::enqueue (const T i) {
 
   // store the item to the array.
   contents[tail++] = i;
-  
+
   // wrap-around index.
   if (tail == size) tail = 0;
 
@@ -250,7 +247,7 @@ T QueueArray<T>::front () const {
   // check if the queue is empty.
   if (isEmpty ())
     exit ("QUEUE: can't get the front item of queue: queue is empty.");
-    
+
   // get the item from the array.
   return contents[head];
 }
