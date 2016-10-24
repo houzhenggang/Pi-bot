@@ -375,98 +375,38 @@ void Robot::avoid()
      _right->setFrequency(freq_velocity+freq_omega);
 
 }
+ostream& operator<<(ostream& stream,Robot ob)
+{
+  stream<<ob._x
+    <<" "<<ob._y
+    <<" "<<ob._angle
+    <<" "<<ob._distance
+    <<" "<<ob._wheel_base
+    <" "<<ob._state
+    <<"\n";
+  return stream;
+}
+istream& operator>>(istream& stream,Robot  ob)
+{
+  stream>>ob._x>>ob._y>>ob._angle;
+  return stream;
+}
 
 void Robot::print()
 {
     if(_test == Robots) {
-        char charVal[10];
-        dtostrf(getX(), 4, 4, charVal);
-        String x = charVal;
-        String out = "| Robot x:"+x;
-
-        out = out+ ",y:";
-        dtostrf(getY(), 4, 4, charVal);
-        String y = charVal;
-        out = out +y;
-
-        out = out+ ",angle:";
-        dtostrf(_angle, 4, 4, charVal);
-        String a = charVal;
-        out = out +a;
-
-        out = out+ ",distance:";
-        dtostrf(_distance, 4, 4, charVal);
-        String d = charVal;
-        out = out +d;
-        Serial.print(out);
-        out = "";
-        if(_target != NULL) {
-           out = out+ ",x-target:";
-           dtostrf(getTargetX(), 4, 4, charVal);
-           String xt = charVal;
-           out = out +xt;
-
-
-           out = out+ ",y-target:";
-           dtostrf(getTargetY(), 4, 4, charVal);
-           String yt = charVal;
-           out = out +yt;
-
-
-
-           out = out+ ",angle-target:";
-
-           dtostrf(getTargetAngle(), 4, 4, charVal);
-           String at = charVal;
-           out = out +at;
-        }
-        Serial.print(out);
-        out = "";
-
-        out = out+ ",wheel-base:";
-        dtostrf(_wheel_base, 4, 4, charVal);
-        String wb = charVal;
-        out = out +wb;
-
-        out = out+ ",state:";
-    	if(_state == Go)
-        	out = out +"Go |";
-    	else if(_state == Avoid)
-        	out = out +"Avoid |";
-    	else if(_state == Wall)
-        	out = out +"Wall |";
-        else
-                out = out +"None |";
-        Serial.println(out);
+        cout << this;
     }
+
     if( _test == Wheels) {
-    	Serial.print(' ');
-        Serial.print(" left ");
-    	_left->print();
-    	Serial.print('\n');
-    	Serial.print(' ');
-        Serial.print(" right ");
-    	_right->print();
-    	Serial.print('\n');
+    	cout << _left;
+    	cout << _righy;
     }
     if(_test == Sensors) {
-  	_left_1->print();
-  	Serial.print('\n');
-    	Serial.print('\t');
-    	_left_2->print();
-	Serial.print('\n');
-    	Serial.print('\t');
-    	_center->print();
-    	Serial.print('\n');
-    	Serial.print('\t');
-    	_right_1->print();
-    	Serial.print('\n');
-    	Serial.print('\t');
-    	_right_2->print();
-    	Serial.println(" |");
-    }
-    if(_test == Interfaces) {
-      cout <<  _left;
-      cout << _right;
+  	   cout << _left_1;
+    	 cout << _left_2;
+    	cout << _center;
+    	cout << _right_1;
+    	cout <<_right_2;
     }
 }

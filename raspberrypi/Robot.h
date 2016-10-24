@@ -54,6 +54,8 @@ class Robot
     void updateRobot();
 
     void state();
+    friend ostream& operator<<(ostream& stream,Robot ob);
+    friend istream& operator>>(istream& stream,Robot ob);
   private:
     //enable external chips
     void enable();
