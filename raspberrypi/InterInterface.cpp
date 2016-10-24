@@ -3,6 +3,11 @@
 
 #include "InterInterface.h"
 
+InterInterface::InterInterface(int pin) {
+    _pin = pin;
+    wiringPiISR (_pin, INT_EDGE_RISING,  InterInterface::trigLowHigh) ;
+    wiringPiISR (_pin, INT_EDGE_FALLING,  InterInterface::trigHighLow) ;
+}
 
 
 void InterInterface::pullup()
@@ -28,18 +33,6 @@ void InterInterface::reset()
     _upPulse = 0;
     _downPulse = 0;
 }
-
-
-
-//InterInterface * InterInterface::_regB = new InterInterface[8];
-
-//InterInterface::InterInterface() {}
-InterInterface::InterInterface(int pin) {
-    _pin = pin;
-    wiringPiISR (_pin, INT_EDGE_RISING,  InterInterface::trigLowHigh) ;
-    wiringPiISR (_pin, INT_EDGE_FALLING,  InterInterface::trigHighLow) ;
-}
-
 
 int InterInterface::getDownPulse() {
    return InterInterface::_downPulse;
