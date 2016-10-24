@@ -18,7 +18,7 @@ Robot *bot = new Robot(0.01);
 string content = "";
 char character;
 int timer = 0;
-
+std::string::size_type sz;
 
 
 
@@ -59,22 +59,17 @@ void loop()
        if(content == "test:registers")
          bot->test(Registers);
        if(content.substr(0,5) == "goto:") {
-         string com = content.substr(5);
-         int dev = com.indexOf(',');
-         string xstr = com.substr(0,dev);
-         string ystr = com.substr(dev+1,com.length());
 
-         double x = std::stof(xstr,&sz);
-         double y = std::stof(ystr,&sz);
+         double x = std::stof(content,&sz);
+         double y = std::stof(content,&sz);
 
          cout << "{ goto_x : " << x << " , goto_y:" << y << "}";
          bot->goTo(x,y);
        }
        if(content.substr(0,5) == "move:") {
-         string com = content.substr(5);
-         int dev = com.indexOf(',');
-         int left = std::stoi (com.substr(0,dev),&sz);
-         int right = std::stoi (com.substr(dev+1),&sz);
+
+         int left = std::stoi (content,&sz);
+         int right = std::stoi (content,&sz);
          bot->wheelLeft(left);
          bot->wheelRight(right);
        }
