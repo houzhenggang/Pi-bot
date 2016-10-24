@@ -15,15 +15,11 @@ using namespace std;
 Robot *bot = new Robot(0.01);
 
 
-String content = "";
+string content = "";
 char character;
 int timer = 0;
 
-int main( int argc, const char* argv[] ) {
-  setup();
-  loop();
 
-}
 
 
 void setup()
@@ -62,11 +58,11 @@ void loop()
          bot->test(Interfaces);
        if(content == "test:registers")
          bot->test(Registers);
-       if(content.substring(0,5) == "goto:") {
-         string com = content.substring(5);
+       if(content.substr(0,5) == "goto:") {
+         string com = content.substr(5);
          int dev = com.indexOf(',');
-         string xstr = com.substring(0,dev);
-         string ystr = com.substring(dev+1,com.length());
+         string xstr = com.substr(0,dev);
+         string ystr = com.substr(dev+1,com.length());
          char bufx[xstr.length()+1];
          char bufy[ystr.length()+1];
          xstr.toCharArray(bufx,xstr.length()+1);
@@ -77,34 +73,34 @@ void loop()
          cout << "{ goto_x : " << x << " , goto_y:" << y << "}";
          bot->goTo(x,y);
        }
-       if(content.substring(0,5) == "move:") {
-         string com = content.substring(5);
+       if(content.substr(0,5) == "move:") {
+         string com = content.substr(5);
          int dev = com.indexOf(',');
-         int left = com.substring(0,dev).toInt();
-         int right = com.substring(dev+1).toInt();
+         int left = com.substr(0,dev).toInt();
+         int right = com.substr(dev+1).toInt();
          bot->wheelLeft(left);
          bot->wheelRight(right);
        }
-       if(content.substring(0,6) == "drive:") {
-         String com = content.substring(6);
+       if(content.substr(0,6) == "drive:") {
+         String com = content.substr(6);
          int rspeed = com.toInt();
          cout << "{ drive : "<<rspeed<<" } ";
          bot->drive(rspeed);
        }
-       if(content.substring(0,10) == "forwardTo:") {
-         string com = content.substring(10);
+       if(content.substr(0,10) == "forwardTo:") {
+         string com = content.substr(10);
          int distance = com.toInt();
          cout <<"{ forward_to : "<<distance<<" }"
          bot->forwardTo(distance);
        }
-       if(content.substring(0,9) == "rotateTo:") {
-         string com = content.substring(9);
+       if(content.substr(0,9) == "rotateTo:") {
+         string com = content.substr(9);
          int rangle = com.toInt();
          cout << "{ rotate :"<<rangle<<" }";
          bot->rotateTo(rangle);
        }
 
-       if(content.substring(0,5) == "stop") {
+       if(content.substr(0,5) == "stop") {
          bot->stop();
        }
        if(content == "reset") {
@@ -112,23 +108,29 @@ void loop()
          bot = new Robot(0.01);
 
        }
-       if(content.substring(0,5) == "wheel") {
+       if(content.substr(0,5) == "wheel") {
 
-          if(content.substring(0,11) == "wheel-left:") {
-            int f = content.substring(11).toInt();
+          if(content.substr(0,11) == "wheel-left:") {
+            int f = content.substr(11).toInt();
             bot->stop();
             bot->wheelLeft(f);
           }
-          if(content.substring(0,12) == "wheel-right:") {
-            int f = content.substring(12).toInt();
+          if(content.substr(0,12) == "wheel-right:") {
+            int f = content.substr(12).toInt();
             bot->stop();
             bot->wheelRight(f);
           }
        }
        content = "";
-       bot->print();
+       bor->print();
        timer = 0;
      }
      timer++;
+
+}
+
+int main( int argc, const char* argv[] ) {
+  setup();
+  loop();
 
 }
