@@ -3,7 +3,7 @@
 
 #include "TractionControl.h"
 
-class Wheel
+class Wheel: public InterInterface
 {
   public:
     Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin);

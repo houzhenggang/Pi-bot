@@ -466,36 +466,7 @@ void Robot::print()
     	Serial.println(" |");
     }
     if(_test == Interfaces) {
-       Serial.print('\n');
-    	Serial.print('\t');
-       _left->InterInterface::print();
-        Serial.print('\n');
-    	Serial.print('\t');
-       _right->InterInterface::print();
+      cout <<  _left;
+      cout << _right;
     }
-    if(_test == Registers) {
-    }
-}
-
-
-
-ISR (PCINT0_vect)
-{
-    InterInterface::callbackRegB();
-    Robot::state();
-
-}
-
-//interrupt service routine for C register
-ISR (PCINT1_vect)
-{
-    InterInterface::callbackRegC();
-    Robot::state();
-}
-
-//interrupt service routine for d register
-ISR (PCINT2_vect)
-{
-    InterInterface::callbackRegD();
-    Robot::state();
 }

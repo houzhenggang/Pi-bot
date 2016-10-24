@@ -1,7 +1,7 @@
 
 #include "Wheel.h"
 #include <math.h>
-Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin)
+Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin) : InterInterface(sensorPin)
 {
     _previousDistance = 0;
     _distance = 0;
@@ -96,7 +96,7 @@ double Wheel::velocity() {
 
 void Wheel::pullup(int _pin)
 {
-   pullUpDnControl (_pin, PUD_UP) 
+   pullUpDnControl (_pin, PUD_UP)
 }
 
 ostream& operator<<(ostream& stream,Wheel ob)

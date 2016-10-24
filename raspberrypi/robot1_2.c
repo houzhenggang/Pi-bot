@@ -4,6 +4,7 @@
 #include <softPwm.h>// software
 
 #include <iostream>
+#include <string>
 using namespace std;
 
 #include "Wheel.h"
@@ -42,10 +43,10 @@ void loop()
 
      }
      if(timer>10) {
-
+       string content;
        cin >> content;
        if(content == "print:state") {
-          bot->print();
+          cout << bot;
 
        }
 
@@ -62,10 +63,10 @@ void loop()
        if(content == "test:registers")
          bot->test(Registers);
        if(content.substring(0,5) == "goto:") {
-         String com = content.substring(5);
+         string com = content.substring(5);
          int dev = com.indexOf(',');
-         String xstr = com.substring(0,dev);
-         String ystr = com.substring(dev+1,com.length());
+         string xstr = com.substring(0,dev);
+         string ystr = com.substring(dev+1,com.length());
          char bufx[xstr.length()+1];
          char bufy[ystr.length()+1];
          xstr.toCharArray(bufx,xstr.length()+1);
@@ -73,14 +74,11 @@ void loop()
          double x = atof(bufx);
          double y = atof(bufy);
 
-         Serial.print("goto:");
-         Serial.print(x);
-         Serial.print(",");
-         Serial.println(y);
+         cout << "{ goto_x : " << x << " , goto_y:" << y << "}";
          bot->goTo(x,y);
        }
        if(content.substring(0,5) == "move:") {
-         String com = content.substring(5);
+         string com = content.substring(5);
          int dev = com.indexOf(',');
          int left = com.substring(0,dev).toInt();
          int right = com.substring(dev+1).toInt();
@@ -90,22 +88,19 @@ void loop()
        if(content.substring(0,6) == "drive:") {
          String com = content.substring(6);
          int rspeed = com.toInt();
-         Serial.print("drive:");
-         Serial.print(rspeed);
+         cout << "{ drive : "<<rspeed<<" } ";
          bot->drive(rspeed);
        }
        if(content.substring(0,10) == "forwardTo:") {
-         String com = content.substring(10);
+         string com = content.substring(10);
          int distance = com.toInt();
-         Serial.print("forward to:");
-         Serial.print(distance);
+         cout <<"{ forward_to : "<<distance<<" }"
          bot->forwardTo(distance);
        }
        if(content.substring(0,9) == "rotateTo:") {
-         String com = content.substring(9);
+         string com = content.substring(9);
          int rangle = com.toInt();
-         Serial.print("rotate:");
-         Serial.print(rangle);
+         cout << "{ rotate :"<<rangle<<" }";
          bot->rotateTo(rangle);
        }
 

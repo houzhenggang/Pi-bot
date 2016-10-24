@@ -1,6 +1,6 @@
 #include "Sensor.h"
 
-Sensor::Sensor(int pin)
+Sensor::Sensor(int pin) : InterInterface(pin)
 {
    pinMode(_pin, INPUT);
 }
@@ -31,20 +31,4 @@ void Sensor::reset()
        _upPulse = 0;
        _downPulse = 0;
    }
-}
-
-
-void Sensor::print()
-{
-    Serial.print("| Sensor pin:");
-    Serial.print(_pin);
-    Serial.print(" up pulses:");
-    Serial.print(InterInterface::_upPulse);
-    Serial.print(" down pulses:");
-    Serial.print(InterInterface::_downPulse);
-    if(trig())
-       Serial.print(" Sensor on");
-    else
-       Serial.print(" Sensor off");
-    Serial.print(" |");
 }

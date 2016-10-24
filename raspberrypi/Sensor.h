@@ -11,10 +11,9 @@ class Sensor : public InterInterface
     void reset();
     void pullup();
     int pin();
-    void print();
     void trigHighLow();
     void trigLowHigh();
-   
+
 };
 
 #endif

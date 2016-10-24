@@ -31,7 +31,7 @@ class Robot
     void rotateTo(double angle);
     void forwardTo(double distance);
 
-    
+
 
     void pullup();
     //prints out a visual confirmation of that rpbot is doing to serial
@@ -46,37 +46,37 @@ class Robot
     void wheelLeft(int frequency);
     //directly sets right wheel to required freqency
     void wheelRight(int frequency);
-    
+
     //directly sets wheels to required freqency
     void drive(int frequency);
-    
+
     void test(Tests t);
     void updateObserver();
     void updateRobot();
-    
-    static void state();
+
+    void state();
   private:
     //enable external chips
     void enable();
-    
+
     //disable external chips
     void disable();
-    
+
     //robot is going to point and there are no obsicals
     void go();
-    
+
     //robot is going forward a distance
     void forward();
-    
+
     //robot is rotating to an angle
     void rotate();
-    
+
     //robot is avoiding an obstical
     void avoid();
-    
+
     //robot is travelling along a wall
     void wall();
-    
+
     //heart beat turns a led on and off to shou robot is still functioning
     //led to turn on and off
     unsigned int _heart_beat;
@@ -88,19 +88,19 @@ class Robot
 
     //angle the robot is going to used during rotation
     double _target_angle;
-    
+
     //distance the robot is going to usded during forward to command
     double _target_distance;
-  
+
     //current postion of the robot
     Point *_position;
-    
+
     //current angle of the robot
     double _angle;
-    
+
     //current position that the robot is going to
     Point *_target;
-    
+
     //list of positions the robot will go to
     QueueArray <Point*> _targets;
 
@@ -122,8 +122,7 @@ class Robot
     Sensor *_right_1;
     Sensor *_right_2;
 
-    static Robot * _bot;
-   
+
 };
 
 #endif
