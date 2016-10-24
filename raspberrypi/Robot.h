@@ -8,12 +8,12 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+#include <queue>
 #include "Wheel.h"
 #include "Sensor.h"
 #include "pid.h"
 #include "pidAngle.h"
 #include "pidDistance.h"
-#include "QueueArray.h"
 
 
 
@@ -103,7 +103,7 @@ class Robot
     Point *_target;
 
     //list of positions the robot will go to
-    QueueArray <Point*> _targets;
+    std::queue<Point*> _targets;
 
 
     PID * _pointPID;
