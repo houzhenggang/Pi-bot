@@ -4,41 +4,41 @@
 #include "InterInterface.h"
 
 InterInterface::InterInterface(int pin) {
-    _pin = pin;
-    wiringPiISR (_pin, INT_EDGE_RISING,  (*InterInterface::trigLowHigh)(void)) ;
-    wiringPiISR (_pin, INT_EDGE_FALLING,  (*InterInterface::trigHighLow)(void)) ;
+  _pin = pin;
+  wiringPiISR (_pin, INT_EDGE_RISING, void (*InterInterface::trigLowHigh)(void)) ;
+  wiringPiISR (_pin, INT_EDGE_FALLING, void (*InterInterface::trigHighLow)(void)) ;
 }
 
 
 void InterInterface::pullup()
 {
-   pullUpDnControl(_pin, PUD_UP);
+  pullUpDnControl(_pin, PUD_UP);
 
 }
 
 
 int InterInterface::pin()
 {
-    return _pin;
+  return _pin;
 }
 
 bool InterInterface::trig()
 {
   if(_upPulse >0)
-      return true;
-   return false;
+  return true;
+  return false;
 }
 void InterInterface::reset()
 {
-    _upPulse = 0;
-    _downPulse = 0;
+  _upPulse = 0;
+  _downPulse = 0;
 }
 
 int InterInterface::getDownPulse() {
-   return InterInterface::_downPulse;
+  return InterInterface::_downPulse;
 }
 int InterInterface::getUpPulse() {
-   return InterInterface::_upPulse;
+  return InterInterface::_upPulse;
 }
 void InterInterface::trigHighLow() {
   _downPulse++;
@@ -56,9 +56,9 @@ void InterInterface::trigLowHigh() {
 ostream& operator<<(ostream& stream,InterInterface ob)
 {
   stream<<"{ pin : "<<ob._pin
-    <<" , upPulse : "<<ob._upPulse
-    <<" , downPulse : "<<ob._downPulse
-    <<" } ";
+  <<" , upPulse : "<<ob._upPulse
+  <<" , downPulse : "<<ob._downPulse
+  <<" } ";
   return stream;
 }
 /*
