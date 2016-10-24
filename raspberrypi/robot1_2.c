@@ -63,12 +63,9 @@ void loop()
          int dev = com.indexOf(',');
          string xstr = com.substr(0,dev);
          string ystr = com.substr(dev+1,com.length());
-         char bufx[xstr.length()+1];
-         char bufy[ystr.length()+1];
-         xstr.toCharArray(bufx,xstr.length()+1);
-         ystr.toCharArray(bufy,ystr.length()+1);
-         double x = atof(bufx);
-         double y = atof(bufy);
+
+         double x = std::stof(xstr,&sz);
+         double y = std::stof(ystr,&sz);
 
          cout << "{ goto_x : " << x << " , goto_y:" << y << "}";
          bot->goTo(x,y);
@@ -76,26 +73,24 @@ void loop()
        if(content.substr(0,5) == "move:") {
          string com = content.substr(5);
          int dev = com.indexOf(',');
-         int left = com.substr(0,dev).toInt();
-         int right = com.substr(dev+1).toInt();
+         int left = std::stoi (com.substr(0,dev),&sz);
+         int right = std::stoi (com.substr(dev+1),&sz);
          bot->wheelLeft(left);
          bot->wheelRight(right);
        }
        if(content.substr(0,6) == "drive:") {
-         String com = content.substr(6);
-         int rspeed = com.toInt();
+         int rspeed = std::stoi (content.substr(6),&sz);
          cout << "{ drive : "<<rspeed<<" } ";
          bot->drive(rspeed);
        }
        if(content.substr(0,10) == "forwardTo:") {
-         string com = content.substr(10);
-         int distance = com.toInt();
+         int distance = std::stoi (content.substr(10),&sz);
          cout <<"{ forward_to : "<<distance<<" }"
          bot->forwardTo(distance);
        }
        if(content.substr(0,9) == "rotateTo:") {
-         string com = content.substr(9);
-         int rangle = com.toInt();
+         int rangle = std::stoi (content.substr(9),&sz);
+
          cout << "{ rotate :"<<rangle<<" }";
          bot->rotateTo(rangle);
        }
@@ -111,18 +106,18 @@ void loop()
        if(content.substr(0,5) == "wheel") {
 
           if(content.substr(0,11) == "wheel-left:") {
-            int f = content.substr(11).toInt();
+            int f = std::stoi (content.substr(11),&sz);
             bot->stop();
             bot->wheelLeft(f);
           }
           if(content.substr(0,12) == "wheel-right:") {
-            int f = content.substr(12).toInt();
+            int f = std::stoi (content.substr(12),&sz);
             bot->stop();
             bot->wheelRight(f);
           }
        }
        content = "";
-       bor->print();
+       bot->print();
        timer = 0;
      }
      timer++;
