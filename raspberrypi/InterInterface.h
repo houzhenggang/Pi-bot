@@ -29,8 +29,8 @@ class InterInterface {
     int _pin;
     volatile unsigned long _upPulse;
     volatile unsigned long _downPulse;
-    friend ostream& operator<<(ostream& stream,Wheel ob);
-    friend istream& operator>>(istream& stream,Wheel ob);
+    friend ostream& operator<<(ostream& stream,InterInterface ob);
+    friend istream& operator>>(istream& stream,InterInterface ob);
     private:
 
 

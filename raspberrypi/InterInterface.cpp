@@ -53,7 +53,7 @@ void InterInterface::trigLowHigh() {
 *Print out the state of the object as json string
 *
 */
-ostream& operator<<(ostream& stream,Wheel ob)
+ostream& operator<<(ostream& stream,InterInterface ob)
 {
   stream<<"{ pin : "<<ob._pin
     <<" , upPulse : "<<ob._upPulse
@@ -66,7 +66,7 @@ ostream& operator<<(ostream& stream,Wheel ob)
 *Assume that that the input stream is well formatted json with white spsaces between all data and formatting
 *
 */
-istream& operator>>(istream& stream,Wheel  ob)
+istream& operator>>(istream& stream,InterInterface  ob)
 {
   char c;
   string txt;
