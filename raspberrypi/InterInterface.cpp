@@ -1,8 +1,6 @@
 #ifndef INTERINTERFACE_cpp
 #define INTERINTERFACE_cpp
 
-template  std::function<void(void)> Callback<void(void)>::func;
-
 
 #include "InterInterface.h"
 
@@ -29,10 +27,11 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
   Callback<void(void)>::func1 = std::bind(&InterInterface::trigLowHigh,this);
   Callback<void(void)>::func2 = std::bind(&InterInterface::trigLowHigh,this);
 
-  callback_t func1 = static_cast<callback_t>(Callback<void(void)>::callback);
-  callback_t func2 = static_cast<callback_t>(Callback<void(void)>::callback);
+  // Convert callback-function to c-pointer.
+  void (*c_func1)(void) = static_cast<decltype(func1)>(Callback<void(void)>::callback);
+  void (*c_func2)(void) = static_cast<decltype(func2)>(Callback<void(void)>::callback);
 
-  wiringPiISR (_pin, INT_EDGE_RISING, *func1 ) ;
+  wiringPiISR (_pin, INT_EDGE_RISING, *c_func1 ) ;
   wiringPiISR (_pin, INT_EDGE_FALLING, *func2) ;
 }
 
