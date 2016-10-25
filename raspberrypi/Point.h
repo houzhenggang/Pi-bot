@@ -3,6 +3,11 @@
   Created by Kieran Wyse.
   Released into the public domain.
 */
+
+#include <iostream>
+#include <string>
+using namespace std;
+
 #ifndef POINT_H
 #define POINT_H
 

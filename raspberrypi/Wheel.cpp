@@ -19,9 +19,9 @@ Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,in
     _const = M_PI*_diameter/ticks;
     _contol = new TractionControl(10);
 
-    pwmRange = 255;
-    softPwmCreate (_motorPinForward , 0, int pwmRange) ;
-    softPwmCreate (_motorPinReverse , 0, int pwmRange) ;
+    int pwmRange = 255;
+    softPwmCreate (_motorPinForward , 0, pwmRange) ;
+    softPwmCreate (_motorPinReverse , 0, pwmRange) ;
 
 }
 
