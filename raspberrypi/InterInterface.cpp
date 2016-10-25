@@ -27,14 +27,10 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
   auto func1 = std::bind(&InterInterface::trigLowHigh,this);
   auto func2 = std::bind(&InterInterface::trigLowHigh,this);
 
-  // Convert callback-function to c-pointer.
-  typedef void (*fptr)();
+  std::function<void()> test1(func1);
 
-  void (*c_func1)(void) = static_cast<fptr>(func1);
-  void (*c_func2)(void) = static_cast<fptr>(func2);
-
-  wiringPiISR (_pin, INT_EDGE_RISING, *c_func1 ) ;
-  wiringPiISR (_pin, INT_EDGE_FALLING, *c_func2) ;
+  //wiringPiISR (_pin, INT_EDGE_RISING, *c_func1 ) ;
+  //wiringPiISR (_pin, INT_EDGE_FALLING, *c_func2) ;
 }
 
 /*
