@@ -25,8 +25,8 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
   */
   auto f1 = std::bind(&InterInterface::trigLowHigh,this);
   auto f2 = std::bind(&InterInterface::trigLowHigh,this);
-  auto hl = std::function<void(void)> f1;
-  auto lh = std::function<void(void)> f2;
+  auto hl = std::function<void(void)> (&InterInterface::trigLowHigh,this);
+  auto lh = std::function<void(void)> (&InterInterface::trigLowHigh,this);
 
   wiringPiISR (_pin, INT_EDGE_RISING,*hl ) ;
   wiringPiISR (_pin, INT_EDGE_FALLING, *lh) ;
