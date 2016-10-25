@@ -24,15 +24,17 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  Callback<void(void)>::func1 = std::bind(&InterInterface::trigLowHigh,this);
-  Callback<void(void)>::func2 = std::bind(&InterInterface::trigLowHigh,this);
+  auto func1 = std::bind(&InterInterface::trigLowHigh,this);
+  auto func2 = std::bind(&InterInterface::trigLowHigh,this);
 
   // Convert callback-function to c-pointer.
-  void (*c_func1)(void) = static_cast<decltype(func1)>(Callback<void(void)>::callback);
-  void (*c_func2)(void) = static_cast<decltype(func2)>(Callback<void(void)>::callback);
+  typedef void (*fptr)();
+
+  void (*c_func1)(void) = static_cast<fptr>(funct1);
+  void (*c_func2)(void) = static_cast<fptr>(funct2);
 
   wiringPiISR (_pin, INT_EDGE_RISING, *c_func1 ) ;
-  wiringPiISR (_pin, INT_EDGE_FALLING, *func2) ;
+  wiringPiISR (_pin, INT_EDGE_FALLING, *c_func2) ;
 }
 
 /*
