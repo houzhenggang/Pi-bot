@@ -1,3 +1,3 @@
 
 all:
-  g++ -std=c++11 robot1_2.c Robot.cpp Point.cpp Wheel.cpp InterInterface.cpp Sensor.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi -lpthread
+g++ -std=c++11 robot1_2.c Robot.cpp Point.cpp Wheel.cpp Sensor.cpp InterInterface.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi -lpthread
