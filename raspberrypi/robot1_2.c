@@ -24,7 +24,7 @@ std::string::size_type sz;
 
 void setup()
 {
-  wiringPiSetupGpio (void) ;
+  wiringPiSetupGpio(void) ;
   cout << "Finished setup...";
 
 }
@@ -80,7 +80,7 @@ void loop()
        }
        if(content.substr(0,10) == "forwardTo:") {
          int distance = std::stoi (content.substr(10),&sz);
-         cout <<"{ forward_to : "<<distance<<" }"
+         cout <<"{ forward_to : "<<distance<<" }";
          bot->forwardTo(distance);
        }
        if(content.substr(0,9) == "rotateTo:") {
