@@ -62,8 +62,6 @@ Robot::Robot(double timer_interval)
     _right_2 = new Sensor(sensor_right_2);
     _test = Nones;
 
-    _bot = this;
-
 
 
     //enable();
@@ -259,7 +257,7 @@ void Robot::rotate() {
 void Robot::go()
 {
 
-    double freq_velocity = _pointPID->next(_position,_targets.front();
+    double freq_velocity = _pointPID->next(_position,_targets.front());
     if(freq_velocity>255)
         freq_velocity = 255;
 
@@ -279,7 +277,7 @@ void Robot::go()
    } else {
       //if there is another target
       if(!_targets.empty()) {
-         target.pop();
+         _targets.pop();
          _pointPID->reset();
          _anglePID->reset();
       } else {
@@ -372,18 +370,17 @@ void Robot::avoid()
 }
 ostream& operator<<(ostream& stream,Robot ob)
 {
-  stream<<ob._position
+  stream<<*ob._position
     <<" "<<ob._angle
     <<" "<<ob._distance
     <<" "<<ob._wheel_base
-    <" "<<ob._state
     <<"\n";
   return stream;
 }
 istream& operator>>(istream& stream,Robot  ob)
 {
 
-  stream>>ob._position>>ob._angle;
+  stream>>*ob._position>>ob._angle;
   return stream;
 }
 
