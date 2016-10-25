@@ -4,6 +4,7 @@
 
 #include <wiringPi.h> //gpio respberry pi header
 #include <softPwm.h>// software
+#include <functional> //needed for bind
 
 #include <iostream>
 #include <string>
