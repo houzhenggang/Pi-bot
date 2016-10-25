@@ -24,7 +24,7 @@ std::string::size_type sz;
 
 void setup()
 {
-  wiringPiSetupGpio(void) ;
+  wiringPiSetupGpio();
   cout << "Finished setup...";
 
 }
