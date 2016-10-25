@@ -350,7 +350,7 @@ void Robot::avoid()
 
    //work out where robot should go if no obstical
    double xdiff= _targets.front()->getX()-_position->getX();
-   double ydiff= _target->front()->getY()-_position->getY();
+   double ydiff= _targets.front()->getY()-_position->getY();
 
    double target_angle = atan2(ydiff,xdiff);
 
