@@ -26,10 +26,10 @@ double Point::getY() {
 
 ostream& operator<<(ostream&, Point ob)
 {
-  stream<<"{ x : "<<ob._x
+  ostream<<"{ x : "<<ob._x
   <<" , y : "<<ob._y
   <<" } ";
-  return stream;
+  return ostream;
 }
 
 /*
