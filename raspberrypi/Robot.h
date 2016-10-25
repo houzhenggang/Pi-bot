@@ -100,8 +100,6 @@ class Robot
     //current angle of the robot
     double _angle;
 
-    //current position that the robot is going to
-    Point *_target;
 
     //list of positions the robot will go to
     std::queue<Point*> _targets;

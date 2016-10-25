@@ -8,14 +8,11 @@
 #include "Robot.h"
 
 
-Robot *Robot::_bot;
-
 Robot::Robot(double timer_interval)
 {
 
    _state = None;
    _wheel_base = 0.155;
-   _target = NULL;
 
    //_target_omega = 0;
    _target_angle = 0;
@@ -69,10 +66,14 @@ Robot::Robot(double timer_interval)
 
 
 
-    enable();
+    //enable();
 
 }
-void Robot::enable() {
+
+/*
+*Add at a later date to control motor driver hardware, enable and dispable to save power
+*/
+/*void Robot::enable() {
    pinMode(A0, OUTPUT);
    digitalWrite(A0, HIGH);
 }
@@ -80,7 +81,7 @@ void Robot::enable() {
 void Robot::disable() {
    pinMode(A0, OUTPUT);
    digitalWrite(A0, LOW);
-}
+}*/
 
 void Robot::pullup() {
     _left_1->pullup();
@@ -108,11 +109,11 @@ double Robot::getAngle() {
 
 
 double Robot::getTargetX() {
-   return _target->getX();
+   return _targets.front()->getX();
 }
 
 double Robot::getTargetY() {
-   return _target->getY();
+   return _targets.front()->getY();
 }
 double Robot::getTargetAngle() {
    return _target_angle;
@@ -120,10 +121,9 @@ double Robot::getTargetAngle() {
 
 void Robot::goTo(double x, double y) {
     _state = Go;
-    if(_target != NULL) {
-    } else {
-       _target = new Point(x,y);
-    }
+
+    _targets.push(new Point(x,y));
+
 
 }
 
@@ -226,10 +226,10 @@ void Robot::state()
      else if( _state == Forward) {
            forward();
      }
-     else if( _state == Avoid &&  _target != NULL) {
+     else if( _state == Avoid &&  _targets.front() != NULL) {
           avoid();
      }
-     else if( _state == Go &&  _target != NULL) {
+     else if( _state == Go &&  _targets.front() != NULL) {
           go();
      }
 
@@ -259,12 +259,12 @@ void Robot::rotate() {
 void Robot::go()
 {
 
-    double freq_velocity = _pointPID->next(_position,_target);
+    double freq_velocity = _pointPID->next(_position,_targets.front();
     if(freq_velocity>255)
         freq_velocity = 255;
 
-   double xdiff= _target->getX()-_position->getX();
-   double ydiff= _target->getY()-_position->getY();
+   double xdiff= _targets.front()->getX()-_position->getX();
+   double ydiff= _targets.front()->getY()-_position->getY();
 
     _target_angle = atan2(ydiff,xdiff);
 
@@ -278,16 +278,11 @@ void Robot::go()
 
    } else {
       //if there is another target
-      if(!_targets.isEmpty()) {
-        //there is another target pop it of the stack
-        _target = _targets.pop();
+      if(!_targets.empty()) {
+         target.pop();
          _pointPID->reset();
          _anglePID->reset();
       } else {
-         //there are no more targets
-         delete _target;
-         _target = NULL;
-         //stop the robot
           _pointPID->reset();
           _anglePID->reset();
           stop();
@@ -296,7 +291,7 @@ void Robot::go()
 }
 void Robot::avoid()
 {
-   double freq_velocity = _pointPID->next(_position,_target);
+   double freq_velocity = _pointPID->next(_position,_targets.front());
 
 
    double avoid_angle = 0;
@@ -356,8 +351,8 @@ void Robot::avoid()
    }
 
    //work out where robot should go if no obstical
-   double xdiff= _target->getX()-_position->getX();
-   double ydiff= _target->getY()-_position->getY();
+   double xdiff= _targets.front()->getX()-_position->getX();
+   double ydiff= _target->front()->getY()-_position->getY();
 
    double target_angle = atan2(ydiff,xdiff);
 
