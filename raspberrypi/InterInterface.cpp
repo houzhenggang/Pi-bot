@@ -1,6 +1,9 @@
 #ifndef INTERINTERFACE_cpp
 #define INTERINTERFACE_cpp
 
+template  std::function<void(void)> Callback<void(void)>::func;
+
+
 #include "InterInterface.h"
 
 
@@ -23,13 +26,14 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  auto f1 = std::bind(&InterInterface::trigLowHigh,this);
-  auto f2 = std::bind(&InterInterface::trigLowHigh,this);
-  auto hl = std::function<void(void)> (&InterInterface::trigLowHigh,this);
-  auto lh = std::function<void(void)> (&InterInterface::trigLowHigh,this);
+  Callback<void(void)>::func1 = std::bind(&InterInterface::trigLowHigh,this);
+  Callback<void(void)>::func2 = std::bind(&InterInterface::trigLowHigh,this);
 
-  wiringPiISR (_pin, INT_EDGE_RISING,*hl ) ;
-  wiringPiISR (_pin, INT_EDGE_FALLING, *lh) ;
+  callback_t func1 = static_cast<callback_t>(Callback<void(void)>::callback);
+  callback_t func2 = static_cast<callback_t>(Callback<void(void)>::callback);
+
+  wiringPiISR (_pin, INT_EDGE_RISING, *func1 ) ;
+  wiringPiISR (_pin, INT_EDGE_FALLING, *func2) ;
 }
 
 /*
