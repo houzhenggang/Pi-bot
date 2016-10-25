@@ -23,8 +23,8 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  wiringPiISR (_pin, INT_EDGE_RISING, std::bind(InterInterface::trigLowHigh())) ;
-  wiringPiISR (_pin, INT_EDGE_FALLING, std::bind(InterInterface::trigHighLow())()) ;
+  wiringPiISR (_pin, INT_EDGE_RISING, std::bind(InterInterface::trigLowHigh)) ;
+  wiringPiISR (_pin, INT_EDGE_FALLING, std::bind(InterInterface::trigHighLow) ;
 }
 
 /*
