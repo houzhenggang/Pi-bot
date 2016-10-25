@@ -17,6 +17,8 @@ class Point
   double getY();
   void setX(double x);
   void setY(double y);
+  friend ostream& operator<<(ostream& stream,Point ob);
+  friend istream& operator>>(istream& stream,Point ob);
   private:
   double _x;
   double _y;

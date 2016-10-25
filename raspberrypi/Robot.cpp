@@ -210,27 +210,27 @@ void Robot::updateRobot() {
 
 void Robot::state()
 {
-  if(_bot->_state == Go || _bot->_state == Avoid || _bot->_state == Rotate || _bot->_state == Forward )
+  if(_state == Go || _state == Avoid || _state == Rotate || _state == Forward )
   {
 
-     if(_bot->_left_1->trig() || _bot->_left_2->trig() || _bot->_center->trig()   ||_bot->_right_1->trig() || _bot->_right_2->trig()) {
-         _bot->_state = Avoid;
+     if(_left_1->trig() || _left_2->trig() || _center->trig()   ||_right_1->trig() ||  _right_2->trig()) {
+          _state = Avoid;
      }
      else {
-          _bot->_state = Go;
+           _state = Go;
      }
 
-     if(_bot->_state == Rotate) {
-         _bot->rotate();
+     if( _state == Rotate) {
+          rotate();
      }
-     else if(_bot->_state == Forward) {
-          _bot->forward();
+     else if( _state == Forward) {
+           forward();
      }
-     else if(_bot->_state == Avoid && _bot->_target != NULL) {
-         _bot->avoid();
+     else if( _state == Avoid &&  _target != NULL) {
+          avoid();
      }
-     else if(_bot->_state == Go && _bot->_target != NULL) {
-         _bot->go();
+     else if( _state == Go &&  _target != NULL) {
+          go();
      }
 
 
@@ -377,8 +377,7 @@ void Robot::avoid()
 }
 ostream& operator<<(ostream& stream,Robot ob)
 {
-  stream<<ob._x
-    <<" "<<ob._y
+  stream<<ob._position
     <<" "<<ob._angle
     <<" "<<ob._distance
     <<" "<<ob._wheel_base
@@ -388,7 +387,8 @@ ostream& operator<<(ostream& stream,Robot ob)
 }
 istream& operator>>(istream& stream,Robot  ob)
 {
-  stream>>ob._x>>ob._y>>ob._angle;
+
+  stream>>ob._position>>ob._angle;
   return stream;
 }
 
@@ -400,7 +400,7 @@ void Robot::print()
 
     if( _test == Wheels) {
     	cout << _left;
-    	cout << _righy;
+    	cout << _right;
     }
     if(_test == Sensors) {
   	   cout << _left_1;

@@ -9,7 +9,6 @@ class Sensor : public InterInterface
     bool trig();
     bool on();
     void reset();
-    void pullup();
     int pin();
     void trigHighLow();
     void trigLowHigh();

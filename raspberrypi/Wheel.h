@@ -15,7 +15,6 @@ class Wheel: public InterInterface
     void setFrequency(int frequency);
     void stop();
     double update();
-    void pullup(int pin);
     friend ostream& operator<<(ostream& stream,Wheel ob);
     friend istream& operator>>(istream& stream,Wheel ob);
 

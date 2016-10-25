@@ -94,10 +94,6 @@ double Wheel::velocity() {
    return _velocity;
 }
 
-void Wheel::pullup(int _pin)
-{
-   pullUpDnControl (_pin, PUD_UP)
-}
 
 ostream& operator<<(ostream& stream,Wheel ob)
 {

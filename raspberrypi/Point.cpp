@@ -5,7 +5,7 @@
 Point::Point(double x,double y) {
    _x = x;
    _y = y;
-   
+
 }
 
 void Point::setX(double x) {
@@ -22,4 +22,33 @@ double Point::getX() {
 
 double Point::getY() {
    return _y;
+}
+
+ostream& operator<<(ostream&, Point ob)
+{
+  stream<<"{ x : "<<ob._x
+  <<" , y : "<<ob._y
+  <<" } ";
+  return stream;
+}
+
+/*
+*
+*Assume that that the input stream is well formatted json with white spsaces between all data and formatting
+*
+*/
+istream& operator>>(istream& stream,Point ob)
+{
+  char c;
+  string txt;
+  stream.get(c); //first character is a '{'
+  stream >> txt; // next stream should be x
+  stream.get(c); //next character is ':'
+  stream >> ob._x; //input data for x
+  stream.get(c); //next character is a ','
+  stream >> txt; // next stream should be y
+  stream.get(c); //next character is ':'
+  stream >>ob._y;
+  stream.get(c); //first character is a '}'
+  return stream;
 }

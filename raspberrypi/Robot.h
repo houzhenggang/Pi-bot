@@ -9,6 +9,7 @@
 #define ROBOT_H
 
 #include <queue>
+#include <cmath>
 #include "Wheel.h"
 #include "Sensor.h"
 #include "pid.h"

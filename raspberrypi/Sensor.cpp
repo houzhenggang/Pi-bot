@@ -5,12 +5,6 @@ Sensor::Sensor(int pin) : InterInterface(pin)
    pinMode(_pin, INPUT);
 }
 
-void Sensor::pullup()
-{
-   pinMode(_pin, INPUT_PULLUP);
-
-}
-
 
 int Sensor::pin()
 {
