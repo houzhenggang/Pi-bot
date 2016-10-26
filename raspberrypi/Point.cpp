@@ -43,7 +43,7 @@ std::ostream& operator<<(std::ostream& stream, Point ob)
 std::istream& operator>>(std::istream& stream,Point ob)
 {
   char c;
-  string txt;
+  std::string txt;
   stream.get(c); //first character is a '{'
   stream >> txt; // next stream should be x
   stream.get(c); //next character is ':'
