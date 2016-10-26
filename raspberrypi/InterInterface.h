@@ -37,6 +37,7 @@ class InterInterface {
     private:
       void registerListener(int pin);
         static std::list<int> pin1RisingListeners;
+        static std::function<void(void)> callback;
       //static std::list<std::function<void()>> pin1RisingListeners;
       //static std::list<std::function<void()>> pin1FallingListeners;
       static void pin1Rising();
