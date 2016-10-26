@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <string>
-#include <json/json>
+#include "json/json.h"
 
 #ifndef POINT_H
 #define POINT_H
