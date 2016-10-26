@@ -6,6 +6,10 @@ int main(int argc, char const *argv[]) {
   test->setX(6);
   test->setY(9);
   cout << *test;
+
+  Point *second = new Point(0,0);
+  *test >> *second;
+  cout << second;
   /* code */
   return 0;
 }
