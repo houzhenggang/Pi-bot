@@ -164,8 +164,8 @@ std::list<std::function<void()>> InterInterface::pin1RisingListeners = {};
 void InterInterface::pin1Rising()
 {
   //Call each function that has registered to listen
-  //for (std::lists<td::function<void()>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
-  //  *it();
+  for (std::lists<td::function<void()>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
+    *it();
 }
 //initialise it as and epmtylist
 std::list<std::function<void()>> InterInterface::pin1FallingListeners = {};
@@ -177,8 +177,8 @@ std::list<std::function<void()>> InterInterface::pin1FallingListeners = {};
 void InterInterface::pin1Falling()
 {
   //Call each function that has registered to listen
-  //for (std::list<std::function<void()>>::iterator it=pin1FallingListeners.begin(); it != pin1FallingListeners.end(); ++it)
-    //*it();
+  for (std::list<std::function<void()>>::iterator it=pin1FallingListeners.begin(); it != pin1FallingListeners.end(); ++it)
+    *it();
 }
 
 
