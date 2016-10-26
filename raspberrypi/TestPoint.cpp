@@ -8,7 +8,8 @@ int main(int argc, char const *argv[]) {
   cout << *test;
 
   Point *second = new Point(0,0);
-  "{ x : 10 , y : 10 }" >> *second;
+  std::ifstream in("{ x : 10 , y : 10 }");
+  in >> *second;
   cout << second;
   /* code */
   return 0;
