@@ -40,7 +40,7 @@ std::ostream& operator<<(std::ostream& stream, Point ob)
 *Assume that that the input stream is well formatted json with white spsaces between all data and formatting
 *
 */
-istream& operator>>(istream& stream,Point ob)
+std::istream& operator>>(std::istream& stream,Point ob)
 {
   char c;
   string txt;
