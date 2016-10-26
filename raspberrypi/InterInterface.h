@@ -18,27 +18,28 @@ using namespace std;
 
 class InterInterface {
     public:
-    InterInterface(int pin);
-    bool trig();
-    void reset();
-    void pullup();
-    void trigHighLow();
-    void trigLowHigh();
-    int getDownPulse();
-    int getUpPulse();
-    int pin();
+      InterInterface(int pin);
+      bool trig();
+      void reset();
+      void pullup();
+      void trigHighLow();
+      void trigLowHigh();
+      int getDownPulse();
+      int getUpPulse();
+      int pin();
+      friend ostream& operator<<(ostream& stream,InterInterface ob);
+      friend istream& operator>>(istream& stream,InterInterface ob);
 
     protected:
-    int _pin;
-    volatile unsigned long _upPulse;
-    volatile unsigned long _downPulse;
-    friend ostream& operator<<(ostream& stream,InterInterface ob);
-    friend istream& operator>>(istream& stream,InterInterface ob);
+      int _pin;
+      volatile unsigned long _upPulse;
+      volatile unsigned long _downPulse;
+
     private:
       void registerListener(int pin);
-        static std::list<int> pin1RisingListeners;
-        static std::function<void(void)> callback;
-      //static std::list<std::function<void()>> pin1RisingListeners;
+      static std::list<int> pin1RisingListeners;
+      static std::function<void(void)> callback;
+      static std::list<std::function<void()>> pin1RisingListeners;
       //static std::list<std::function<void()>> pin1FallingListeners;
       static void pin1Rising();
       static void pin1Falling();
