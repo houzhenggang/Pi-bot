@@ -1,4 +1,5 @@
 #include "pidAngle.h"
+#include <cmath>
 
 PIDAngle::PIDAngle(double linear,double intergral, double differential) {
   k_linear = linear;

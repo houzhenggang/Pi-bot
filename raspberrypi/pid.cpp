@@ -1,5 +1,5 @@
 #include "pid.h"
-#include "Arduino.h"
+#include <cmath>
 
 PID::PID(double linear,double intergral, double differential) {
   k_linear = linear;
@@ -15,7 +15,7 @@ void PID::reset(){
 
 
 double PID::next(Point *point,Point *target) {
- 
+
    double diff_x = target->getX()-point->getX();
    double diff_y = target->getY()-point->getY();
 
