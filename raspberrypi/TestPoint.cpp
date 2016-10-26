@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
   cout << *test;
 
   Point *second = new Point(0,0);
-  *test >> *second;
+  "{ x : 10 , y : 10 }" >> *second;
   cout << second;
   /* code */
   return 0;
