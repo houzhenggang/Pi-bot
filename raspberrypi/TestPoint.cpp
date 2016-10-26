@@ -1,4 +1,5 @@
 #include "Point.h"
+using namespace std;
 
 int main(int argc, char const *argv[]) {
   Point *test = new Point(5,4);
@@ -8,9 +9,10 @@ int main(int argc, char const *argv[]) {
   cout << *test;
 
   Point *second = new Point(0,0);
-  std::string str = "{ x : 10 , y : 10 }";
-  std::istringstream in(str);
-  in >> *second;
+  stringstream ss (stringstream::in | stringstream::out);
+  ss <<  "{ x : 10 , y : 10 }";
+
+  ss >> *second;
   cout << second;
   /* code */
   return 0;
