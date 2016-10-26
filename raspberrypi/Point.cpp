@@ -25,7 +25,7 @@ double Point::getY() {
    return _y;
 }
 
-ostream& operator<<(ostream& stream, Point ob)
+std::ostream& operator<<(std::ostream& stream, Point ob)
 {
   //stream<<"{ x : "<<ob._x<<" , y : "<<ob._y<<" } ";
   Json::Value root;
