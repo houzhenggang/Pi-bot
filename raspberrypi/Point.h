@@ -6,10 +6,12 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
+#include <json/json.h>
 
 #ifndef POINT_H
 #define POINT_H
+
+
 
 
 
