@@ -154,7 +154,7 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
   }*/
 }
 //initialise it as and epmtylist
-std::list<int> InterInterface::pin1RisingListeners ();
+std::list<int> InterInterface::pin1RisingListeners  = {};
 
 //static std::list<std::function<void()>> InterInterface::pin1RisingListeners = ();
 /*
@@ -168,7 +168,7 @@ void InterInterface::pin1Rising()
   //  *it();
 }
 //initialise it as and epmtylist
-//static std::list<std::function<void()>> InterInterface::pin1FallingListeners = ();
+// std::list<std::function<void()>> InterInterface::pin1FallingListeners ();
 
 /*
 *A falling voltage has been detected on pin 1 of the gpio - Call all memeber functions that are
