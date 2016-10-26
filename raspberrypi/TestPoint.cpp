@@ -8,7 +8,7 @@ int main(int argc, char const *argv[]) {
   cout << *test;
 
   Point *second = new Point(0,0);
-  std::ifstream in("{ x : 10 , y : 10 }");
+  std::istringstream in(std::string("{ x : 10 , y : 10 }"));
   in >> *second;
   cout << second;
   /* code */
