@@ -26,6 +26,7 @@ class InterInterface {
     int getDownPulse();
     int getUpPulse();
     int pin();
+
     protected:
     int _pin;
     volatile unsigned long _upPulse;
@@ -33,6 +34,13 @@ class InterInterface {
     friend ostream& operator<<(ostream& stream,InterInterface ob);
     friend istream& operator>>(istream& stream,InterInterface ob);
     private:
+      void registerListener(int pin);
+      static std::list<std::function<void()>> pin1RisingListeners;
+      static std::list<std::function<void()>> pin1FallingListeners;
+      static void pin1Rising();
+      static void pin1Falling();
+
+
 
 
 

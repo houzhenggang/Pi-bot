@@ -13,24 +13,7 @@
 */
 InterInterface::InterInterface(int pin) {
   _pin = pin;
-  /*
-  need to use bind here: http://stackoverflow.com/questions/400257/how-can-i-pass-a-class-member-function-as-a-callback
-  boost::bind will let you take a function, and a parameter to that function, and make a new function where that parameter is 'locked' in place. So if I have a function that adds two integers, I can use boost::bind to make a new function where one of the parameters is locked to say 5. This new function will only take one integer parameter, and will always add 5 specifically to it. Using this technique, you can 'lock in' the hidden 'this' parameter to be a particular class instance, and generate a new function that only takes one parameter, just like you want (note that the hidden parameter is always the first parameter, and the normal parameters come in order after it). Look at the boost::bind docs for examples, they even specifically discuss using it for member functions. Technically there is a standard function called std::bind1st that you could use as well, but boost::bind is more general.
-
-Of course, there's just one more catch. boost::bind will make a nice boost::function for you, but this is still technically not a raw function pointer like Init probably wants. Thankfully, boost provides a way to convert boost::function's to raw pointers, as documented on StackOverflow here. How it implements this is beyond the scope of this answer, though it's interesting too.
-
-Don't worry if this seems ludicrously hard -- your question intersects several of C++'s darker corners, and boost::bind is incredibly useful once you learn it.
-
-wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
-
-  */
-  auto func1 = std::bind(&InterInterface::trigLowHigh,this);
-  auto func2 = std::bind(&InterInterface::trigLowHigh,this);
-
-  std::function<void()> test1(func1);
-
-  //wiringPiISR (_pin, INT_EDGE_RISING, *c_func1 ) ;
-  //wiringPiISR (_pin, INT_EDGE_FALLING, *c_func2) ;
+  registerListener(_pin);
 }
 
 /*
@@ -131,6 +114,69 @@ istream& operator>>(istream& stream,InterInterface  ob)
   stream >>ob._downPulse;
   stream.get(c); //first character is a '}'
   return stream;
+}
+/*
+*
+* Callback method of only allows the use of static methods thus the only information that can be returned
+* is the function called back.
+* In order to to intergrate this into a object orientated scheme each of the possible pins and actions will have
+* its own method. This method then calls a list of member methods that have been registered for this type.
+*
+* This is not an ideal callback function but is necessery in order to keep the object orientated scheeme.
+*/
+
+void InterInterface::registerListener(int pin) {
+  /*
+  need to use bind here: http://stackoverflow.com/questions/400257/how-can-i-pass-a-class-member-function-as-a-callback
+  boost::bind will let you take a function, and a parameter to that function, and make a new function where that parameter is 'locked' in place. So if I have a function that adds two integers, I can use boost::bind to make a new function where one of the parameters is locked to say 5. This new function will only take one integer parameter, and will always add 5 specifically to it. Using this technique, you can 'lock in' the hidden 'this' parameter to be a particular class instance, and generate a new function that only takes one parameter, just like you want (note that the hidden parameter is always the first parameter, and the normal parameters come in order after it). Look at the boost::bind docs for examples, they even specifically discuss using it for member functions. Technically there is a standard function called std::bind1st that you could use as well, but boost::bind is more general.
+
+Of course, there's just one more catch. boost::bind will make a nice boost::function for you, but this is still technically not a raw function pointer like Init probably wants. Thankfully, boost provides a way to convert boost::function's to raw pointers, as documented on StackOverflow here. How it implements this is beyond the scope of this answer, though it's interesting too.
+
+Don't worry if this seems ludicrously hard -- your question intersects several of C++'s darker corners, and boost::bind is incredibly useful once you learn it.
+
+wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
+
+  */
+  std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
+  std::function<void()> memberFunctionF (std::bind(&trigHighLow,this));
+  switch(pin) {
+    case 1:
+    //add this function to the list
+      pin1RisingListeners.push(memberFunctionR);
+      pin1FallingListeners.push(memberFunctionF);
+      //setup the Callback on the wiringPiISR
+      wiringPiISR (_pin, INT_EDGE_RISING, *pinRising ) ;
+      wiringPiISR (_pin, INT_EDGE_RISING, *pin1Falling ) ;
+      break;
+    case 2:
+      break;
+
+  }
+}
+//initialise it as and epmtylist
+static std::list<std::function<void()>> InterInterface::pin1RisingListeners = ();
+/*
+*A rising voltage has been detected on pin 1 of the gpio - Call all memeber functions that are
+* registered as listeners
+*/
+static void InterInterface::pin1Rising()
+{
+  //Call each function that has registered to listen
+  for (std::list<int>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
+    *it();
+}
+//initialise it as and epmtylist
+static std::list<std::function<void()>> InterInterface::pin1FallingListeners = ();
+
+/*
+*A falling voltage has been detected on pin 1 of the gpio - Call all memeber functions that are
+* registered as listeners
+*/
+static void InterInterface::pin1Falling()
+{
+  //Call each function that has registered to listen
+  for (std::list<int>::iterator it=pin1FallingListeners.begin(); it != pin1FallingListeners.end(); ++it)
+    *it();
 }
 
 
