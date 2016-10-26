@@ -137,7 +137,7 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  /*std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
+  std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
   std::function<void()> memberFunctionF (std::bind(&trigHighLow,this));
   switch(pin) {
     case 1:
@@ -151,7 +151,7 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
     case 2:
       break;
 
-  }*/
+  }
 }
 //initialise it as and epmtylist
 
