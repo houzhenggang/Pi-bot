@@ -137,15 +137,15 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
-  std::function<void()> memberFunctionF (std::bind(&trigHighLow,this));
+  std::function<void()> memberFunctionR (std::bind(&InterInterface::trigLowHigh,this));
+  std::function<void()> memberFunctionF (std::bind(&InterInterface::trigHighLow,this));
   switch(pin) {
     case 1:
     //add this function to the list
-      pin1RisingListeners.push(memberFunctionR);
-      pin1FallingListeners.push(memberFunctionF);
+      pin1RisingListeners.push_back(memberFunctionR);
+      pin1FallingListeners.push_back(memberFunctionF);
       //setup the Callback on the wiringPiISR
-      wiringPiISR (_pin, INT_EDGE_RISING, *pinRising ) ;
+      wiringPiISR (_pin, INT_EDGE_RISING, *pin1Rising ) ;
       wiringPiISR (_pin, INT_EDGE_RISING, *pin1Falling ) ;
       break;
     case 2:
