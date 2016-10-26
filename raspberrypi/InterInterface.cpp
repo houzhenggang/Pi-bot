@@ -137,7 +137,7 @@ Don't worry if this seems ludicrously hard -- your question intersects several o
 wireingPIISR is the interupt method in wiringpi Library. It will call the specified function each time the pin goes high ( rising) or low (falling)
 
   */
-  std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
+  /*std::function<void()> memberFunctionR (std::bind(&trigLowHigh,this));
   std::function<void()> memberFunctionF (std::bind(&trigHighLow,this));
   switch(pin) {
     case 1:
@@ -151,10 +151,12 @@ wireingPIISR is the interupt method in wiringpi Library. It will call the specif
     case 2:
       break;
 
-  }
+  }*/
 }
 //initialise it as and epmtylist
-static std::list<std::function<void()>> InterInterface::pin1RisingListeners = ();
+static std::list<int> InterInterface::pin1RisingListeners = ();
+
+//static std::list<std::function<void()>> InterInterface::pin1RisingListeners = ();
 /*
 *A rising voltage has been detected on pin 1 of the gpio - Call all memeber functions that are
 * registered as listeners
@@ -162,11 +164,11 @@ static std::list<std::function<void()>> InterInterface::pin1RisingListeners = ()
 static void InterInterface::pin1Rising()
 {
   //Call each function that has registered to listen
-  for (std::list<int>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
-    *it();
+  //for (std::lists<td::function<void()>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
+  //  *it();
 }
 //initialise it as and epmtylist
-static std::list<std::function<void()>> InterInterface::pin1FallingListeners = ();
+//static std::list<std::function<void()>> InterInterface::pin1FallingListeners = ();
 
 /*
 *A falling voltage has been detected on pin 1 of the gpio - Call all memeber functions that are
@@ -175,8 +177,8 @@ static std::list<std::function<void()>> InterInterface::pin1FallingListeners = (
 static void InterInterface::pin1Falling()
 {
   //Call each function that has registered to listen
-  for (std::list<int>::iterator it=pin1FallingListeners.begin(); it != pin1FallingListeners.end(); ++it)
-    *it();
+  //for (std::list<std::function<void()>>::iterator it=pin1FallingListeners.begin(); it != pin1FallingListeners.end(); ++it)
+    //*it();
 }
 
 

@@ -36,8 +36,9 @@ class InterInterface {
     friend istream& operator>>(istream& stream,InterInterface ob);
     private:
       void registerListener(int pin);
-      static std::list<std::function<void()>> pin1RisingListeners;
-      static std::list<std::function<void()>> pin1FallingListeners;
+        static std::list<int> pin1RisingListeners;
+      //static std::list<std::function<void()>> pin1RisingListeners;
+      //static std::list<std::function<void()>> pin1FallingListeners;
       static void pin1Rising();
       static void pin1Falling();
 
