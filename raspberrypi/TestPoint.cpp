@@ -15,7 +15,7 @@ int main(int argc, char const *argv[]) {
   ss <<  "{ x : 10 , y : 10 }";
 
   ss >> *second;
-  cout << second;
+  cout << *second;
   /* code */
   return 0;
 }
