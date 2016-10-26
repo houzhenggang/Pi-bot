@@ -28,8 +28,8 @@ ostream& operator<<(ostream& stream, Point ob)
 {
   //stream<<"{ x : "<<ob._x<<" , y : "<<ob._y<<" } ";
   JSON::value root;
-  root["x"] = _x;
-  root["y"] = _y;
+  root["x"] = ob._x;
+  root["y"] = ob._y;
   stream << root;
   return stream;
 }
