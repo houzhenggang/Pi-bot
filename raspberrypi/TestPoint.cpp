@@ -22,7 +22,8 @@ TEST_CASE( "Point object", "test methods" ) {
   //test the stream out method
   std::stringstream sstream;
   Json::Value root;
-  root << *test;
+  sstream << *test;
+  sstream >> root;
 
   REQUIRE(root.get("x","0") == 6 );
   REQUIRE(root.get("y","0") == 9 );
