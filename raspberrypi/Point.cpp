@@ -45,9 +45,11 @@ std::istream& operator>>(std::istream& stream,Point ob)
   Json::Value root;
   stream >> root;
 
-  std::cout << "x is:" <<root.get("x","0").asDouble();
+  std::cout << "x is:" <<ob._x <<std::endl;
 
   ob._x = root.get("x","0").asDouble();
   ob._y = root.get("y","0").asDouble();
+
+  std::cout << "x is:" <<ob._x <<std::endl;
   return stream;
 }
