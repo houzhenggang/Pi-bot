@@ -45,7 +45,7 @@ TEST_CASE( "Point object", "test methods" ) {
   REQUIRE(root.get("y","0") == 10 );
 
   //test serialisation in jason
-  //*test << *second;
+  *test << *second;
 
   REQUIRE( test->getX() == 10 );
   REQUIRE( test->getY() == 10 );
