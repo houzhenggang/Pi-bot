@@ -21,7 +21,7 @@ TEST_CASE( "Point object", "test methods" ) {
 
   //test the stream out method
   std::stringstream sstream;
-  Json::value root;
+  Json::Value root;
   *test >> root;
 
   REQUIRE(root.get("x","0") == 6 );
@@ -36,12 +36,12 @@ TEST_CASE( "Point object", "test methods" ) {
 
   ss >> *second;
 
-  *second >> root;
+  root << *second;
   REQUIRE(root.get("x","0") == 10 );
   REQUIRE(root.get("y","0") == 10 );
 
   //test serialisation in jason
-  *second >> *test;
+  *test << *second;
 
   REQUIRE( test->getX() == 10 );
   REQUIRE( test->getY() == 10 );
