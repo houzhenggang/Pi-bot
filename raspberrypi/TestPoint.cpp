@@ -1,7 +1,8 @@
 #include "Point.h"
 #include "sstream"
-#include "catch/catch.hpp"
+
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "catch/catch.hpp"
 
 
 using namespace std;
@@ -37,7 +38,9 @@ TEST_CASE( "Point object", "test methods" ) {
 
   ss >> *second;
 
-  //root << *second;
+  ss << *second;
+
+  ss >> root;
   REQUIRE(root.get("x","0") == 10 );
   REQUIRE(root.get("y","0") == 10 );
 
