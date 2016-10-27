@@ -37,13 +37,15 @@ std::ostream& operator<<(std::ostream& stream, Point ob)
 
 /*
 *
-*Assume that that the input stream is well formatted json with white spsaces between all data and formatting
+*Use jsoncpp to parse json string inputs
 *
 */
 std::istream& operator>>(std::istream& stream,Point ob)
 {
   Json::Value root;
   stream >> root;
+
+  cout<<"root is" << root <<std::endl;
 
   ob._x = root.get("x","0").asDouble();
   ob._y = root.get("y","0").asDouble();
