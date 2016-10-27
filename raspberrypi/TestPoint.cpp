@@ -1,39 +1,49 @@
 #include "Point.h"
 #include "sstream"
+#include "catch/catch.hpp"
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+
+
 using namespace std;
 
-
-int main(int argc, char const *argv[]) {
+TEST_CASE( "Point object", "test methods" ) {
   //Test the constructor
   Point *test = new Point(5,4);
-  cout <<"x should be 5, y should be 4"<< *test << std::endl;
-
+  //test get
+  REQUIRE( test->getX() == 5 );
+  REQUIRE( test->getY() == 4 );
+  //test set
   //Test the set methods
   test->setX(6);
   test->setY(9);
+  REQUIRE( test->getX() == 6 );
+  REQUIRE( test->getY() == 9 );
 
-  //Test the stream out method
-  cout <<"x should be 5, y should be 4"<< *test << std::endl;
+  //test the stream out method
+  std::stringstream sstream;
+  Json::value root;
+  *test >> root;
 
-  //test  the get methods
-  cout <<"x should be 6"<< test->getX() << std::endl;
-  cout <<"y should be 9"<< test->getY() << std::endl;
+  REQUIRE(root.get("x","0") == 6 );
+  REQUIRE(root.get("y","0") == 9 );
 
   //Test the stream in mehtod
+  root.clear();
   Point *second = new Point(0,0);
   stringstream ss;
   ss <<  "{ \"x\" : 10 , \"y\" : 10 }";
   ss << std::endl;
 
   ss >> *second;
-  cout <<"x should be 10: y should be 10"<< *second;
 
-  // test to make sure we can stream from one point to another
+  *second >> root;
+  REQUIRE(root.get("x","0") == 10 );
+  REQUIRE(root.get("y","0") == 10 );
 
+  //test serialisation in jason
   *second >> *test;
-  coud <<"x should be 5, y should be 4"<< *test << std::endl;
 
+  REQUIRE( test->getX() == 10 );
+  REQUIRE( test->getY() == 10 );
 
-
-  return 0;
 }
