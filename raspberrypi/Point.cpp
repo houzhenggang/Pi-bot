@@ -1,5 +1,5 @@
 #include "Point.h"
-#include "json/json.h"
+
 
 
 
@@ -42,16 +42,10 @@ std::ostream& operator<<(std::ostream& stream, Point ob)
 */
 std::istream& operator>>(std::istream& stream,Point ob)
 {
-  char c;
-  std::string txt;
-  stream.get(c); //first character is a '{'
-  stream >> txt; // next stream should be x
-  stream.get(c); //next character is ':'
-  stream >> ob._x; //input data for x
-  stream.get(c); //next character is a ','
-  stream >> txt; // next stream should be y
-  stream.get(c); //next character is ':'
-  stream >>ob._y;
-  stream.get(c); //first character is a '}'
+  Json::Value root;
+  stream >> root;
+
+  ob._x = root.get("x").asDouble();
+  ob._y = root.get("y").asDouble();s
   return stream;
 }
