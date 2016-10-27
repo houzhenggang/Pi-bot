@@ -25,6 +25,19 @@ double Point::getY() {
    return _y;
 }
 
+/*
+*
+*Uses jsoncpp to outputt stream of  values  of variables
+*
+* stream output of the format
+*
+*{
+*   "x" : 3,
+*   "y" : 4
+*}
+*
+*/
+
 std::ostream &operator<<(std::ostream& stream, Point &ob)
 {
   //stream<<"{ x : "<<ob._x<<" , y : "<<ob._y<<" } ";
@@ -37,7 +50,14 @@ std::ostream &operator<<(std::ostream& stream, Point &ob)
 
 /*
 *
-*Use jsoncpp to parse json string inputs
+*Uses jsoncpp to parse input stream to values  of variables
+*
+* stream input of the format
+*
+*{
+*   "x" : 3,
+*   "y" : 4
+*}
 *
 */
 std::istream &operator>>(std::istream& stream,Point &ob)
