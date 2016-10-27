@@ -46,6 +46,6 @@ std::istream& operator>>(std::istream& stream,Point ob)
   stream >> root;
 
   ob._x = root.get("x").asDouble();
-  ob._y = root.get("y").asDouble();s
+  ob._y = root.get("y").asDouble();
   return stream;
 }
