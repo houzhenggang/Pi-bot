@@ -164,7 +164,7 @@ std::list<std::function<void()>> InterInterface::pin1RisingListeners = {};
 void InterInterface::pin1Rising()
 {
   //Call each function that has registered to listen
-  for (std::lists<std::function<void()>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
+  for (std::list<std::function<void()>::iterator it=pin1RisingListeners.begin(); it != pin1RisingListeners.end(); ++it)
     *it();
 }
 //initialise it as and epmtylist
