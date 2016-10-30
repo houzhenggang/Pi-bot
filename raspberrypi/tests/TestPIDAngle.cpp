@@ -94,7 +94,7 @@ TEST_CASE( "PID object", "test methods" ) {
  test->setIntergral(0.02);
   std::cout << "Target is:" << target<< std::endl;
   std::cout << "Value is:";
-  for(int i = 0; i < 100; i++) {
+  for(int i = 0; i < 200; i++) {
     input = test->next(value,target);
     std::cout << *test;
     std::cout<< "input is:" << std::fixed << std::setprecision(2) << input;
@@ -105,7 +105,7 @@ TEST_CASE( "PID object", "test methods" ) {
   }
   cout << std::endl;
   //value should be close to the target with in 2 decimal places
-  value = round(value);
+  value = round(100*value)/100.00;
 
   REQUIRE(value == target );
 

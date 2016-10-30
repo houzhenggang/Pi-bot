@@ -29,5 +29,5 @@ TestPoint: tests/TestPoint.cpp Point.cpp Point.h
 TestPID: tests/TestPID.cpp PID.cpp PID.h
 	g++ -std=c++11 -o tests/TestPID  tests/TestPID.cpp jsoncpp.cpp PID.cpp
 
-TestPIDAngle: tests/TestPIDAngle.cpp PIDAngle.cpp PIDAngle.h
-	g++ -std=c++11 -o tests/TestPIDAngle  tests/TestPIDAngle.cpp jsoncpp.cpp PIDAngle.cpp
+TestPIDAngle: tests/TestPIDAngle.cpp PIDAngle.cpp PIDAngle.h PID.cpp PID.h
+	g++ -std=c++11 -o tests/TestPIDAngle  tests/TestPIDAngle.cpp jsoncpp.cpp PIDAngle.cpp PID.cpp
