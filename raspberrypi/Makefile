@@ -1,5 +1,33 @@
+# @Author: Kieran Wyse
+# @Date:   28-10-2016
+# @Email:  kieranwyse@gmail.com
+# @Project: Pi-Bot
+# @Last modified by:   Kieran Wyse
+# @Last modified time: 30-10-2016
+# @License: License: GPL v3
+#     This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
 bot:  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  pid.cpp pidAngle.cpp  pidDistance.cpp TractionControl.cpp
 	g++ -o  bot -std=c++11  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  pid.cpp pidAngle.cpp  pidDistance.cpp TractionControl.cpp -I/usr/local/include  -L/usr/local/lib  -lwiringPi  -lpthread
 
 TestPoint: tests/TestPoint.cpp Point.cpp Point.h
 	g++ -std=c++11 -o tests/TestPoint  tests/TestPoint.cpp jsoncpp.cpp Point.cpp
+
+TestPID: tests/TestPID.cpp PID.cpp PID.h
+	g++ -std=c++11 -o tests/TestPID  tests/TestPID.cpp jsoncpp.cpp PID.cpp
+
+TestPIDAngle: tests/TestPIDAngle.cpp PIDAngle.cpp PIDAngle.h
+	g++ -std=c++11 -o tests/TestPIDAngle  tests/TestPIDAngle.cpp jsoncpp.cpp PIDAngle.cpp

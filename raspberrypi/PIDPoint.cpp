@@ -1,3 +1,4 @@
+
 /**
 * @Author: Kieran Wyse
 * @Date:   28-10-2016
@@ -19,43 +20,29 @@
 *    You should have received a copy of the GNU General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "PID.h"
+#include <cmath>
 
-#ifndef WHEEL_H
-#define WHEEL_H
+/*
+*
+*
+*
+*/
+PIDPoint::PIDPoint(double linear,double intergral, double differential) :  PID(linear,intergral,differential) {
+}
+double PIDPoint::next(Point *point,Point *target) {
 
-#include "InterInterface.h"
+   double diff_x = target->getX()-point->getX();
+   double diff_y = target->getY()-point->getY();
 
-#include "TractionControl.h"
+   double e = sqrt(diff_x*diff_x+diff_y*diff_y);
 
-class Wheel: public InterInterface
-{
-  public:
-    Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin);
-    double distance();
-    double velocity();
-    int getFrequency();
-    void setFrequency(int frequency);
-    void stop();
-    double update();
-    friend ostream& operator<<(ostream& stream,Wheel ob);
-    friend istream& operator>>(istream& stream,Wheel ob);
+   //differentual term
+   double ed = e - old_error;
+   //p i d regulator
+   double result = k_linear*e+k_differential*ed+k_intergral*Error;
+   Error = e + Error;
+   old_error  = e;
+   return result;
 
-  private:
-    TractionControl *_contol;
-    void pwm(int pin,int duty);
-    double _previousDistance;
-    double _distance;
-    double _velocity;
-    int _frequency;
-    int _motorPinForward;
-    int _motorPinReverse;
-    int _sensorPin;
-    float _diameter;
-    int _ticks;
-    double _const;
-    unsigned long _prevPulses;
-    bool _forward;
-
-};
-
-#endif
+}

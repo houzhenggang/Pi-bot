@@ -47,7 +47,7 @@ Robot::Robot(double timer_interval)
    _position = new Point(0,0);
 
 
-  _pointPID = new PID(100,1,1);
+  _pointPID = new PIDPoint(100,1,1);
    _anglePID = new PIDAngle(120,0,5);
 
    double wheel_diameter = 0.065;
@@ -143,7 +143,7 @@ void Robot::forwardTo(double distance)
     _target_distance = distance+_distance;
     _state = Forward;
     delete _distancePID;
-    _distancePID = new PIDDistance(255,0,0);
+    _distancePid = new PID(255,0,0);
 
 }
 

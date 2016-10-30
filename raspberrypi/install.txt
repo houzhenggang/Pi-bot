@@ -11,4 +11,4 @@ change to the directory
 
 compile the program
 
-3> g++ -std=c++11 robot1_2.c Robot.cpp Point.cpp Wheel.cpp Sensor.cpp -I/usr/local/include -L/usr/local/lib -lwiringPi -lpthread
+3> make

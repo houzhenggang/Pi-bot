@@ -12,9 +12,9 @@
 #include <cmath>
 #include "Wheel.h"
 #include "Sensor.h"
-#include "pid.h"
-#include "pidAngle.h"
-#include "pidDistance.h"
+#include "PIDPoint.h"
+#include "PIDAngle.h"
+#include "PID.h"
 
 
 
@@ -105,9 +105,9 @@ class Robot
     std::queue<Point*> _targets;
 
 
-    PID * _pointPID;
+    PIDPoint * _pointPID;
     PIDAngle * _anglePID;
-    PIDDistance * _distancePID;
+    PID * _pid;
 
 
     double _wheel_base;
