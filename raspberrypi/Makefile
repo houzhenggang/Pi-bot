@@ -3,7 +3,7 @@
 # @Email:  kieranwyse@gmail.com
 # @Project: Pi-Bot
 # @Last modified by:   Kieran Wyse
-# @Last modified time: 30-10-2016
+# @Last modified time: 01-11-2016
 # @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 
 
 
-bot:  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  pid.cpp pidAngle.cpp  pidDistance.cpp TractionControl.cpp
-	g++ -o  bot -std=c++11  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  pid.cpp pidAngle.cpp  pidDistance.cpp TractionControl.cpp -I/usr/local/include  -L/usr/local/lib  -lwiringPi  -lpthread
+bot:  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  PID.cpp PIDAngle.cpp  PIDPoint.cpp TractionControl.cpp
+	g++ -o  bot -std=c++11  robot1_2.c  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  PID.cpp PIDAngle.cpp  PIDPoint.cpp TractionControl.cpp -I/usr/local/include  -L/usr/local/lib  -lwiringPi  -lpthread
 
 TestPoint: tests/TestPoint.cpp Point.cpp Point.h
 	g++ -std=c++11 -o tests/TestPoint  tests/TestPoint.cpp jsoncpp.cpp Point.cpp
@@ -31,3 +31,6 @@ TestPID: tests/TestPID.cpp PID.cpp PID.h
 
 TestPIDAngle: tests/TestPIDAngle.cpp PIDAngle.cpp PIDAngle.h PID.cpp PID.h
 	g++ -std=c++11 -o tests/TestPIDAngle  tests/TestPIDAngle.cpp jsoncpp.cpp PIDAngle.cpp PID.cpp
+
+TestInterInterface: tests/TestInterInterface.cpp InterInterface.h InterInterface.cpp
+	g++ -std=c++11 -o tests/TestInterInterface  tests/TestInterInterface.cpp InterInterface.cpp jsoncpp.cpp tests/wiringPIDummy.cpp

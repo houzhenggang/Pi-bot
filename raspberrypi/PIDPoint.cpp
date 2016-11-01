@@ -5,7 +5,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 30-10-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 *    You should have received a copy of the GNU General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PID.h"
+#include "PIDPoint.h"
 #include <cmath>
 
 /*
@@ -40,9 +40,55 @@ double PIDPoint::next(Point *point,Point *target) {
    //differentual term
    double ed = e - old_error;
    //p i d regulator
-   double result = k_linear*e+k_differential*ed+k_intergral*Error;
+   double result = _linear*e+_differential*ed+_intergral*Error;
    Error = e + Error;
    old_error  = e;
    return result;
 
+}
+
+/*
+*
+*Uses jsoncpp to outputt stream of  values  of variables
+*
+* stream output of the format
+*
+*{
+*   "linear" : 3,
+*   "intergral" : 4,
+*   "differential" : 2,
+*   "error" : 0.3,
+"   "previous_error": 0.4
+*
+*}
+*
+*/
+
+std::ostream &operator<<(std::ostream& stream, PIDPoint &ob)
+{
+  stream << ob.getJSON();
+  return stream;
+}
+
+/*
+*
+*Uses jsoncpp to parse input stream to values  of variables
+*
+* stream input of the format
+*
+*{
+*   "linear" : 3,
+*   "intergral" : 4,
+*   "differential" : 2,
+*   "error" : 0.3,
+"   "previous_error": 0.4
+*}
+*
+*/
+std::istream &operator>>(std::istream& stream,PIDPoint &ob)
+{
+  Json::Value root;
+  stream >> root;
+  ob.setJSON(root);
+  return stream;
 }

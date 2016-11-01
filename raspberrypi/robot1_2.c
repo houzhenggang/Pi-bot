@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 30-10-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@
 *    You should have received a copy of the GNU General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
 #include <wiringPi.h> //gpio respberry pi header
 #include <softPwm.h>// software
 
@@ -44,6 +43,14 @@ std::string::size_type sz;
 
 void setup()
 {
+  wiringPiSetup (void) ;
+  /*
+This initialises wiringPi and assumes that the calling program is going to be using
+ the wiringPi pin numbering scheme. This is a simplified numbering scheme which provides
+  a mapping from virtual pin numbers 0 through 16 to the real underlying Broadcom
+  GPIO pin numbers. See the pins page for a table which maps the wiringPi pin number
+   to the Broadcom GPIO pin number to the physical location on the edge connector.
+*/
   wiringPiSetupGpio();
   cout << "Finished setup...";
 
