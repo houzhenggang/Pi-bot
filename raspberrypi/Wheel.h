@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 02-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -37,8 +37,8 @@ class Wheel: public InterInterface
     void setFrequency(int frequency);
     void stop();
     double update();
-    friend ostream& operator<<(ostream& stream,Wheel ob);
-    friend istream& operator>>(istream& stream,Wheel ob);
+    friend std::ostream& operator<<(std::ostream& stream,Wheel &ob);
+    friend std::istream& operator>>(std::istream& stream,Wheel &ob);
 
   private:
     TractionControl *_contol;
@@ -49,7 +49,6 @@ class Wheel: public InterInterface
     int _frequency;
     int _motorPinForward;
     int _motorPinReverse;
-    int _sensorPin;
     float _diameter;
     int _ticks;
     double _const;

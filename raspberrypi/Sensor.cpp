@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 02-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -22,29 +22,6 @@
 
 #include "Sensor.h"
 
-Sensor::Sensor(int pin) : InterInterface(pin)
-{
-   pinMode(_pin, INPUT);
-}
-
-
-int Sensor::pin()
-{
-    return _pin;
-}
-
-bool Sensor::trig()
-{
-  if(_downPulse >0)
-      return true;
-   return false;
-}
-void Sensor::reset()
-{
-    if(digitalRead(_pin)==1)
-    {
-
-       _upPulse = 0;
-       _downPulse = 0;
-   }
+Sensor::Sensor(int pin) : InterInterface(pin) {
+  pinMode (pin, OUTPUT) ;
 }

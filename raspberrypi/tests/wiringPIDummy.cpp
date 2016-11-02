@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 01-11-2016
+* @Last modified time: 02-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -134,6 +134,16 @@ void wiringPiISR (int pin,int edge, void (*foo)(void) )  {
       break;
     }
   }
+}
+void softPwmCreate (int pin , int initialValue, int  pwmRange) {
+
+}
+void softPwmWrite (int pin,int duty) {
+
+}
+
+void pinMode (int pin, int mode)  {
+
 }
 
 void pullUpDnControl(int pin, int control) {

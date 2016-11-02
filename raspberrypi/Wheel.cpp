@@ -5,7 +5,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 02-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -23,15 +23,17 @@
 
 #include "Wheel.h"
 #include <math.h>
+const double M_PI  =3.141592653589793238463;
 Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin) : InterInterface(sensorPin)
 {
+
+
     _previousDistance = 0;
     _distance = 0;
     _velocity = 0;
     _frequency = 0;
     _motorPinForward = motorPinForward;
     _motorPinReverse = motorPinReverse;
-    _sensorPin = sensorPin;
     _diameter = diameter;
     _ticks = ticks;
      _prevPulses = 0;
@@ -117,25 +119,45 @@ double Wheel::velocity() {
 }
 
 
-ostream& operator<<(ostream& stream,Wheel ob)
+ostream& operator<<(ostream& stream,Wheel &ob)
 {
-  stream<<ob._distance
-    <<" "<<ob._previousDistance
-    <<" "<<ob._velocity
-    <<" "<<ob._frequency
-    <<" "<<ob._motorPinForward
-    <<" "<<ob._motorPinReverse
-    <<" "<<ob._sensorPin
-    <<" "<<ob._diameter
-    <<" "<<ob._ticks
-    <<" "<<ob._prevPulses
-    <<" "<<ob._forward
+  Json::Value root;
+  root["diameter"] = ob._diameter;
+  root["ticks"] =ob._ticks;
+  root["forward"] =ob._forward;
+  root["distance"] = ob._distance;
+  root["previous-distance"] = ob._previousDistance;
+  root["velocity"] = ob._velocity;
+  root["frequency"] = ob._frequency;
+  root["motor-forward-pin"] = ob._motorPinForward;
+  root["motor-reverse-pin"] = ob._motorPinReverse;
 
-    <<"\n";
+  root["previous-pulses"] = ob._prevPulses;
+
+  stream << root;
+  //stream the parent class
+  InterInterface newob = (InterInterface) ob;
+  stream << newob;
   return stream;
 }
-istream& operator>>(istream& stream,Wheel  ob)
+istream& operator>>(istream& stream,Wheel  &ob)
 {
-  stream>>ob._distance>>ob._previousDistance>>ob._velocity;
-  return stream;
+    Json::Value root;
+    stream >> root;
+    ob._diameter = root.get("diameter","0").asFloat();
+    ob._ticks = root.get("up-pulses","0").asInt();
+    ob._forward = root.get("down-pulses","0").asBool();
+    ob._distance = root.get("distance","0").asDouble();
+    ob._previousDistance = root.get("previous-distance","0").asDouble();
+    ob._velocity =root.get("velocity","0").asDouble();
+    ob._frequency = root.get("frequency","0").asInt();
+    ob._motorPinForward = root.get("motor-forward-pin","0").asInt();
+    ob._motorPinReverse = root.get("motor-reverse-pin","0").asInt();
+    ob._prevPulses = root.get("previous-pulses","0").asUInt64();
+    ob._const = M_PI*ob._diameter/ob._ticks;
+
+    InterInterface newob = (InterInterface) ob;
+    stream >> newob;
+    return stream;
+
 }

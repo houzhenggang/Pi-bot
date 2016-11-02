@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 01-11-2016
+* @Last modified time: 02-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@
 #define PUD_UP 1
 #define INT_EDGE_FALLING 0
 #define INT_EDGE_RISING 1
+#define OUTPUT 1
 
 extern void (*pin0Risingfunc) (void);
 extern void (*pin1Risingfunc) (void);
@@ -65,8 +66,10 @@ extern void (*pin14Fallingfunc) (void);
 extern void (*pin15Fallingfunc) (void);
 extern void (*pin16Fallingfunc) (void);
 
-
+void pinMode (int pin, int mode) ;
 void wiringPiISR (int pin ,int edge, void (*foo)(void) ) ;
 void pullUpDnControl(int pin, int control);
+void softPwmCreate (int pin , int initialValue, int  pwmRange) ;
+void softPwmWrite (int pin,int duty) ;
 
 #endif

@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 02-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -29,13 +29,6 @@ class Sensor : public InterInterface
 {
   public:
     Sensor(int pin);
-    bool trig();
-    bool on();
-    void reset();
-    int pin();
-    void trigHighLow();
-    void trigLowHigh();
-
 };
 
 #endif
