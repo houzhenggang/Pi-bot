@@ -24,6 +24,7 @@
 #include "Wheel.h"
 #include <math.h>
 const double M_PI  =3.141592653589793238463;
+const int MAX_FREQUENCY = 100;
 Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin) : InterInterface(sensorPin)
 {
 
@@ -43,7 +44,7 @@ Wheel::Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,in
     _const = M_PI*_diameter/ticks;
     _contol = new TractionControl(10);
 
-    int pwmRange = 255;
+    int pwmRange = MAX_FREQUENCY;
     softPwmCreate (_motorPinForward , 0, pwmRange) ;
     softPwmCreate (_motorPinReverse , 0, pwmRange) ;
 
@@ -84,10 +85,10 @@ double Wheel::update() {
 }
 void Wheel::setFrequency(int frequency) {
 
-   if(frequency > 255)
-      frequency = 255;
-   if(frequency < -255)
-      frequency = -255;
+   if(frequency > MAX_FREQUENCY)
+      frequency = MAX_FREQUENCY;
+   if(frequency < -MAX_FREQUENCY)
+      frequency = -MAX_FREQUENCY;
    //frequency = _contol->modify( frequency);
    if(frequency > 0) {
        _forward = true;
