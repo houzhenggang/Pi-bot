@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 02-11-2016
+* @Last modified time: 03-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 
-TEST_CASE( "InterInterface constructor", "test methods" ) {
+TEST_CASE( "Wheel constructor", "test methods" ) {
   //Test the constructor
   SECTION( "Test constructor" )  {
     Wheel *test = new Wheel(0.1,20,2,3,4);
@@ -36,5 +36,16 @@ TEST_CASE( "InterInterface constructor", "test methods" ) {
     REQUIRE( test->getDownPulse() == 0 );
     REQUIRE( test->getUpPulse() == 0 );
     REQUIRE( test->trig() == false);
+  }
+}
+
+TEST_CASE( "Wheel get and set methods", "test methods" ) {
+  //Test the constructor
+  SECTION( "Test constructor" )  {
+    Wheel *test = new Wheel(0.1,20,2,3,4);
+    //test get
+    REQUIRE( test->velocity() == 0 );
+    test->setFrequency(50);
+    REQUIRE( test->getFrequency() == 50 );
   }
 }

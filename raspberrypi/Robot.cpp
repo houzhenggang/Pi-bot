@@ -1,3 +1,27 @@
+/**
+* @Author: Kieran Wyse
+* @Date:   28-10-2016
+* @Email:  kieranwyse@gmail.com
+* @Project: Pi-Bot
+* @Last modified by:   Kieran Wyse
+* @Last modified time: 04-11-2016
+* @License: License: GPL v3
+#     This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+
 /*
   Robot.cpp - Library for  code.
   Created by Kieran Wuse.
@@ -166,8 +190,16 @@ void Robot::wheelRight(int frequency)
 void Robot::updateObserver()
 {
 
-   double ldist =_left->update();
-   double rdist = _right->update();
+   //previous left distance
+   double pld = _left->getDistance();
+   _left->update();
+   double ldist =_left->getDistance() -pld;
+
+
+   double prd = _right->getDistance();
+   _right->update();
+   double rdist =_right->getDistance() -prd;
+  
 
    //distance travelled since last update is
    double deltaDistance = 0.5*(ldist+rdist);

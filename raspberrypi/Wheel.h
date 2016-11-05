@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 02-11-2016
+* @Last modified time: 04-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -23,7 +23,8 @@
 #ifndef WHEEL_H
 #define WHEEL_H
 
-#include "InterInterface.h"
+
+#include "WheelSensor.h"
 
 #include "TractionControl.h"
 
@@ -31,29 +32,25 @@ class Wheel: public InterInterface
 {
   public:
     Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin);
-    double distance();
-    double velocity();
+    double getVelocity();
+    double getDistance();
     int getFrequency();
     void setFrequency(int frequency);
     void stop();
-    double update();
+    void update();
     friend std::ostream& operator<<(std::ostream& stream,Wheel &ob);
     friend std::istream& operator>>(std::istream& stream,Wheel &ob);
 
   private:
     TractionControl *_contol;
+    WheelSensor *_sensor;
     void pwm(int pin,int duty);
-    double _previousDistance;
-    double _distance;
-    double _velocity;
     int _frequency;
     int _motorPinForward;
     int _motorPinReverse;
     float _diameter;
-    int _ticks;
-    double _const;
-    unsigned long _prevPulses;
     bool _forward;
+
 
 };
 
