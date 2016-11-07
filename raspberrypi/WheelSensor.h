@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 04-11-2016
+* @Last modified time: 05-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -37,6 +37,9 @@ class WheelSensor : public InterInterface
     void update(double diameter, bool forward);
     friend std::ostream& operator<<(std::ostream& stream,WheelSensor &ob);
     friend std::istream& operator>>(std::istream& stream,WheelSensor &ob);
+  protected:
+    Json::Value getJSON();
+    void setJSON(Json::Value root);
   private:
     double _previousDistance;
     double _distance;
