@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 04-11-2016
+* @Last modified time: 07-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -28,18 +28,23 @@
 
 #include "TractionControl.h"
 
-class Wheel: public InterInterface
+class Wheel
 {
   public:
-    Wheel(float diameter,int ticks,int motorPinForward,int motorPinReverse,int sensorPin);
+    Wheel(float diameter,int motorPinForward,int motorPinReverse,WheelSensor *sensor);
     double getVelocity();
     double getDistance();
     int getFrequency();
     void setFrequency(int frequency);
     void stop();
     void update();
+    void setSensor(WheelSensor *sensor);
+    WheelSensor* getSensor();
     friend std::ostream& operator<<(std::ostream& stream,Wheel &ob);
     friend std::istream& operator>>(std::istream& stream,Wheel &ob);
+  protected:
+    Json::Value getJSON();
+    void setJSON(Json::Value root);
 
   private:
     TractionControl *_contol;

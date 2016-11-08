@@ -27,6 +27,7 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 #include <thread>
+#include <chrono>
 
 const double M_PI = 3.14159265359;
 
@@ -172,7 +173,7 @@ TEST_CASE( "Wheel sesnor test second update", "streem methods" ) {
     // Two rotations per second
     REQUIRE( test1->getVelocity() == -M_PI*diameter1 );
     // A total of 2 rotations
-    REQUIRE((double) test1->getDistance() == ((double)2*M_PI*diameter1) );
+    REQUIRE((double) test1->getDistance() == Approx( 2*M_PI*diameter1 ).epsilon( 0.01 ) );
   }
 }
   TEST_CASE( "Wheel Sensor stream", "streem methods" ) {

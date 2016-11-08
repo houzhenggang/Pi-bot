@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 02-11-2016
+* @Last modified time: 08-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,16 +19,25 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#include <thread>         // std::thread
+#include <mutex>          // std::mutex
+#include <math.h>
+#include <iostream>
+#include <chrono>
 #define TESTING
 
 #ifndef WIRINGDUMMY_HPP
 #define WIRINGDUMMY_HPP
 
+
+
 #define PUD_UP 1
 #define INT_EDGE_FALLING 0
 #define INT_EDGE_RISING 1
 #define OUTPUT 1
+
+extern std::array<int ,17> pins;
+extern std::array<int ,17> pwmRanges;
 
 extern void (*pin0Risingfunc) (void);
 extern void (*pin1Risingfunc) (void);

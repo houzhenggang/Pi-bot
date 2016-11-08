@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 02-11-2016
+* @Last modified time: 08-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "wiringPIDummy.hpp"
+
 
 void (*pin0Risingfunc) (void);
  void (*pin1Risingfunc) (void);
@@ -135,14 +137,25 @@ void wiringPiISR (int pin,int edge, void (*foo)(void) )  {
     }
   }
 }
+std::array<int ,17> pwmRanges = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 void softPwmCreate (int pin , int initialValue, int  pwmRange) {
+  pwmRanges[pin] = pwmRange;
 
 }
+
+
+std::array<int ,17> pins = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
 void softPwmWrite (int pin,int duty) {
+
+  pins[pin] =duty;
 
 }
 
 void pinMode (int pin, int mode)  {
+
+
 
 }
 
