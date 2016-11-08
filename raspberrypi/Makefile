@@ -3,7 +3,7 @@
 # @Email:  kieranwyse@gmail.com
 # @Project: Pi-Bot
 # @Last modified by:   Kieran Wyse
-# @Last modified time: 07-11-2016
+# @Last modified time: 08-11-2016
 # @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@ bot:  Pi-Bot.cpp  Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  
 
 TestPoint: tests/TestPoint.cpp Point.cpp Point.h
 	g++ -std=c++11 -o tests/TestPoint  tests/TestPoint.cpp jsoncpp.cpp Point.cpp
+
+TestTractionControl: tests/TestTractionControl.cpp TractionControl.cpp TractionControl.h
+	g++ -std=c++11 -o tests/TestTractionControl  tests/TestTractionControl.cpp jsoncpp.cpp TractionControl.cpp
 
 TestPID: tests/TestPID.cpp PID.cpp PID.h
 	g++ -std=c++11 -o tests/TestPID  tests/TestPID.cpp jsoncpp.cpp PID.cpp

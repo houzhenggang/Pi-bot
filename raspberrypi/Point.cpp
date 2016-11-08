@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 08-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -46,6 +46,20 @@ double Point::getX() {
 double Point::getY() {
    return _y;
 }
+Json::Value Point::getJSON() {
+  Json::Value root;
+  root["x"] = _x;
+  root["y"] = _y;
+  return root;
+}
+
+
+void Point::setJSON(Json::Value root) {
+  if(root.isMember("x"))
+    _x = root.get("x",0).asDouble();
+  if(root.isMember("y"))
+    _y = root.get("y",0).asDouble();
+}
 
 /*
 *
@@ -62,10 +76,7 @@ double Point::getY() {
 
 std::ostream &operator<<(std::ostream& stream, Point &ob)
 {
-  //stream<<"{ x : "<<ob._x<<" , y : "<<ob._y<<" } ";
-  Json::Value root;
-  root["x"] = ob._x;
-  root["y"] = ob._y;
+  Json::Value root = ob.getJSON();
   stream << root;
   return stream;
 }
@@ -86,7 +97,6 @@ std::istream &operator>>(std::istream& stream,Point &ob)
 {
   Json::Value root;
   stream >> root;
-  ob._x = root.get("x","0").asDouble();
-  ob._y = root.get("y","0").asDouble();
+  ob.setJSON(root);
   return stream;
 }

@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 08-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -38,16 +38,68 @@ void TractionControl::setMaxChange(double maxchange)
 }
 double TractionControl::modify(double frequency)
 {
+    //frequency is not modified if the maxchange variable is set to 0
+    if(_maxchange) {
+      if(frequency - _prevfreq > _maxchange) {
+         frequency =  _prevfreq+_maxchange;
+      }
+      if(frequency - _prevfreq < -_maxchange) {
+          frequency =  _prevfreq-_maxchange;
+      }
 
-    if(frequency - _prevfreq > _maxchange)
-    {
-       frequency =  _prevfreq+_maxchange;
     }
-    if(frequency - _prevfreq < -_maxchange)
-    {
-        frequency =  _prevfreq-_maxchange;
-    }
+
     _prevfreq = frequency;
     return frequency;
 
+}
+
+Json::Value TractionControl::getJSON() {
+  Json::Value root;
+  root["max-change"] = _maxchange;
+  return root;
+}
+
+
+void TractionControl::setJSON(Json::Value root) {
+  if(root.isMember("max-change"))
+    _maxchange = root.get("max-change",0).asDouble();
+}
+
+/*
+*
+*Uses jsoncpp to outputt stream of  values  of variables
+*
+* stream output of the format
+*
+*{
+*   "max-change" : 3,
+*}
+*
+*/
+
+std::ostream &operator<<(std::ostream& stream, TractionControl &ob)
+{
+  Json::Value root = ob.getJSON();
+  stream << root;
+  return stream;
+}
+
+/*
+*
+*Uses jsoncpp to parse input stream to values  of variables
+*
+* stream input of the format
+*
+*{
+*   "max-change" : 3,
+*}
+*
+*/
+std::istream &operator>>(std::istream& stream,TractionControl &ob)
+{
+  Json::Value root;
+  stream >> root;
+  ob.setJSON(root);
+  return stream;
 }

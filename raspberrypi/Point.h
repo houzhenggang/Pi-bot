@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 08-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@ class Point
   double getY();
   void setX(double x);
   void setY(double y);
+  Json::Value getJSON();
+  void setJSON(Json::Value root);
   friend std::ostream& operator<<(std::ostream& stream,Point &ob);
   friend std::istream& operator>>(std::istream& stream,Point &ob);
   private:

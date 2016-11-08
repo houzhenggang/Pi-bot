@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 29-10-2016
+* @Last modified time: 08-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@
 
 #ifndef TRACTIONCONTROL_H
 #define TRACTIONCONTROL_H
+#include "json/json.h"
 
 
 
@@ -33,6 +34,10 @@ class TractionControl
   double getMaxChange();
   void setMaxChange(double maxchange);
   double modify(double frequency);
+  Json::Value getJSON();
+  void setJSON(Json::Value root);
+  friend std::ostream& operator<<(std::ostream& stream,TractionControl &ob);
+  friend std::istream& operator>>(std::istream& stream,TractionControl &ob);
   private:
   double _maxchange;
   double _prevfreq;

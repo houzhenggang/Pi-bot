@@ -163,7 +163,7 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(root.get("motor-forward-pin",0) == forwardpin);
       REQUIRE(root.get("motor-reverse-pin",0) == backwardpin);
       REQUIRE(root.get("frequency",0) == frequency);
-      std::cout << root;
+
 
     }
     SECTION( "Test stream in method" )  {
@@ -182,14 +182,15 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       ss <<" \"up-pulses\" : 14, \"down-pulses\" : 13, \"distance\" : 5.3, \"velocity\" : 1.1, \"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27   }";
       ss << "}";
       ss << std::endl;
-      cout << ss.str() << std::endl;
+
 
       ss >> *test;
+      cout << *test << std::endl;
 
-      //ss << *test;
-
-      //ss >> root;
-      /*Json::Value s = root.get("sensor","");
+      ss << *test;
+      std::cout <<*test;
+      ss >> root;
+      Json::Value s = root.get("sensor","");
       REQUIRE(s.get("ticks",0) == 27 );
       REQUIRE(s.get("pin",0) == 2 );
       REQUIRE(s.get("up-pulses",0) == 14 );
@@ -198,21 +199,21 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(s.get("velocity",0) == 1.1 );
       REQUIRE(s.get("omega",0) ==4.5 );
       REQUIRE(s.get("previous-distance",0).asDouble() == 5.0 );
-      REQUIRE(s.get("previous-pulses",0) == 15 );*/
+      REQUIRE(s.get("previous-pulses",0) == 15 );
 
-      /*REQUIRE(root.get("diameter",0) == 0.14);
-      REQUIRE(root.get("forward",0) == false);
-      REQUIRE(root.get("motor-forward-pin",0) == 12);
-      REQUIRE(root.get("motor-reverse-pin",0) == 15);
-      REQUIRE(root.get("frequency",0) == 22);*/
+      REQUIRE(root.get("diameter",0).asDouble() == Approx( 0.14 ).epsilon( 0.01 ) );
+      REQUIRE(root.get("forward",0).asBool() == false);
+      REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
+      REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
+      REQUIRE(root.get("frequency",0).asInt() == 22);
 
     }
-    /*SECTION( "Test stream serialisation " )  {
+    SECTION( "Test stream serialisation " )  {
       //test serialisation in jason
       std::stringstream ss;
 
 
-      ss << test;
+      ss << *test;
       ss >> *test2;
 
       REQUIRE( test2->getSensor()->pin() == sensorpin1 );
@@ -224,7 +225,7 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE( test2->getDistance() == M_PI*diameter1 );
 
 
-    }*/
+    }
 }
 
 void turn(int pin, int ticks) {

@@ -134,6 +134,8 @@ void Wheel::stop() {
 void Wheel::setJSON(Json::Value root) {
   if(root.isMember("diameter"))
     _diameter = root.get("diameter",0).asFloat();
+  if(root.isMember("forward"))
+    _forward = root.get("forward",0).asBool();
   if(root.isMember("frequency"))
     _frequency = root.get("frequency",0).asInt();
   if(root.isMember("motor-forward-pin"))
