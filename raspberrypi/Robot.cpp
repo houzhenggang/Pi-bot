@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 04-11-2016
+* @Last modified time: 09-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -21,18 +21,10 @@
 */
 
 
-
-/*
-  Robot.cpp - Library for  code.
-  Created by Kieran Wuse.
-  Released into the public domain.
-*/
-
-
 #include "Robot.h"
+const double M_PI = 3.14159265359;
 
-
-Robot::Robot(double timer_interval)
+Robot::Robot()
 {
 
    _state = None;
@@ -42,7 +34,6 @@ Robot::Robot(double timer_interval)
    _target_angle = 0;
    _target_distance = 0;
 
-   _heart_beat = 13;
 
    int sensor_left_1 = 8;
    int sensor_left_2 = 7;
@@ -61,8 +52,6 @@ Robot::Robot(double timer_interval)
    int wheel_sensor_right = 11;
 
 
-    pinMode(_heart_beat, OUTPUT);
-
     _distance= 0;
     _angle  = 0;
 
@@ -77,14 +66,14 @@ Robot::Robot(double timer_interval)
    double wheel_diameter = 0.065;
    int wheel_ticks = 40;
 
-    _left = new Wheel(wheel_diameter,wheel_ticks,wheel_left_forward,wheel_left_reverse,wheel_sensor_left);
-    _right = new Wheel(wheel_diameter,wheel_ticks,wheel_right_forward,wheel_right_reverse,wheel_sensor_right);
+    _left = new Wheel(wheel_diameter,wheel_left_forward,wheel_left_reverse, new WheelSensor(wheel_sensor_left,wheel_ticks));
+    _right = new Wheel(wheel_diameter,wheel_right_forward,wheel_right_reverse,new WheelSensor(wheel_sensor_right,wheel_ticks));
     _left_1 = new Sensor(sensor_left_1);
     _left_2 = new Sensor(sensor_left_2);
     _center = new Sensor(sensor_center);
     _right_1 = new Sensor(sensor_right_1);
     _right_2 = new Sensor(sensor_right_2);
-    _test = Nones;
+
 
 
 
@@ -105,18 +94,21 @@ void Robot::disable() {
    digitalWrite(A0, LOW);
 }*/
 
+/*
+*
+*Pull up the pins to voltage hight on the pins that are defined as sensors
+*
+*/
 void Robot::pullup() {
     _left_1->pullup();
     _left_2->pullup();
     _center->pullup();
     _right_1->pullup();
     _right_2->pullup();
-    _left->pullup();
-    _right->pullup();
+    _left->getSensor()->pullup();
+    _right->getSensor()->pullup();
 }
-void Robot::test(Tests t) {
-   _test = t;
-}
+
 double Robot::getX() {
 
    return _position->getX();
@@ -166,8 +158,8 @@ void Robot::forwardTo(double distance)
 {
     _target_distance = distance+_distance;
     _state = Forward;
-    delete _distancePID;
-    _distancePid = new PID(255,0,0);
+    delete _pid;
+    _pid = new PID(255,0,0);
 
 }
 
@@ -199,7 +191,7 @@ void Robot::updateObserver()
    double prd = _right->getDistance();
    _right->update();
    double rdist =_right->getDistance() -prd;
-  
+
 
    //distance travelled since last update is
    double deltaDistance = 0.5*(ldist+rdist);
@@ -223,17 +215,6 @@ void Robot::updateRobot() {
     _center->reset();
     _right_1->reset();
     _right_2->reset();
-
-    if(_heart_count> 50) {
-       digitalWrite(_heart_beat, HIGH);
-       if(_heart_count> 100) {
-          _heart_count = 0;
-       }
-    }
-    else {
-       digitalWrite(_heart_beat, LOW);
-    }
-    _heart_count++;
 
 
 }
@@ -269,7 +250,7 @@ void Robot::state()
 }
 
 void Robot::forward() {
-   double freq_velocity = _distancePID->next(_distance,_target_distance);
+   double freq_velocity = _pid->next(_distance,_target_distance);
     if(freq_velocity>255)
        freq_velocity = 255;
     _left->setFrequency(freq_velocity);
@@ -400,37 +381,50 @@ void Robot::avoid()
      _right->setFrequency(freq_velocity+freq_omega);
 
 }
-ostream& operator<<(ostream& stream,Robot ob)
+Json::Value Robot::getJSON(){
+  Json::Value root;
+  root["distance"] = _distance;
+  root["angle"] = _angle;
+  root["position"] = _position->getJSON();
+  root["target-angle"] = _target_angle;
+  root["target-distance"] = _target_distance;
+
+  root["PID-2d-points"] = _pointPID->getJSON();
+  root["PID-angle"] = _anglePID->getJSON();
+  root["PID-angle"] = _pid->getJSON();
+
+  root["left-wheel"] = _left->getJSON();
+  root["right-wheel"] = _right->getJSON();
+
+  root["left_1"] = _left_1->getJSON();
+  root["left_2"] = _left_2->getJSON();
+  root["center"] = _center->getJSON();
+  root["right_1"] = _right_1->getJSON();
+  root["right_2"] = _right_2->getJSON();
+
+  return root;
+}
+void Robot::setJSON(Json::Value root){
+  if(root.isMember("distance"))
+    _distance = root.get("distance",0).asDouble();
+  if(root.isMember("angle"))
+    _angle = root.get("angle",0).asDouble();
+  if(root.isMember("position"))
+    _position->setJSON(root.get("position",""));
+  if(root.isMember("target-angle"))
+    _target_angle = root.get("target-angle",0).asDouble();
+  if(root.isMember("target-distance"))
+    _target_distance = root.get("target-distance",0).asDouble();
+}
+ostream& operator<<(ostream& stream,Robot &ob)
 {
-  stream<<*ob._position
-    <<" "<<ob._angle
-    <<" "<<ob._distance
-    <<" "<<ob._wheel_base
-    <<"\n";
+  stream<< ob.getJSON();
   return stream;
 }
-istream& operator>>(istream& stream,Robot  ob)
+istream& operator>>(istream& stream,Robot &ob)
 {
-
-  stream>>*ob._position>>ob._angle;
+  Json::Value root;
+  stream>>root;
+  ob.setJSON(root);
   return stream;
-}
-
-void Robot::print()
-{
-    if(_test == Robots) {
-        cout << this;
-    }
-
-    if( _test == Wheels) {
-    	cout << _left;
-    	cout << _right;
-    }
-    if(_test == Sensors) {
-  	   cout << _left_1;
-    	 cout << _left_2;
-    	cout << _center;
-    	cout << _right_1;
-    	cout <<_right_2;
-    }
 }

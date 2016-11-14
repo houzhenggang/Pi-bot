@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 08-11-2016
+* @Last modified time: 13-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,8 +36,19 @@
 #define INT_EDGE_RISING 1
 #define OUTPUT 1
 
+#define PWMRANGE 100
+
+extern void turn(int pin);
+
+
+
+//extern static int PWMRANGE;
+
 extern std::array<int ,17> pins;
+extern std::array<int ,17> ticks;
 extern std::array<int ,17> pwmRanges;
+extern std::array<std::thread,17> wheelThreads;
+extern std::array<int,17> sensorPin;
 
 extern void (*pin0Risingfunc) (void);
 extern void (*pin1Risingfunc) (void);

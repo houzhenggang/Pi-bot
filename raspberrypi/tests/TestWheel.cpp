@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 08-11-2016
+* @Last modified time: 13-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -35,9 +35,8 @@ const double M_PI = 3.14159265359;
 *simulate a wheel turning
 *
 */
-int duty =0;
-static int PWMRANGE =100;
-void turn(int pin,int ticks);
+//int duty =0;
+
 
 
 TEST_CASE( "Wheel constructor", "test methods" ) {
@@ -52,11 +51,15 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
   //Test the constructor
   int forwardpin = 1;
   int backwardpin = 2;
-  int sensorpin = 4;
-  int ticks = 20;
+  int sensorPin1 = 4;
+  sensorPin[forwardpin] = sensorPin1;
+  sensorPin[backwardpin] = sensorPin1;
+  ticks[sensorPin1] =20;
+
+
   float diameter = 0.1;
 
-  Wheel *test = new Wheel(diameter,forwardpin,backwardpin,new WheelSensor(sensorpin,ticks));
+  Wheel *test = new Wheel(diameter,forwardpin,backwardpin,new WheelSensor(sensorPin1,ticks[sensorPin1]));
 
   SECTION( "Test frequency" )  {
 
@@ -86,36 +89,37 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     REQUIRE(pins[forwardpin] == 0);
     REQUIRE(pins[backwardpin] == PWMRANGE);
     //std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    test->setFrequency(0);
   }
   SECTION( "simulate wheel turning 1 second" )  {
     test->setFrequency(50);
-    duty = pins[forwardpin];
+    //duty = pins[forwardpin];
 
-    std::thread t1(turn,sensorpin,ticks);
+    //std::thread t1(turn,sensorpin,ticks);
+    //std::thread t1(turn,forwardpin);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     test->update();
     test->setFrequency(0);
-    duty = pins[forwardpin];
-    t1.join();
+    //duty = pins[forwardpin];
+    std::cout << *test;
+    //t1.join();
     REQUIRE(test->getDistance() > 0);
   }
   SECTION( "simulate wheel turning 10 meters" )  {
     test->setFrequency(50);
-    duty = pins[forwardpin];
 
-    std::thread t1(turn,sensorpin,ticks);
+    //std::thread t1(turn,forwardpin);
     while(test->getDistance() < 10) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       test->update();
     }
-
     test->setFrequency(0);
-    duty = pins[forwardpin];
-    t1.join();
+    //t1.join();
     REQUIRE(test->getDistance() > 10);
   }
 }
-  TEST_CASE( "Wheelr stream", "streem methods" ) {
+  TEST_CASE( "Wheel stream", "streem methods" ) {
     //test the stream out method
     double diameter1 = 0.1;
     bool forward1 = true;
@@ -172,14 +176,18 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       std::stringstream ss;
       ss << "{" << std::endl;
       ss << "\"diameter\": 0.14,"<< std::endl;
-      ss << "\" forward\": false,"<< std::endl;
+      ss << "\"forward\": false,"<< std::endl;
       ss << "\"motor-forward-pin\": 12,"<< std::endl;
       ss << "\"motor-reverse-pin\": 15," << std::endl;
       ss <<" \"frequency\": 22 ," << std::endl;
       ss <<  "\"sensor\" : " << std::endl;
       ss <<"{" <<std::endl;
       ss <<" \"pin\" : 2 ," <<std::endl;
-      ss <<" \"up-pulses\" : 14, \"down-pulses\" : 13, \"distance\" : 5.3, \"velocity\" : 1.1, \"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27   }";
+      ss <<" \"up-pulses\" : 14, " <<std::endl;
+      ss <<" \"down-pulses\" : 13, " <<std::endl;
+      ss << "\"distance\" : 5.3, " <<std::endl;
+      ss << "\"velocity\" : 1.1, " << std::endl;
+      ss << "\"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27 }";
       ss << "}";
       ss << std::endl;
 
@@ -226,44 +234,4 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
 
     }
-}
-
-void turn(int pin, int ticks) {
-  std::cout<<"Duty:" << duty <<std::endl;
-  while(duty) {
-    int maxRotationsPerSecond = 5;
-    //Maximum rotational freqency 5 rotations per second
-    //1000 milliseconds
-    //5*ticks =  total number of ticks
-    // time between each tick is 1000/(5*ticks)
-    int timebetweenticks = ((double)PWMRANGE/duty)*(1000/(maxRotationsPerSecond*ticks));
-    std::cout <<"time between ticks;" <<timebetweenticks << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
-    switch(pin){
-      case 0:
-      pin0Risingfunc();
-      pin0Fallingfunc();
-      break;
-      case 1:
-      pin1Risingfunc();
-      pin1Fallingfunc();
-      break;
-      case 2:
-      pin2Risingfunc();
-      pin2Fallingfunc();
-      break;
-      case 3:
-      pin3Risingfunc();
-      pin3Fallingfunc();
-      break;
-      case 4:
-      pin4Risingfunc();
-      pin4Fallingfunc();
-      break;
-      case 10:
-      pin10Risingfunc();
-      pin10Fallingfunc();
-      break;
-    }
-  }
 }

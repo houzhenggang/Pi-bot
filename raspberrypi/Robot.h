@@ -1,3 +1,25 @@
+/**
+* @Author: Kieran Wyse
+* @Date:   28-10-2016
+* @Email:  kieranwyse@gmail.com
+* @Project: Pi-Bot
+* @Last modified by:   Kieran Wyse
+* @Last modified time: 09-11-2016
+* @License: License: GPL v3
+#     This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 
 
 /*
@@ -24,7 +46,7 @@ enum Tests {Sensors,Wheels,Robots,Interfaces,Registers,Nones};
 class Robot
 {
   public:
-    Robot(double timer_interval);
+    Robot();
     //stops the robot
     void stop();
     void goTo(double x, double y);
@@ -35,7 +57,7 @@ class Robot
 
     void pullup();
     //prints out a visual confirmation of that rpbot is doing to serial
-    void print();
+
     double getX();
     double getY();
     double getAngle();
@@ -49,14 +71,14 @@ class Robot
 
     //directly sets wheels to required freqency
     void drive(int frequency);
-
-    void test(Tests t);
     void updateObserver();
     void updateRobot();
-
     void state();
-    friend ostream& operator<<(ostream& stream,Robot ob);
-    friend istream& operator>>(istream& stream,Robot ob);
+
+    Json::Value getJSON();
+    void setJSON(Json::Value root);
+    friend ostream& operator<<(ostream& stream,Robot &ob);
+    friend istream& operator>>(istream& stream,Robot &ob);
   private:
     //enable external chips
     void enable();
@@ -79,27 +101,21 @@ class Robot
     //robot is travelling along a wall
     void wall();
 
-    //heart beat turns a led on and off to shou robot is still functioning
-    //led to turn on and off
-    unsigned int _heart_beat;
-    //how freqently turned on and of
-    unsigned int _heart_count;
-
     //distance travelled by the robot
     double _distance;
+
+    //current angle of the robot
+    double _angle;
+
+    //current postion of the robot
+    Point *_position;
+
 
     //angle the robot is going to used during rotation
     double _target_angle;
 
     //distance the robot is going to usded during forward to command
     double _target_distance;
-
-    //current postion of the robot
-    Point *_position;
-
-    //current angle of the robot
-    double _angle;
-
 
     //list of positions the robot will go to
     std::queue<Point*> _targets;
@@ -112,7 +128,6 @@ class Robot
 
     double _wheel_base;
     Behavour _state;
-    Tests _test;
 
     Wheel *_left;
     Wheel *_right;

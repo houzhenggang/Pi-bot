@@ -46,7 +46,6 @@ double TractionControl::modify(double frequency)
       if(frequency - _prevfreq < -_maxchange) {
           frequency =  _prevfreq-_maxchange;
       }
-
     }
 
     _prevfreq = frequency;

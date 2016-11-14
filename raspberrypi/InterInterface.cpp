@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 01-11-2016
+* @Last modified time: 09-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -117,7 +117,21 @@ void InterInterface::trigLowHigh() {
   _upPulse++;
 }
 
-
+Json::Value InterInterface::getJSON() {
+  Json::Value root;
+  root["pin"] = _pin;
+  root["up-pulses"] = _upPulse;
+  root["down-pulses"]= _downPulse;
+  return root;
+}
+void InterInterface::setJSON(Json::Value root) {
+  if(root.isMember("pin"))
+    _pin = root.get("pin",0).asInt();
+  if(root.isMember("up-pulses"))
+    _upPulse = root.get("up-pulses",0).asInt();
+  if(root.isMember("down-pulses"))
+    _downPulse = root.get("down-pulses",0).asInt();
+}
 /*
 *
 *Print out the state of the object as json string
@@ -125,10 +139,7 @@ void InterInterface::trigLowHigh() {
 */
 ostream& operator<<(ostream& stream,InterInterface &ob)
 {
-  Json::Value root;
-  root["pin"] = ob._pin;
-  root["up-pulses"] = ob._upPulse;
-  root["down-pulses"]= ob._downPulse;
+  Json::Value root = ob.getJSON();
   stream << root;
   return stream;
 }
@@ -141,9 +152,7 @@ istream& operator>>(istream& stream,InterInterface  &ob)
 {
   Json::Value root;
   stream >> root;
-  ob._pin = root.get("pin","0").asInt();
-  ob._upPulse = root.get("up-pulses","0").asInt();
-  ob._downPulse = root.get("down-pulses","0").asInt();
+  ob.setJSON(root);
   return stream;
 }
 /*

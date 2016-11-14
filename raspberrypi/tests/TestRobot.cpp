@@ -20,42 +20,19 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WHEEL_H
-#define WHEEL_H
+
+#include "../Robot.h"
+#include "sstream"
+
+#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include "../catch/catch.hpp"
 
 
-#include "WheelSensor.h"
+using namespace std;
 
-#include "TractionControl.h"
+TEST_CASE( "Robot object", "test methods" ) {
+  //Test the constructor
+  Robot *test = new Robot();
+  //test get
 
-class Wheel
-{
-  public:
-    Wheel(float diameter,int motorPinForward,int motorPinReverse,WheelSensor *sensor);
-    double getVelocity();
-    double getDistance();
-    int getFrequency();
-    void setFrequency(int frequency);
-    void stop();
-    void update();
-    void setSensor(WheelSensor *sensor);
-    WheelSensor* getSensor();
-    friend std::ostream& operator<<(std::ostream& stream,Wheel &ob);
-    friend std::istream& operator>>(std::istream& stream,Wheel &ob);
-    Json::Value getJSON();
-    void setJSON(Json::Value root);
-
-  private:
-    TractionControl *_contol;
-    WheelSensor *_sensor;
-    void pwm(int pin,int duty);
-    int _frequency;
-    int _motorPinForward;
-    int _motorPinReverse;
-    float _diameter;
-    bool _forward;
-
-
-};
-
-#endif
+}

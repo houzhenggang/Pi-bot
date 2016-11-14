@@ -5,7 +5,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 08-11-2016
+* @Last modified time: 09-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -143,11 +143,7 @@ void Wheel::setJSON(Json::Value root) {
   if(root.isMember("motor-reverse-pin"))
     _motorPinReverse = root.get("motor-reverse-pin",0).asInt();
   if(root.isMember("sensor")) {
-    //std:string str = root.get("sensor","").asString();
-    //std::stringstream ss(str);
-    //ss >> *_sensor;
     _sensor->setJSON(root.get("sensor",""));
-
   }
 
 }
