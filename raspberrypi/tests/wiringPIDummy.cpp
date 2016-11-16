@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 13-11-2016
+* @Last modified time: 15-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "wiringPIDummy.hpp"
-
+std::array<std::mutex,17> muxPin;
 
 void (*pin0Risingfunc) (void);
  void (*pin1Risingfunc) (void);
@@ -57,6 +57,96 @@ void (*pin0Risingfunc) (void);
   void (*pin14Fallingfunc) (void);
   void (*pin15Fallingfunc) (void);
   void (*pin16Fallingfunc) (void);
+
+
+  void turn(int pin) {
+
+    muxPin[pin].lock();
+    while(pins[pin]) {
+
+      int maxRotationsPerSecond = 5;
+      //Maximum rotational freqency 5 rotations per second
+      //1000 milliseconds
+      //5*ticks =  total number of ticks
+      // time between each tick is 1000/(5*ticks)
+
+      int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
+      switch(sensorPin[pin]){
+        case 0:
+        pin0Risingfunc();
+        pin0Fallingfunc();
+        break;
+        case 1:
+        pin1Risingfunc();
+        pin1Fallingfunc();
+        break;
+        case 2:
+        pin2Risingfunc();
+        pin2Fallingfunc();
+        break;
+        case 3:
+        pin3Risingfunc();
+        pin3Fallingfunc();
+        break;
+        case 4:
+        pin4Risingfunc();
+        pin4Fallingfunc();
+        break;
+        case 5:
+        pin5Risingfunc();
+        pin5Fallingfunc();
+        break;
+        case 6:
+        pin6Risingfunc();
+        pin6Fallingfunc();
+        break;
+        case 7:
+        pin7Risingfunc();
+        pin7Fallingfunc();
+        break;
+        case 8:
+        pin8Risingfunc();
+        pin8Fallingfunc();
+        break;
+        case 9:
+        pin9Risingfunc();
+        pin9Fallingfunc();
+        break;
+        case 10:
+        pin10Risingfunc();
+        pin10Fallingfunc();
+        break;
+        case 11:
+        pin11Risingfunc();
+        pin11Fallingfunc();
+        break;
+        case 12:
+        pin12Risingfunc();
+        pin12Fallingfunc();
+        break;
+        case 13:
+        pin13Risingfunc();
+        pin13Fallingfunc();
+        break;
+        case 14:
+        pin14Risingfunc();
+        pin14Fallingfunc();
+        break;
+        case 15:
+        pin15Risingfunc();
+        pin15Fallingfunc();
+        break;
+        case 16:
+        pin16Risingfunc();
+        pin16Fallingfunc();
+        break;
+      }
+      muxPin[pin].unlock();
+      std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
+      muxPin[pin].lock();
+    }
+  muxPin[pin].unlock();
+  }
 
 
 void wiringPiISR (int pin,int edge, void (*foo)(void) )  {
@@ -145,21 +235,29 @@ void softPwmCreate (int pin , int initialValue, int  pwmRange) {
 
 }
 
-std::array<std::thread,17> wheelThreads={};
 std::array<int ,17> pins = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::array<int ,17> ticks = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::array<int ,17> sensorPin = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-
+std::array<std::thread,17> workers = {};
 
 
 void softPwmWrite (int pin,int duty) {
+
+  muxPin[pin].lock();
   int is_running = pins[pin];
   pins[pin] =duty;
-  if(is_running == 0) {
-    wheelThreads[pin] = std::thread(turn,pin);
+  muxPin[pin].unlock();
+  //start the thread up
+  if(is_running == 0 && duty) {
+    std::thread t1(turn,pin);
+    workers[pin] = std::move(t1);
   }
-
-
+  //wait for the thread to end before moving on
+  //if we don't it is not pretty
+  if(is_running && duty == 0) {
+	  if(workers[pin].joinable())
+		  workers[pin].join();
+  }
 }
 
 void pinMode (int pin, int mode)  {
@@ -170,92 +268,4 @@ void pinMode (int pin, int mode)  {
 
 void pullUpDnControl(int pin, int control) {
 
-}
-
-void turn(int pin) {
-
-  while(pins[pin]) {
-
-    int maxRotationsPerSecond = 5;
-    //Maximum rotational freqency 5 rotations per second
-    //1000 milliseconds
-    //5*ticks =  total number of ticks
-    // time between each tick is 1000/(5*ticks)
-
-    int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
-
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
-
-    switch(sensorPin[pin]){
-      case 0:
-      pin0Risingfunc();
-      pin0Fallingfunc();
-      break;
-      case 1:
-      pin1Risingfunc();
-      pin1Fallingfunc();
-      break;
-      case 2:
-      pin2Risingfunc();
-      pin2Fallingfunc();
-      break;
-      case 3:
-      pin3Risingfunc();
-      pin3Fallingfunc();
-      break;
-      case 4:
-      pin4Risingfunc();
-      pin4Fallingfunc();
-      break;
-      case 5:
-      pin5Risingfunc();
-      pin5Fallingfunc();
-      break;
-      case 6:
-      pin6Risingfunc();
-      pin6Fallingfunc();
-      break;
-      case 7:
-      pin7Risingfunc();
-      pin7Fallingfunc();
-      break;
-      case 8:
-      pin8Risingfunc();
-      pin8Fallingfunc();
-      break;
-      case 9:
-      pin9Risingfunc();
-      pin9Fallingfunc();
-      break;
-      case 10:
-      pin10Risingfunc();
-      pin10Fallingfunc();
-      break;
-      case 11:
-      pin11Risingfunc();
-      pin11Fallingfunc();
-      break;
-      case 12:
-      pin12Risingfunc();
-      pin12Fallingfunc();
-      break;
-      case 13:
-      pin13Risingfunc();
-      pin13Fallingfunc();
-      break;
-      case 14:
-      pin14Risingfunc();
-      pin14Fallingfunc();
-      break;
-      case 15:
-      pin15Risingfunc();
-      pin15Fallingfunc();
-      break;
-      case 16:
-      pin16Risingfunc();
-      pin16Fallingfunc();
-      break;
-    }
-  }
 }

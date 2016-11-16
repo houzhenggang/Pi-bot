@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 13-11-2016
+* @Last modified time: 14-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
 #include <math.h>
 #include <iostream>
 #include <chrono>
+#include <list>
 #define TESTING
 
 #ifndef WIRINGDUMMY_HPP
@@ -47,8 +48,9 @@ extern void turn(int pin);
 extern std::array<int ,17> pins;
 extern std::array<int ,17> ticks;
 extern std::array<int ,17> pwmRanges;
-extern std::array<std::thread,17> wheelThreads;
 extern std::array<int,17> sensorPin;
+extern std::array<std::thread,17> workers;
+
 
 extern void (*pin0Risingfunc) (void);
 extern void (*pin1Risingfunc) (void);

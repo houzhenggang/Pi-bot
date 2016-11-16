@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 09-11-2016
+* @Last modified time: 14-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -79,7 +79,15 @@ class Robot
     void setJSON(Json::Value root);
     friend ostream& operator<<(ostream& stream,Robot &ob);
     friend istream& operator>>(istream& stream,Robot &ob);
+
+    ~Robot();
   private:
+    void heartbeat();
+    int time_between_updates;
+    std::thread t1;
+
+
+
     //enable external chips
     void enable();
 

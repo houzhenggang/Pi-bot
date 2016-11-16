@@ -44,6 +44,7 @@ class Wheel
     friend std::istream& operator>>(std::istream& stream,Wheel &ob);
     Json::Value getJSON();
     void setJSON(Json::Value root);
+    ~Wheel();
 
   private:
     TractionControl *_contol;

@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 09-11-2016
+* @Last modified time: 15-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -23,6 +23,7 @@
 
 #include "../Robot.h"
 #include "sstream"
+#include <time.h>
 
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
@@ -33,6 +34,55 @@ using namespace std;
 TEST_CASE( "Robot object", "test methods" ) {
   //Test the constructor
   Robot *test = new Robot();
+
+  int sensorPinLeft = 12;
+  int sensorPinRight = 11;
+
+  int forwardLeftpin = 9;
+  int forwardRightpin = 10;
+
+  int backwardLeftpin = 6;
+  int backwardRightpin = 5;
+
+  //Have to tell the system what pins are attached to the left and right wheel sensors
+  sensorPin[forwardLeftpin] = sensorPinLeft;
+  sensorPin[backwardLeftpin] = sensorPinLeft;
+  //Have to tell the system how many ticks are on each of the wheel sensors
+  ticks[sensorPinLeft] =20;
+
+  sensorPin[forwardRightpin] = sensorPinRight;
+  sensorPin[backwardRightpin] = sensorPinRight;
+  ticks[sensorPinRight] =20;
   //test get
 
+  SECTION("test get methods") {
+    REQUIRE(test->getX() == 0);
+    REQUIRE(test->getY() == 0);
+    REQUIRE(test->getAngle() == 0);
+    REQUIRE(test->getTargetX() == 0);
+    REQUIRE(test->getTargetY() == 0);
+    REQUIRE(test->getTargetAngle() == 0);
+
+  }
+
+  SECTION("test get methods") {
+	//std::thread t1(std::bind(test->heartbeat,test));
+
+
+	test->drive(50);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    test->stop();
+    cout<<*test;
+    delete test;
+
+
+
+
+
+
+
+    REQUIRE(test->getX() != 0);
+
+  }
 }

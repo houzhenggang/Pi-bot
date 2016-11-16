@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 09-11-2016
+* @Last modified time: 14-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,6 +26,9 @@ const double M_PI = 3.14159265359;
 
 Robot::Robot()
 {
+
+
+
 
    _state = None;
    _wheel_base = 0.155;
@@ -62,6 +65,7 @@ Robot::Robot()
 
   _pointPID = new PIDPoint(100,1,1);
    _anglePID = new PIDAngle(120,0,5);
+   _pid = new PID(100,1,1);
 
    double wheel_diameter = 0.065;
    int wheel_ticks = 40;
@@ -75,9 +79,9 @@ Robot::Robot()
     _right_2 = new Sensor(sensor_right_2);
 
 
-
-
-    //enable();
+    time_between_updates = 100;
+    std::thread t2(std::bind(Robot::heartbeat,this));
+    t1 = std::move(t2);
 
 }
 
@@ -123,11 +127,17 @@ double Robot::getAngle() {
 
 
 double Robot::getTargetX() {
-   return _targets.front()->getX();
+  if(_targets.size())
+    return _targets.front()->getX();
+  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
+  return 0;
 }
 
 double Robot::getTargetY() {
-   return _targets.front()->getY();
+  if(_targets.size())
+    return _targets.front()->getX();
+  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
+  return 0;
 }
 double Robot::getTargetAngle() {
    return _target_angle;
@@ -135,6 +145,7 @@ double Robot::getTargetAngle() {
 
 void Robot::goTo(double x, double y) {
     _state = Go;
+    time_between_updates = 100;
 
     _targets.push(new Point(x,y));
 
@@ -144,19 +155,22 @@ void Robot::goTo(double x, double y) {
 
 void Robot::stop() {
    _state = None;
+   time_between_updates = 0;
    _left->stop();
    _right->stop();;
 }
 void Robot::rotateTo(double angle)
 {
-    _target_angle = angle;
+	time_between_updates = 100;
+	_target_angle = angle;
     _state = Rotate;
 
 }
 
 void Robot::forwardTo(double distance)
 {
-    _target_distance = distance+_distance;
+	time_between_updates = 100;
+	_target_distance = distance+_distance;
     _state = Forward;
     delete _pid;
     _pid = new PID(255,0,0);
@@ -166,16 +180,22 @@ void Robot::forwardTo(double distance)
 
 void Robot::drive(int frequency)
 {
-    _left->setFrequency(frequency);
+
+
+
+
+	_left->setFrequency(frequency);
     _right->setFrequency(frequency);
 }
 void Robot::wheelLeft(int frequency)
 {
-    _left->setFrequency(frequency);
+	time_between_updates = 100;
+	_left->setFrequency(frequency);
 }
 void Robot::wheelRight(int frequency)
 {
-    _right->setFrequency(frequency);
+
+	_right->setFrequency(frequency);
 }
 
 
@@ -217,10 +237,10 @@ void Robot::updateRobot() {
     _right_2->reset();
 
 
+
 }
 
-void Robot::state()
-{
+void Robot::state() {
   if(_state == Go || _state == Avoid || _state == Rotate || _state == Forward )
   {
 
@@ -267,8 +287,7 @@ void Robot::rotate() {
 }
 
 
-void Robot::go()
-{
+void Robot::go() {
 
     double freq_velocity = _pointPID->next(_position,_targets.front());
     if(freq_velocity>255)
@@ -381,6 +400,25 @@ void Robot::avoid()
      _right->setFrequency(freq_velocity+freq_omega);
 
 }
+/*
+*Update the robot few milliseconds
+* milliseconds are set in the time_between_updates variable
+* when this varabile is set to 0 thread neds;
+*
+*
+*/
+void Robot::heartbeat() {
+
+
+	while(time_between_updates) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(time_between_updates));
+		updateObserver();
+		updateRobot();
+
+	}
+
+
+}
 Json::Value Robot::getJSON(){
   Json::Value root;
   root["distance"] = _distance;
@@ -427,4 +465,14 @@ istream& operator>>(istream& stream,Robot &ob)
   stream>>root;
   ob.setJSON(root);
   return stream;
+}
+
+Robot::~Robot() {
+	time_between_updates = 0;
+	//wait for thread to finish (all variables should still be accessable to destructor has finished)
+
+	if(t1.joinable())
+	    	t1.join();
+
+
 }

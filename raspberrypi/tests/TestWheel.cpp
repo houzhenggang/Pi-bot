@@ -4,7 +4,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 13-11-2016
+* @Last modified time: 14-11-2016
 * @License: License: GPL v3
 #     This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -91,6 +91,11 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     //std::this_thread::sleep_for(std::chrono::seconds(10));
 
     test->setFrequency(0);
+
+    /*std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
+		    assert(t.joinable());
+		      t.join();
+        });*/
   }
   SECTION( "simulate wheel turning 1 second" )  {
     test->setFrequency(50);
@@ -126,6 +131,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     int ticks1 = 20;
     int sensorpin1 = 10;
 
+
+
     WheelSensor *sensor = new WheelSensor(sensorpin1,ticks1);
 
     for(int i = 0; i < ticks1; i++) {
@@ -139,13 +146,20 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     int backwardpin = 7;
     float diameter = 0.2;
     int frequency = 60;
+
+    sensorPin[forwardpin] = sensorpin1;
+    sensorPin[backwardpin] = sensorpin1;
+    ticks[sensorpin1] =ticks1;
+
     Wheel *test = new Wheel(diameter,forwardpin,backwardpin,sensor);
     test->setFrequency(frequency);
 
 
 
+
+
     Wheel *test2 = new Wheel(0.1,2,3,new WheelSensor(4,10));
-    test2->setFrequency(33);
+    //test2->setFrequency(33);
 
     SECTION( "Test stream out method" )  {
       std::stringstream sstream;
@@ -168,8 +182,12 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(root.get("motor-reverse-pin",0) == backwardpin);
       REQUIRE(root.get("frequency",0) == frequency);
 
+      test2->setFrequency(0);
+      test->setFrequency(0);
+
 
     }
+
     SECTION( "Test stream in method" )  {
       //Test the stream in mehtod
       Json::Value root;
@@ -214,6 +232,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
       REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
       REQUIRE(root.get("frequency",0).asInt() == 22);
+
+      test->setFrequency(0);
 
     }
     SECTION( "Test stream serialisation " )  {

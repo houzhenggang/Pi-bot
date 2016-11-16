@@ -5,7 +5,7 @@
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 09-11-2016
+* @Last modified time: 15-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -172,4 +172,7 @@ istream& operator>>(istream& stream,Wheel  &ob)
     ob.setJSON(root);
     return stream;
 
+}
+Wheel::~Wheel() {
+  stop();
 }
