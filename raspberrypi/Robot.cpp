@@ -64,7 +64,7 @@ Robot::Robot()
 
 
   _pointPID = new PIDPoint(100,1,1);
-   _anglePID = new PIDAngle(120,0,5);
+   _anglePID = new PIDAngle(20,0.001,0.001);
    _pid = new PID(100,1,1);
 
    double wheel_diameter = 0.065;
@@ -112,12 +112,30 @@ void Robot::pullup() {
     _left->getSensor()->pullup();
     _right->getSensor()->pullup();
 }
+/*
+ * Get the x postion of the robot in metres
+ */
 
 double Robot::getX() {
 
    return _position->getX();
 }
 
+/*
+ * Get the distance travelled by the robot in metres
+ */
+
+double Robot::getDistance() {
+
+   return _distance;
+}
+
+
+
+
+/*
+ * Get the y postion of the robot in metres
+ */
 double Robot::getY() {
    return _position->getY();
 }
@@ -146,61 +164,64 @@ double Robot::getTargetAngle() {
 void Robot::goTo(double x, double y) {
     _state = Go;
     time_between_updates = 100;
-
     _targets.push(new Point(x,y));
-
-
 }
-
+/*
+ * Stop the robot moving
+ */
 
 void Robot::stop() {
    _state = None;
-   time_between_updates = 0;
    _left->stop();
    _right->stop();;
 }
-void Robot::rotateTo(double angle)
-{
-	time_between_updates = 100;
+/*
+ * rotate the robot to the angle, in radians
+ */
+void Robot::rotateTo(double angle) {
 	_target_angle = angle;
     _state = Rotate;
 
 }
+/*
+ * The robot goes forward a distance
+ */
 
-void Robot::forwardTo(double distance)
-{
-	time_between_updates = 100;
+void Robot::forwardTo(double distance) {
 	_target_distance = distance+_distance;
+	_target_angle = _angle;
     _state = Forward;
-    delete _pid;
-    _pid = new PID(255,0,0);
 
 }
 
+/*
+ * set both of the wheels to go with the frequency
+ * set the pwm directly
+ */
 
-void Robot::drive(int frequency)
-{
 
-
-
-
+void Robot::drive(int frequency) {
 	_left->setFrequency(frequency);
     _right->setFrequency(frequency);
 }
-void Robot::wheelLeft(int frequency)
-{
+/*
+ * set the left wheels to go with the frequency
+ * set the pwm directly
+ */
+void Robot::wheelLeft(int frequency) {
 	time_between_updates = 100;
 	_left->setFrequency(frequency);
 }
-void Robot::wheelRight(int frequency)
-{
-
+/*
+ * set the right wheels to go with the frequency
+ * set the pwm directly
+ */
+void Robot::wheelRight(int frequency) {
 	_right->setFrequency(frequency);
 }
 
 
-void Robot::updateObserver()
-{
+void Robot::updateObserver() {
 
    //previous left distance
    double pld = _left->getDistance();
@@ -227,8 +248,6 @@ void Robot::updateObserver()
 
 void Robot::updateRobot() {
 
-
-
      state();
     _left_1->reset();
     _left_2->reset();
@@ -236,43 +255,33 @@ void Robot::updateRobot() {
     _right_1->reset();
     _right_2->reset();
 
-
-
 }
 
 void Robot::state() {
-  if(_state == Go || _state == Avoid || _state == Rotate || _state == Forward )
-  {
-
-     if(_left_1->trig() || _left_2->trig() || _center->trig()   ||_right_1->trig() ||  _right_2->trig()) {
-          _state = Avoid;
-     }
-     else {
-           _state = Go;
-     }
-
-     if( _state == Rotate) {
+	bool trigger = false;
+    if(_left_1->trig() || _left_2->trig() || _center->trig()   ||_right_1->trig() ||  _right_2->trig()) {
+    	trigger = true;
+    }
+     if( _state == Rotate && !trigger) {
           rotate();
-     }
-     else if( _state == Forward) {
+     } else if( _state == Forward && !trigger) {
            forward();
-     }
-     else if( _state == Avoid &&  _targets.front() != NULL) {
+     } else if( _state == Go &&  _targets.front() != NULL && !trigger) {
           avoid();
-     }
-     else if( _state == Go &&  _targets.front() != NULL) {
+     } else if( _state == Go &&  _targets.front() != NULL) {
           go();
+     } else if(trigger){
+    	 pause();
      }
 
 
   }
 
-}
 
 void Robot::forward() {
    double freq_velocity = _pid->next(_distance,_target_distance);
-    if(freq_velocity>255)
-       freq_velocity = 255;
+    if(freq_velocity>100)
+       freq_velocity = 100;
     _left->setFrequency(freq_velocity);
     _right->setFrequency(freq_velocity);
 }
@@ -280,18 +289,27 @@ void Robot::forward() {
 void Robot::rotate() {
 
    double freq_velocity = _anglePID->next(_angle,_target_angle);
-    if(freq_velocity>255)
-       freq_velocity = 255;
-   _left->setFrequency(freq_velocity);
-   _right->setFrequency(-freq_velocity);
+    if(freq_velocity>100)
+       freq_velocity = 100;
+    if(freq_velocity<-100)
+       freq_velocity = -100;
+   _left->setFrequency(-freq_velocity);
+   _right->setFrequency(freq_velocity);
+   if(_angle > M_PI) {
+	   _angle = _angle - 2*M_PI;
+   }
+
+   if(_angle < -M_PI) {
+   	   _angle = _angle + 2*M_PI;
+      }
 }
 
 
 void Robot::go() {
 
     double freq_velocity = _pointPID->next(_position,_targets.front());
-    if(freq_velocity>255)
-        freq_velocity = 255;
+    if(freq_velocity>100)
+        freq_velocity = 100;
 
    double xdiff= _targets.front()->getX()-_position->getX();
    double ydiff= _targets.front()->getY()-_position->getY();
@@ -319,8 +337,7 @@ void Robot::go() {
       }
    }
 }
-void Robot::avoid()
-{
+void Robot::avoid() {
    double freq_velocity = _pointPID->next(_position,_targets.front());
 
 
@@ -400,6 +417,14 @@ void Robot::avoid()
      _right->setFrequency(freq_velocity+freq_omega);
 
 }
+
+/*
+ * Pause the robot
+ */
+
+void Robot::pause() {
+	stop();
+}
 /*
 *Update the robot few milliseconds
 * milliseconds are set in the time_between_updates variable
@@ -416,8 +441,6 @@ void Robot::heartbeat() {
 		updateRobot();
 
 	}
-
-
 }
 Json::Value Robot::getJSON(){
   Json::Value root;
@@ -454,13 +477,11 @@ void Robot::setJSON(Json::Value root){
   if(root.isMember("target-distance"))
     _target_distance = root.get("target-distance",0).asDouble();
 }
-ostream& operator<<(ostream& stream,Robot &ob)
-{
+ostream& operator<<(ostream& stream,Robot &ob) {
   stream<< ob.getJSON();
   return stream;
 }
-istream& operator>>(istream& stream,Robot &ob)
-{
+istream& operator>>(istream& stream,Robot &ob) {
   Json::Value root;
   stream>>root;
   ob.setJSON(root);
@@ -473,6 +494,5 @@ Robot::~Robot() {
 
 	if(t1.joinable())
 	    	t1.join();
-
-
+	stop();
 }

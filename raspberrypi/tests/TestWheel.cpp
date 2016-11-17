@@ -56,10 +56,20 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
   sensorPin[backwardpin] = sensorPin1;
   ticks[sensorPin1] =20;
 
+  int forwardpin2 = 11;
+  int backwardpin2 = 12;
+  int sensorPin2 = 13;
+  sensorPin[forwardpin2] = sensorPin2;
+  sensorPin[backwardpin2] = sensorPin2;
+  ticks[sensorPin2] =20;
+
+
 
   float diameter = 0.1;
 
   Wheel *test = new Wheel(diameter,forwardpin,backwardpin,new WheelSensor(sensorPin1,ticks[sensorPin1]));
+
+  Wheel *test2 = new Wheel(diameter,forwardpin2,backwardpin2,new WheelSensor(sensorPin2,ticks[sensorPin2]));
 
   SECTION( "Test frequency" )  {
 
@@ -88,41 +98,50 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
     REQUIRE(pins[forwardpin] == 0);
     REQUIRE(pins[backwardpin] == PWMRANGE);
-    //std::this_thread::sleep_for(std::chrono::seconds(10));
 
     test->setFrequency(0);
-
-    /*std::for_each(workers.begin(), workers.end(), [](std::thread &t) {
-		    assert(t.joinable());
-		      t.join();
-        });*/
   }
   SECTION( "simulate wheel turning 1 second" )  {
     test->setFrequency(50);
-    //duty = pins[forwardpin];
 
-    //std::thread t1(turn,sensorpin,ticks);
-    //std::thread t1(turn,forwardpin);
     std::this_thread::sleep_for(std::chrono::seconds(1));
     test->update();
     test->setFrequency(0);
-    //duty = pins[forwardpin];
     std::cout << *test;
-    //t1.join();
     REQUIRE(test->getDistance() > 0);
+
+    test->setFrequency(0);
   }
   SECTION( "simulate wheel turning 10 meters" )  {
     test->setFrequency(50);
 
-    //std::thread t1(turn,forwardpin);
     while(test->getDistance() < 10) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       test->update();
     }
     test->setFrequency(0);
-    //t1.join();
     REQUIRE(test->getDistance() > 10);
+    test->setFrequency(0);
   }
+  SECTION ("Test two wheels concurrently") {
+      	test->setFrequency(50);
+      	test2->setFrequency(100);
+      	for(int i = 0; i < 10;i++){
+      		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      		test2->update();
+      		test->update();
+      	}
+
+      	//maximum rate is5 revolutions per second
+      	std::cout <<*test;
+      	std::cout <<*test2;
+      	REQUIRE(test2->getVelocity() == Approx( (double)5*diameter*M_PI ).epsilon( 0.01 ));
+      	REQUIRE(test->getVelocity() == Approx( (double)2.5*diameter*M_PI ).epsilon( 0.01 ));
+
+      	test->setFrequency(0);
+      	test2->setFrequency(0);
+
+      }
 }
   TEST_CASE( "Wheel stream", "streem methods" ) {
     //test the stream out method
@@ -159,8 +178,6 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
 
     Wheel *test2 = new Wheel(0.1,2,3,new WheelSensor(4,10));
-    //test2->setFrequency(33);
-
     SECTION( "Test stream out method" )  {
       std::stringstream sstream;
       Json::Value root;
@@ -182,7 +199,6 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(root.get("motor-reverse-pin",0) == backwardpin);
       REQUIRE(root.get("frequency",0) == frequency);
 
-      test2->setFrequency(0);
       test->setFrequency(0);
 
 
@@ -211,10 +227,10 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
 
       ss >> *test;
-      cout << *test << std::endl;
+
 
       ss << *test;
-      std::cout <<*test;
+
       ss >> root;
       Json::Value s = root.get("sensor","");
       REQUIRE(s.get("ticks",0) == 27 );
@@ -245,13 +261,14 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       ss >> *test2;
 
       REQUIRE( test2->getSensor()->pin() == sensorpin1 );
-      REQUIRE( test2->getSensor()->getDownPulse() == ticks1 );
-      REQUIRE( test2->getSensor()->getUpPulse() == ticks1);
-      REQUIRE( test2->getSensor()->trig() == true);
+      REQUIRE( test2->getSensor()->getDownPulse() == test->getSensor()->getDownPulse() );
+      REQUIRE( test2->getSensor()->getUpPulse() == test->getSensor()->getUpPulse());
+      REQUIRE( test2->getSensor()->trig() == test->getSensor()->trig());
       //test get
-      REQUIRE( test2->getVelocity() == M_PI*diameter1 );
-      REQUIRE( test2->getDistance() == M_PI*diameter1 );
+      REQUIRE( test2->getVelocity() == test->getVelocity() );
+      REQUIRE( test2->getDistance() == test->getDistance() );
 
 
     }
+
 }

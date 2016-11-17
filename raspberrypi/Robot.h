@@ -40,8 +40,7 @@
 
 
 
-enum Behavour {Go,Avoid,Wall,Rotate,Forward,None};
-enum Tests {Sensors,Wheels,Robots,Interfaces,Registers,Nones};
+enum Behavour {Go,Avoid,Wall,Rotate,Forward,Pause,None};
 
 class Robot
 {
@@ -64,6 +63,7 @@ class Robot
     double getTargetX();
     double getTargetY();
     double getTargetAngle();
+    double getDistance();
     //directly sets left wheel to required freqency
     void wheelLeft(int frequency);
     //directly sets right wheel to required freqency
@@ -105,6 +105,9 @@ class Robot
 
     //robot is avoiding an obstical
     void avoid();
+
+    //robot is paused
+    void pause();
 
     //robot is travelling along a wall
     void wall();

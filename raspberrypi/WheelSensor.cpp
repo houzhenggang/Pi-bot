@@ -64,6 +64,7 @@ double WheelSensor::getVelocity() {
 *
 */
 void WheelSensor::update(double diameter, bool forward) {
+  _previousDistance = _distance;
 
   //Find out the distance the wheel has turned from the pulses;
   double cnst = M_PI*diameter/(2*_ticks);
@@ -82,7 +83,7 @@ void WheelSensor::update(double diameter, bool forward) {
     _distance = _distance - cnst*deltaPulses;
   }
   auto now = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::seconds>(now - _timeLastUpdate);
+  std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::milliseconds>(now - _timeLastUpdate);
   //work out the rotational freqency in radians per second;
   double timespan =  time_span.count();
   double f = ((double)deltaPulses)/ (2*_ticks*timespan);

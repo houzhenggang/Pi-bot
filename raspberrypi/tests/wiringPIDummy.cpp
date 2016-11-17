@@ -63,14 +63,19 @@ void (*pin0Risingfunc) (void);
 
     muxPin[pin].lock();
     while(pins[pin]) {
+    	int maxRotationsPerSecond = 5;
+    	      //Maximum rotational freqency 5 rotations per second
+    	      //1000 milliseconds
+    	      //5*ticks =  total number of ticks
+    	      // time between each tick is 1000/(5*ticks)
+    	int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
+    	muxPin[pin].unlock();
+    	std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
+    	muxPin[pin].lock();
 
-      int maxRotationsPerSecond = 5;
-      //Maximum rotational freqency 5 rotations per second
-      //1000 milliseconds
-      //5*ticks =  total number of ticks
-      // time between each tick is 1000/(5*ticks)
 
-      int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
+
+
       switch(sensorPin[pin]){
         case 0:
         pin0Risingfunc();
@@ -141,9 +146,7 @@ void (*pin0Risingfunc) (void);
         pin16Fallingfunc();
         break;
       }
-      muxPin[pin].unlock();
-      std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
-      muxPin[pin].lock();
+
     }
   muxPin[pin].unlock();
   }
