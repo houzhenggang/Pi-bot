@@ -63,7 +63,7 @@ Robot::Robot()
    _position = new Point(0,0);
 
 
-  _pointPID = new PIDPoint(100,1,1);
+  _pointPID = new PIDPoint(20,0.01,0.001);
    _anglePID = new PIDAngle(20,0.001,0.001);
    _pid = new PID(100,1,1);
 
@@ -80,6 +80,8 @@ Robot::Robot()
 
 
     time_between_updates = 100;
+    running = true;
+    std::cout << "starting thread" << std::endl;
     std::thread t2(std::bind(Robot::heartbeat,this));
     t1 = std::move(t2);
 
@@ -163,7 +165,6 @@ double Robot::getTargetAngle() {
 
 void Robot::goTo(double x, double y) {
     _state = Go;
-    time_between_updates = 100;
     _targets.push(new Point(x,y));
 }
 /*
@@ -266,7 +267,7 @@ void Robot::state() {
           rotate();
      } else if( _state == Forward && !trigger) {
            forward();
-     } else if( _state == Go &&  _targets.front() != NULL && !trigger) {
+     } else if( _state == Go &&  _targets.front() != NULL && trigger) {
           avoid();
      } else if( _state == Go &&  _targets.front() != NULL) {
           go();
@@ -324,7 +325,7 @@ void Robot::go() {
      _left->setFrequency(lf);
      _right->setFrequency(rf);
 
-   } else {
+   } /*else {
       //if there is another target
       if(!_targets.empty()) {
          _targets.pop();
@@ -335,7 +336,7 @@ void Robot::go() {
           _anglePID->reset();
           stop();
       }
-   }
+   }*/
 }
 void Robot::avoid() {
    double freq_velocity = _pointPID->next(_position,_targets.front());
@@ -435,8 +436,9 @@ void Robot::pause() {
 void Robot::heartbeat() {
 
 
-	while(time_between_updates) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(time_between_updates));
+
+	while(running) {
+		std::this_thread::sleep_for(std::chrono::milliseconds( time_between_updates));
 		updateObserver();
 		updateRobot();
 
@@ -489,10 +491,23 @@ istream& operator>>(istream& stream,Robot &ob) {
 }
 
 Robot::~Robot() {
-	time_between_updates = 0;
+	running = false;
 	//wait for thread to finish (all variables should still be accessable to destructor has finished)
+
+	std::cout << "stopping thread" << std::endl;
 
 	if(t1.joinable())
 	    	t1.join();
 	stop();
+	delete _left;
+	delete _right;
+	delete _position;
+	delete _pointPID;
+	delete _anglePID;
+	delete _pid;
+	delete _left_1;
+	delete _left_2;
+	delete _center;
+	delete _right_1;
+	delete _right_2;
 }

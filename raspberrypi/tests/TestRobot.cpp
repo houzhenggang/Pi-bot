@@ -3,8 +3,8 @@
  * @Date:   28-10-2016
  * @Email:  kieranwyse@gmail.com
  * @Project: Pi-Bot
- * @Last modified by:   Kieran Wyse
- * @Last modified time: 15-11-2016
+* @Last modified by:   Kieran Wyse
+* @Last modified time: 19-11-2016
  * @License: GPL v3
  *     This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@
 const double M_PI = 3.14159265359;
 
 using namespace std;
-
 TEST_CASE( "Robot object", "test methods" ) {
 	//Test the constructor
 	Robot *test = new Robot();
+
 
 	int sensorPinLeft = 12;
 	int sensorPinRight = 11;
@@ -62,6 +62,7 @@ TEST_CASE( "Robot object", "test methods" ) {
 		REQUIRE(test->getTargetX() == 0);
 		REQUIRE(test->getTargetY() == 0);
 		REQUIRE(test->getTargetAngle() == 0);
+		delete test;
 
 	}
 
@@ -71,7 +72,7 @@ TEST_CASE( "Robot object", "test methods" ) {
 		test->stop();
 		cout<<*test;
 		REQUIRE(test->getX() != 0);
-
+		delete test;
 	}
 	SECTION("rotate robot"){
 		std::cout <<"rotating to pi/2" << std::endl;
@@ -124,8 +125,11 @@ TEST_CASE( "Robot object", "test methods" ) {
 		test->stop();
 
 		REQUIRE(test->getAngle() == Approx(0 ).epsilon( 0.1 ));
+		delete test;
 
 	}
+
+
 }
 TEST_CASE( "Robot move", "test move method" ) {
 
@@ -162,18 +166,20 @@ TEST_CASE( "Robot move", "test move method" ) {
 		REQUIRE(test->getX() ==Approx(10 ).epsilon( 0.1 ));
 		REQUIRE(test->getY() ==Approx(0 ).epsilon( 0.1 ));
 		test->stop();
+		delete test;
 
 	}
 	SECTION("Test goto"){
 			test->goTo(1,1);
 			for(int i = 0; i < 30 ; i++) {
-				//std::cout <<"robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+				std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 			}
 			REQUIRE(test->getX() ==Approx(1 ).epsilon( 0.1 ));
 			REQUIRE(test->getY() ==Approx(1 ).epsilon( 0.1 ));
 			test->stop();
+			delete test;
+
 
 		}
 }
-

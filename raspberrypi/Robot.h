@@ -32,6 +32,7 @@
 
 #include <queue>
 #include <cmath>
+#include <mutex>
 #include "Wheel.h"
 #include "Sensor.h"
 #include "PIDPoint.h"
@@ -83,8 +84,11 @@ class Robot
     ~Robot();
   private:
     void heartbeat();
-    int time_between_updates;
+
     std::thread t1;
+    std::mutex update_mtx;
+    int time_between_updates;
+    bool running;
 
 
 
