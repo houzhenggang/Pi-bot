@@ -33,6 +33,7 @@
 #include <queue>
 #include <cmath>
 #include <mutex>
+#include <algorithm>
 #include "Wheel.h"
 #include "Sensor.h"
 #include "PIDPoint.h"
@@ -83,11 +84,17 @@ class Robot
 
     ~Robot();
   private:
+    //the main thread that controls the program
+    std::thread t1;
+
+    //The method called by the main thread
     void heartbeat();
 
-    std::thread t1;
+    //The main thread lock, need due to any external modifications of the state of the robot will cause segmentaion faults
     std::mutex update_mtx;
     int time_between_updates;
+
+    ///Used by the main thread to determin wether to stop
     bool running;
 
 
@@ -117,23 +124,28 @@ class Robot
     void wall();
 
     //distance travelled by the robot
+    std::mutex mtxDistance;
     double _distance;
 
     //current angle of the robot
+    std::mutex mtxAngle;
     double _angle;
 
     //current postion of the robot
+    std::mutex mtxPoint;
     Point *_position;
 
 
     //angle the robot is going to used during rotation
+    std::mutex mtxTargetAngle;
     double _target_angle;
 
-    //distance the robot is going to usded during forward to command
+    //distance the robot is going to used during forward to command
     double _target_distance;
 
     //list of positions the robot will go to
-    std::queue<Point*> _targets;
+    std::mutex mtxTargets;
+    std::deque<Point*> _targets;
 
 
     PIDPoint * _pointPID;

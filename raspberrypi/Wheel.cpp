@@ -107,16 +107,19 @@ void Wheel::setFrequency(int frequency) {
    if(frequency < -MAX_FREQUENCY)
       frequency = -MAX_FREQUENCY;
    //frequency = _contol->modify( frequency);
-   if(frequency > 0) {
-       _forward = true;
-       pwm(_motorPinForward,frequency);
-       pwm(_motorPinReverse,0);
-   } else {
-       _forward = false;
-       pwm(_motorPinForward,0);
-       pwm(_motorPinReverse,-frequency);
+   if(frequency != _frequency) {
+	   if(frequency > 0) {
+	          _forward = true;
+	          pwm(_motorPinForward,frequency);
+	          pwm(_motorPinReverse,0);
+	      } else {
+	          _forward = false;
+	          pwm(_motorPinForward,0);
+	          pwm(_motorPinReverse,-frequency);
+	      }
+	      _frequency = frequency;
    }
-   _frequency = frequency;
+
 }
 
 void Wheel::pwm(int pin,int duty) {

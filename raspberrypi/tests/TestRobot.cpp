@@ -113,8 +113,12 @@ TEST_CASE( "Robot object", "test methods" ) {
 			std::cout << "Angle is at:" << test->getAngle() << std::endl;
 		}
 		test->stop();
-
-		REQUIRE(test->getAngle() == Approx( M_PI ).epsilon( 0.1 ));
+		double a = test->getAngle();
+		if( a < 0) {
+			CHECK( a == Approx( -M_PI ).epsilon( 0.1 ));
+		} else {
+			CHECK( a == Approx( M_PI ).epsilon( 0.1 ));
+		}
 
 		std::cout <<"rotating to 0 or 2pi" << std::endl;
 		test->rotateTo( 2*M_PI);
@@ -159,27 +163,76 @@ TEST_CASE( "Robot move", "test move method" ) {
 		test->forwardTo(10);
 		while( test->getDistance() < 10) {
 			std::cout <<"robot at distance:" <<test->getDistance()<< std::endl;
-			std::cout <<"robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+			Json::Value value = test->getJSON();
+			std::cout <<"robot at x:" <<test->getX()<<" y at:"<<test->getY() <<" angle:"<<value.get("angle","none") <<" target angle:" << value.get("target-angle","none")<<std::endl;
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		REQUIRE(test->getDistance() ==Approx(10 ).epsilon( 0.1 ));
 		REQUIRE(test->getX() ==Approx(10 ).epsilon( 0.1 ));
 		REQUIRE(test->getY() ==Approx(0 ).epsilon( 0.1 ));
-		test->stop();
-		delete test;
+
 
 	}
-	SECTION("Test goto"){
-			test->goTo(1,1);
-			for(int i = 0; i < 30 ; i++) {
-				std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
-				std::this_thread::sleep_for(std::chrono::seconds(1));
+	delete test;
+}
+
+
+	TEST_CASE( "Robot goto", "test move method" ) {
+
+		Robot *test = new Robot();
+
+		int sensorPinLeft = 12;
+		int sensorPinRight = 11;
+
+		int forwardLeftpin = 9;
+		int forwardRightpin = 10;
+
+		int backwardLeftpin = 6;
+		int backwardRightpin = 5;
+
+		//Have to tell the system what pins are attached to the left and right wheel sensors
+		sensorPin[forwardLeftpin] = sensorPinLeft;
+		sensorPin[backwardLeftpin] = sensorPinLeft;
+		//Have to tell the system how many ticks are on each of the wheel sensors
+		ticks[sensorPinLeft] = 20;
+
+		sensorPin[forwardRightpin] = sensorPinRight;
+		sensorPin[backwardRightpin] = sensorPinRight;
+		ticks[sensorPinRight] = 20;
+		//test get
+
+		SECTION("Test goto"){
+				test->goTo(1,1);
+				for(int i = 0; i < 30 ; i++) {
+					Json::Value value = test->getJSON();
+					std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["targets"]<<std::endl;
+					std::this_thread::sleep_for(std::chrono::seconds(1));
+				}
+				test->stop();
+				REQUIRE(test->getX() ==Approx(1 ).epsilon( 0.1 ));
+				REQUIRE(test->getY() ==Approx(1 ).epsilon( 0.1 ));
+
+
+				test->goTo(4,7);
+				for(int i = 0; i < 30 ; i++) {
+								std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+								std::this_thread::sleep_for(std::chrono::seconds(1));
+							}
+				REQUIRE(test->getX() ==Approx(4 ).epsilon( 0.1 ));
+				REQUIRE(test->getY() ==Approx(7 ).epsilon( 0.1 ));
+
+				test->goTo(-4,-3);
+								for(int i = 0; i < 40 ; i++) {
+												std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+												std::this_thread::sleep_for(std::chrono::seconds(1));
+											}
+								REQUIRE(test->getX() ==Approx(-4 ).epsilon( 0.1 ));
+								REQUIRE(test->getY() ==Approx(-3 ).epsilon( 0.1 ));
+
+
+				delete test;
+
+
+
 			}
-			REQUIRE(test->getX() ==Approx(1 ).epsilon( 0.1 ));
-			REQUIRE(test->getY() ==Approx(1 ).epsilon( 0.1 ));
-			test->stop();
-			delete test;
-
-
-		}
 }

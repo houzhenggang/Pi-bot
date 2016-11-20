@@ -119,8 +119,10 @@ void Robot::pullup() {
  */
 
 double Robot::getX() {
-
-   return _position->getX();
+	mtxPoint.lock();
+   double x = _position->getX();
+   mtxPoint.unlock();
+   return x;
 }
 
 /*
@@ -128,8 +130,12 @@ double Robot::getX() {
  */
 
 double Robot::getDistance() {
+	mtxDistance.lock();
+	double distance = _distance;
+	mtxDistance.unlock();
 
-   return _distance;
+
+   return distance;
 }
 
 
@@ -139,33 +145,55 @@ double Robot::getDistance() {
  * Get the y postion of the robot in metres
  */
 double Robot::getY() {
-   return _position->getY();
+	mtxPoint.lock();
+   double y =  _position->getY();
+   mtxPoint.unlock();
+   return y;
 }
 double Robot::getAngle() {
-   return _angle;
+	mtxAngle.lock();
+	double angle = _angle;
+	mtxAngle.unlock();
+   return angle;
 }
 
 
 double Robot::getTargetX() {
-  if(_targets.size())
-    return _targets.front()->getX();
-  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
-  return 0;
+  mtxTargets.lock();
+  double x = 0;
+  if(_targets.size()) {
+	  x = _targets.front()->getX();
+  } else {
+	  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
+  }
+  mtxTargets.unlock();
+  return x;
 }
 
 double Robot::getTargetY() {
-  if(_targets.size())
-    return _targets.front()->getX();
-  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
-  return 0;
+	mtxTargets.lock();
+	double y = 0;
+  if(_targets.size()) {
+	  return _targets.front()->getX();
+  } else {
+	  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
+
+  }
+
+  return y;
 }
 double Robot::getTargetAngle() {
-   return _target_angle;
+   mtxTargetAngle.lock();
+   double target_angle = _target_angle;
+   mtxTargetAngle.unlock();
+   return target_angle;
 }
 
 void Robot::goTo(double x, double y) {
     _state = Go;
-    _targets.push(new Point(x,y));
+    mtxTargetAngle.lock();
+    _targets.push_back(new Point(x,y));
+    mtxTargetAngle.unlock();
 }
 /*
  * Stop the robot moving
@@ -173,14 +201,18 @@ void Robot::goTo(double x, double y) {
 
 void Robot::stop() {
    _state = None;
+   update_mtx.lock();
    _left->stop();
-   _right->stop();;
+   _right->stop();
+   update_mtx.unlock();
 }
 /*
  * rotate the robot to the angle, in radians
  */
 void Robot::rotateTo(double angle) {
+	mtxTargetAngle.lock();
 	_target_angle = angle;
+	mtxTargetAngle.unlock();
     _state = Rotate;
 
 }
@@ -189,8 +221,14 @@ void Robot::rotateTo(double angle) {
  */
 
 void Robot::forwardTo(double distance) {
+	mtxDistance.lock();
 	_target_distance = distance+_distance;
+	mtxDistance.unlock();
+	mtxAngle.lock();
+	mtxTargetAngle.lock();
 	_target_angle = _angle;
+	mtxTargetAngle.unlock();
+	mtxAngle.unlock();
     _state = Forward;
 
 }
@@ -202,23 +240,28 @@ void Robot::forwardTo(double distance) {
 
 
 void Robot::drive(int frequency) {
+	update_mtx.lock();
 	_left->setFrequency(frequency);
     _right->setFrequency(frequency);
+    update_mtx.unlock();
 }
 /*
  * set the left wheels to go with the frequency
  * set the pwm directly
  */
 void Robot::wheelLeft(int frequency) {
-	time_between_updates = 100;
+	update_mtx.lock();
 	_left->setFrequency(frequency);
+	update_mtx.unlock();
 }
 /*
  * set the right wheels to go with the frequency
  * set the pwm directly
  */
 void Robot::wheelRight(int frequency) {
+	update_mtx.lock();
 	_right->setFrequency(frequency);
+	update_mtx.unlock();
 }
 
 
@@ -239,12 +282,24 @@ void Robot::updateObserver() {
    double deltaDistance = 0.5*(ldist+rdist);
    double deltaAngle = (rdist-ldist)/_wheel_base;
 
+   mtxAngle.lock();
    _angle = deltaAngle+_angle;
+   if(_angle > M_PI) {
+   	   _angle = _angle - 2*M_PI;
+      }
 
+      if(_angle < -M_PI) {
+      	   _angle = _angle + 2*M_PI;
+      }
+      mtxAngle.unlock();
+      mtxDistance.lock();
    _distance = deltaDistance + _distance;
+   mtxDistance.unlock();
 
+   mtxPoint.lock();
    _position->setX(deltaDistance*cos(_angle)+_position->getX());
    _position->setY(deltaDistance*sin(_angle)+_position->getY());
+   mtxPoint.unlock();
 }
 
 void Robot::updateRobot() {
@@ -278,57 +333,85 @@ void Robot::state() {
 
   }
 
-
+/*
+ * Go forward in a straight line
+ */
 void Robot::forward() {
+	mtxDistance.lock();
    double freq_velocity = _pid->next(_distance,_target_distance);
-    if(freq_velocity>100)
-       freq_velocity = 100;
-    _left->setFrequency(freq_velocity);
-    _right->setFrequency(freq_velocity);
+   mtxDistance.unlock();
+
+   //Try to keep it in a straigt line by keeping the angle pointed by the robot the same as the intial angle
+   mtxAngle.lock();
+   	mtxTargetAngle.lock();
+      double freq_omega = _anglePID->next(_angle,_target_angle);
+      mtxTargetAngle.unlock();
+      mtxAngle.unlock();
+
+
+    update_mtx.lock();
+    _left->setFrequency(freq_velocity-freq_omega);
+    _right->setFrequency(freq_velocity+freq_omega);
+    update_mtx.unlock();
 }
 
 void Robot::rotate() {
 
+	mtxAngle.lock();
+	mtxTargetAngle.lock();
    double freq_velocity = _anglePID->next(_angle,_target_angle);
-    if(freq_velocity>100)
-       freq_velocity = 100;
-    if(freq_velocity<-100)
-       freq_velocity = -100;
+   mtxTargetAngle.unlock();
+   mtxAngle.unlock();
+
+    update_mtx.lock();
    _left->setFrequency(-freq_velocity);
    _right->setFrequency(freq_velocity);
-   if(_angle > M_PI) {
-	   _angle = _angle - 2*M_PI;
-   }
+   update_mtx.unlock();
 
-   if(_angle < -M_PI) {
-   	   _angle = _angle + 2*M_PI;
-      }
+
 }
 
 
 void Robot::go() {
-
+	mtxPoint.lock();
+	mtxTargetAngle.lock();
     double freq_velocity = _pointPID->next(_position,_targets.front());
     if(freq_velocity>100)
         freq_velocity = 100;
+    mtxTargetAngle.unlock();
+
 
    double xdiff= _targets.front()->getX()-_position->getX();
    double ydiff= _targets.front()->getY()-_position->getY();
-
+   mtxPoint.unlock();
+   mtxTargetAngle.lock();
     _target_angle = atan2(ydiff,xdiff);
+    mtxTargetAngle.unlock();
 
+    mtxAngle.lock();
+    mtxTargetAngle.lock();
    double freq_omega = _anglePID->next(_angle, _target_angle);
+   mtxTargetAngle.unlock();
+   mtxAngle.unlock();
    double lf = freq_velocity-freq_omega;
    double rf = freq_velocity+freq_omega;
 
    if(xdiff*xdiff+ydiff*ydiff>0.01) {
+	   update_mtx.lock();
      _left->setFrequency(lf);
      _right->setFrequency(rf);
+     update_mtx.unlock();
 
-   } /*else {
+   } else {
       //if there is another target
-      if(!_targets.empty()) {
-         _targets.pop();
+	   mtxTargetAngle.lock();
+	   bool empty = _targets.empty();
+	   mtxTargetAngle.unlock();
+
+      if(!empty) {
+    	  mtxTargetAngle.lock();
+         _targets.pop_front();
+         mtxTargetAngle.unlock();
          _pointPID->reset();
          _anglePID->reset();
       } else {
@@ -336,11 +419,14 @@ void Robot::go() {
           _anglePID->reset();
           stop();
       }
-   }*/
+   }
 }
 void Robot::avoid() {
+	mtxPoint.lock();
+	mtxTargetAngle.lock();
    double freq_velocity = _pointPID->next(_position,_targets.front());
-
+   mtxTargetAngle.unlock();
+   mtxPoint.unlock();
 
    double avoid_angle = 0;
    //number of sensors triggered
@@ -399,23 +485,30 @@ void Robot::avoid() {
    }
 
    //work out where robot should go if no obstical
+   mtxPoint.lock();
    double xdiff= _targets.front()->getX()-_position->getX();
    double ydiff= _targets.front()->getY()-_position->getY();
+   mtxPoint.unlock();
+
 
    double target_angle = atan2(ydiff,xdiff);
 
 
     //blend behavours
+   mtxTargetAngle.lock();
     _target_angle = (target_angle+avoid_angle)/2;
+
 
     //get the diiferentail in frequency of wheels from pid controller
     double freq_omega = 0;
     if(_anglePID != NULL)
         freq_omega = _anglePID->next(_angle, _target_angle);
-
+    mtxTargetAngle.unlock();
     //set the left and right wheels
+    update_mtx.lock();
      _left->setFrequency(freq_velocity-freq_omega);
      _right->setFrequency(freq_velocity+freq_omega);
+     update_mtx.unlock();
 
 }
 
@@ -435,17 +528,20 @@ void Robot::pause() {
 */
 void Robot::heartbeat() {
 
-
+	update_mtx.lock();
 
 	while(running) {
+		update_mtx.unlock();
 		std::this_thread::sleep_for(std::chrono::milliseconds( time_between_updates));
 		updateObserver();
 		updateRobot();
-
+		update_mtx.lock();
 	}
+	update_mtx.unlock();
 }
 Json::Value Robot::getJSON(){
   Json::Value root;
+  update_mtx.lock();
   root["distance"] = _distance;
   root["angle"] = _angle;
   root["position"] = _position->getJSON();
@@ -464,10 +560,18 @@ Json::Value Robot::getJSON(){
   root["center"] = _center->getJSON();
   root["right_1"] = _right_1->getJSON();
   root["right_2"] = _right_2->getJSON();
+  root["targets"] = _targets.front()->getJSON();
+  std::deque<Point*>::iterator iterator =_targets.begin();
+  while( iterator!= _targets.end()) {
+	  root["targets"].append( (*iterator)->getJSON());
+	  iterator++;
+  }
 
+  update_mtx.unlock();
   return root;
 }
 void Robot::setJSON(Json::Value root){
+	update_mtx.lock();
   if(root.isMember("distance"))
     _distance = root.get("distance",0).asDouble();
   if(root.isMember("angle"))
@@ -478,6 +582,7 @@ void Robot::setJSON(Json::Value root){
     _target_angle = root.get("target-angle",0).asDouble();
   if(root.isMember("target-distance"))
     _target_distance = root.get("target-distance",0).asDouble();
+  update_mtx.unlock();
 }
 ostream& operator<<(ostream& stream,Robot &ob) {
   stream<< ob.getJSON();
@@ -491,7 +596,9 @@ istream& operator>>(istream& stream,Robot &ob) {
 }
 
 Robot::~Robot() {
+	update_mtx.lock();
 	running = false;
+	update_mtx.unlock();
 	//wait for thread to finish (all variables should still be accessable to destructor has finished)
 
 	std::cout << "stopping thread" << std::endl;
@@ -499,6 +606,7 @@ Robot::~Robot() {
 	if(t1.joinable())
 	    	t1.join();
 	stop();
+
 	delete _left;
 	delete _right;
 	delete _position;

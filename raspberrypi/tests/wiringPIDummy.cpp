@@ -62,7 +62,6 @@ void (*pin0Risingfunc) (void);
 
   void turn(int pin) {
 
-   // muxPin[pin].lock();
 	  muxPin.lock();
     while(pins[pin]) {
     	int maxRotationsPerSecond = 5;
@@ -71,11 +70,10 @@ void (*pin0Risingfunc) (void);
     	      //5*ticks =  total number of ticks
     	      // time between each tick is 1000/(5*ticks)
     	int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
-    	//muxPin[pin].unlock();
+
     	muxPin.unlock();
     	std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
     	muxPin.lock();
-    	//muxPin[pin].lock();
 
 
 
@@ -152,7 +150,6 @@ void (*pin0Risingfunc) (void);
       }
 
     }
-  //muxPin[pin].unlock();
     muxPin.unlock();
   }
 
@@ -251,14 +248,12 @@ std::array<std::thread,17> workers = {};
 
 void softPwmWrite (int pin,int duty) {
 
-  //muxPin[pin].lock();
 	muxPin.lock();
   int is_running = pins[pin];
   pins[pin] =duty;
-  //muxPin[pin].unlock();
   muxPin.unlock();
   //start the thread up
-  if(is_running == 0 && duty) {
+  if(is_running == 0 && duty  && !workers[pin].joinable()) {
     std::thread t1(turn,pin);
     std::cout<< "pin out:" <<pin <<std::endl;
     workers[pin] = std::move(t1);
@@ -266,8 +261,12 @@ void softPwmWrite (int pin,int duty) {
   //wait for the thread to end before moving on
   //if we don't it is not pretty
   if(is_running && duty == 0) {
-	  if(workers[pin].joinable())
+	  std::cout<< "stopping thread pin out:" <<pin <<std::endl;
+	  if(workers[pin].joinable()) {
+		  std::cout<<"waiting for thread to stop";
 		  workers[pin].join();
+		  std::cout<< "stopped:"<<pin<<std::endl;
+	  }
   }
 }
 
