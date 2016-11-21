@@ -22,7 +22,6 @@
 
 #include "WheelSensor.h"
 
-const double M_PI = 3.14159265359;
 
 WheelSensor::WheelSensor(int pin,int ticks) : InterInterface(pin) {
   pinMode (pin, OUTPUT) ;

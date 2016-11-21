@@ -30,6 +30,9 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
+const double M_PI = 3.14159265359;
+
+
 #include <queue>
 #include <cmath>
 #include <mutex>
@@ -154,6 +157,7 @@ class Robot
 
 
     double _wheel_base;
+    std::mutex mtxState;
     Behavour _state;
 
     Wheel *_left;

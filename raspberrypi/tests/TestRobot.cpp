@@ -3,8 +3,8 @@
  * @Date:   28-10-2016
  * @Email:  kieranwyse@gmail.com
  * @Project: Pi-Bot
-* @Last modified by:   Kieran Wyse
-* @Last modified time: 19-11-2016
+ * @Last modified by:   Kieran Wyse
+ * @Last modified time: 19-11-2016
  * @License: GPL v3
  *     This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 
-const double M_PI = 3.14159265359;
+
 
 using namespace std;
 TEST_CASE( "Robot object", "test methods" ) {
@@ -177,62 +177,62 @@ TEST_CASE( "Robot move", "test move method" ) {
 }
 
 
-	TEST_CASE( "Robot goto", "test move method" ) {
+TEST_CASE( "Robot goto", "test move method" ) {
 
-		Robot *test = new Robot();
+	Robot *test = new Robot();
 
-		int sensorPinLeft = 12;
-		int sensorPinRight = 11;
+	int sensorPinLeft = 12;
+	int sensorPinRight = 11;
 
-		int forwardLeftpin = 9;
-		int forwardRightpin = 10;
+	int forwardLeftpin = 9;
+	int forwardRightpin = 10;
 
-		int backwardLeftpin = 6;
-		int backwardRightpin = 5;
+	int backwardLeftpin = 6;
+	int backwardRightpin = 5;
 
-		//Have to tell the system what pins are attached to the left and right wheel sensors
-		sensorPin[forwardLeftpin] = sensorPinLeft;
-		sensorPin[backwardLeftpin] = sensorPinLeft;
-		//Have to tell the system how many ticks are on each of the wheel sensors
-		ticks[sensorPinLeft] = 20;
+	//Have to tell the system what pins are attached to the left and right wheel sensors
+	sensorPin[forwardLeftpin] = sensorPinLeft;
+	sensorPin[backwardLeftpin] = sensorPinLeft;
+	//Have to tell the system how many ticks are on each of the wheel sensors
+	ticks[sensorPinLeft] = 20;
 
-		sensorPin[forwardRightpin] = sensorPinRight;
-		sensorPin[backwardRightpin] = sensorPinRight;
-		ticks[sensorPinRight] = 20;
-		//test get
+	sensorPin[forwardRightpin] = sensorPinRight;
+	sensorPin[backwardRightpin] = sensorPinRight;
+	ticks[sensorPinRight] = 20;
+	//test get
 
-		SECTION("Test goto"){
-				test->goTo(1,1);
-				for(int i = 0; i < 30 ; i++) {
-					Json::Value value = test->getJSON();
-					std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["targets"]<<std::endl;
-					std::this_thread::sleep_for(std::chrono::seconds(1));
-				}
-				test->stop();
-				REQUIRE(test->getX() ==Approx(1 ).epsilon( 0.1 ));
-				REQUIRE(test->getY() ==Approx(1 ).epsilon( 0.1 ));
-
-
-				test->goTo(4,7);
-				for(int i = 0; i < 30 ; i++) {
-								std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
-								std::this_thread::sleep_for(std::chrono::seconds(1));
-							}
-				REQUIRE(test->getX() ==Approx(4 ).epsilon( 0.1 ));
-				REQUIRE(test->getY() ==Approx(7 ).epsilon( 0.1 ));
-
-				test->goTo(-4,-3);
-								for(int i = 0; i < 40 ; i++) {
-												std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
-												std::this_thread::sleep_for(std::chrono::seconds(1));
-											}
-								REQUIRE(test->getX() ==Approx(-4 ).epsilon( 0.1 ));
-								REQUIRE(test->getY() ==Approx(-3 ).epsilon( 0.1 ));
+	SECTION("Test goto"){
+		test->goTo(1,1);
+		for(int i = 0; i < 30 ; i++) {
+			Json::Value value = test->getJSON();
+			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["state"]<<std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		test->stop();
+		REQUIRE(test->getX() ==Approx(1 ).epsilon( 0.1 ));
+		REQUIRE(test->getY() ==Approx(1 ).epsilon( 0.1 ));
 
 
-				delete test;
+		test->goTo(4,7);
+		for(int i = 0; i < 30 ; i++) {
+			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		REQUIRE(test->getX() ==Approx(4 ).epsilon( 0.1 ));
+		REQUIRE(test->getY() ==Approx(7 ).epsilon( 0.1 ));
+
+		test->goTo(-4,-3);
+		for(int i = 0; i < 40 ; i++) {
+			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+		}
+		REQUIRE(test->getX() ==Approx(-4 ).epsilon( 0.1 ));
+		REQUIRE(test->getY() ==Approx(-3 ).epsilon( 0.1 ));
+
+
+		delete test;
 
 
 
-			}
+	}
 }

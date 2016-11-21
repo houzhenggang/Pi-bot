@@ -48,4 +48,4 @@ TestWheel: tests/TestWheel.cpp Wheel.cpp Wheel.h WheelSensor.h WheelSensor.cpp I
 	g++ -g -std=c++11 -o tests/TestWheel tests/TestWheel.cpp Wheel.cpp WheelSensor.cpp InterInterface.cpp jsoncpp.cpp tests/wiringPIDummy.cpp TractionControl.cpp
 
 TestRobot: tests/TestRobot.cpp Robot.cpp Robot.h Point.cpp Point.h Wheel.cpp Wheel.h WheelSensor.h WheelSensor.cpp InterInterface.h InterInterface.cpp TractionControl.cpp TractionControl.h
-	g++ -g -std=c++11 -o tests/TestRobot tests/TestRobot.cpp robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  PID.cpp PIDAngle.cpp  PIDPoint.cpp TractionControl.cpp WheelSensor.CPP jsoncpp.cpp tests/wiringPIDummy.cpp
+	g++ -g -std=c++11 -o tests/TestRobot tests/TestRobot.cpp Robot.cpp Point.cpp Wheel.cpp Sensor.cpp  InterInterface.cpp  PID.cpp PIDAngle.cpp  PIDPoint.cpp TractionControl.cpp WheelSensor.cpp jsoncpp.cpp tests/wiringPIDummy.cpp -lpthread

@@ -22,7 +22,6 @@
 
 
 #include "Robot.h"
-const double M_PI = 3.14159265359;
 
 Robot::Robot()
 {
@@ -82,7 +81,7 @@ Robot::Robot()
     time_between_updates = 100;
     running = true;
     std::cout << "starting thread" << std::endl;
-    std::thread t2(std::bind(Robot::heartbeat,this));
+    std::thread t2(std::bind(&Robot::heartbeat,this));
     t1 = std::move(t2);
 
 }
@@ -190,7 +189,9 @@ double Robot::getTargetAngle() {
 }
 
 void Robot::goTo(double x, double y) {
+	mtxState.lock();
     _state = Go;
+    mtxState.unlock();
     mtxTargetAngle.lock();
     _targets.push_back(new Point(x,y));
     mtxTargetAngle.unlock();
@@ -200,7 +201,9 @@ void Robot::goTo(double x, double y) {
  */
 
 void Robot::stop() {
+	mtxState.lock();
    _state = None;
+   mtxState.unlock();
    update_mtx.lock();
    _left->stop();
    _right->stop();
@@ -213,7 +216,9 @@ void Robot::rotateTo(double angle) {
 	mtxTargetAngle.lock();
 	_target_angle = angle;
 	mtxTargetAngle.unlock();
+	mtxState.lock();
     _state = Rotate;
+    mtxState.unlock();
 
 }
 /*
@@ -229,7 +234,9 @@ void Robot::forwardTo(double distance) {
 	_target_angle = _angle;
 	mtxTargetAngle.unlock();
 	mtxAngle.unlock();
+	mtxState.lock();
     _state = Forward;
+    mtxState.unlock();
 
 }
 
@@ -318,17 +325,24 @@ void Robot::state() {
     if(_left_1->trig() || _left_2->trig() || _center->trig()   ||_right_1->trig() ||  _right_2->trig()) {
     	trigger = true;
     }
+    //mtxState.lock();
      if( _state == Rotate && !trigger) {
+    	 //mtxState.unlock();
           rotate();
      } else if( _state == Forward && !trigger) {
+    	 //mtxState.unlock();
            forward();
      } else if( _state == Go &&  _targets.front() != NULL && trigger) {
-          avoid();
+    	 //mtxState.unlock();
+    	 avoid();
      } else if( _state == Go &&  _targets.front() != NULL) {
+    	 //mtxState.unlock();
           go();
      } else if(trigger){
+    	 //mtxState.unlock();
     	 pause();
      }
+
 
 
   }
@@ -541,45 +555,80 @@ void Robot::heartbeat() {
 }
 Json::Value Robot::getJSON(){
   Json::Value root;
-  update_mtx.lock();
+  mtxDistance.lock();
   root["distance"] = _distance;
+  mtxDistance.unlock();
+  mtxAngle.lock();
   root["angle"] = _angle;
+  mtxAngle.unlock();
+  mtxPoint.lock();
   root["position"] = _position->getJSON();
+  mtxPoint.unlock();
+  mtxTargetAngle.lock();
   root["target-angle"] = _target_angle;
+  mtxTargetAngle.unlock();
   root["target-distance"] = _target_distance;
 
   root["PID-2d-points"] = _pointPID->getJSON();
   root["PID-angle"] = _anglePID->getJSON();
   root["PID-angle"] = _pid->getJSON();
 
+  update_mtx.lock();
   root["left-wheel"] = _left->getJSON();
   root["right-wheel"] = _right->getJSON();
+  update_mtx.unlock();
 
   root["left_1"] = _left_1->getJSON();
   root["left_2"] = _left_2->getJSON();
   root["center"] = _center->getJSON();
   root["right_1"] = _right_1->getJSON();
   root["right_2"] = _right_2->getJSON();
-  root["targets"] = _targets.front()->getJSON();
+  mtxTargets.lock();
   std::deque<Point*>::iterator iterator =_targets.begin();
   while( iterator!= _targets.end()) {
 	  root["targets"].append( (*iterator)->getJSON());
 	  iterator++;
   }
-
-  update_mtx.unlock();
+  mtxTargets.unlock();
+  mtxState.lock();
+  root["state"] = _state;
+  switch(_state) {
+  case Go :
+	  root["state"] = "Go";
+	  break;
+  case Avoid:
+	  root["state"] = "Avoid";
+	  break;
+  case Rotate :
+	  root["state"] = "Rotate";
+	  break;
+  case Pause:
+	  root["state"] = "Pause";
+	  break;
+  case None:
+	  root["state"] = "None";
+	  break;
+  }
+  mtxState.unlock();
   return root;
 }
 void Robot::setJSON(Json::Value root){
-	update_mtx.lock();
+  mtxDistance.lock();
   if(root.isMember("distance"))
     _distance = root.get("distance",0).asDouble();
+  mtxDistance.unlock();
+  mtxAngle.lock();
   if(root.isMember("angle"))
     _angle = root.get("angle",0).asDouble();
+  mtxAngle.unlock();
+  mtxPoint.lock();
   if(root.isMember("position"))
     _position->setJSON(root.get("position",""));
+  mtxPoint.unlock();
+  mtxTargetAngle.lock();
   if(root.isMember("target-angle"))
     _target_angle = root.get("target-angle",0).asDouble();
+  mtxTargetAngle.unlock();
   if(root.isMember("target-distance"))
     _target_distance = root.get("target-distance",0).asDouble();
   update_mtx.unlock();
@@ -604,7 +653,7 @@ Robot::~Robot() {
 	std::cout << "stopping thread" << std::endl;
 
 	if(t1.joinable())
-	    	t1.join();
+		t1.join();
 	stop();
 
 	delete _left;
