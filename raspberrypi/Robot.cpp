@@ -417,22 +417,20 @@ void Robot::go() {
      update_mtx.unlock();
 
    } else {
-      //if there is another target
+	   //if there is another target
 	   mtxTargetAngle.lock();
-	   bool empty = _targets.empty();
+	   _targets.pop_front();
 	   mtxTargetAngle.unlock();
+	   mtxTargetAngle.lock();
 
-      if(!empty) {
-    	  mtxTargetAngle.lock();
-         _targets.pop_front();
-         mtxTargetAngle.unlock();
-         _pointPID->reset();
-         _anglePID->reset();
-      } else {
-          _pointPID->reset();
-          _anglePID->reset();
-          stop();
-      }
+	   mtxTargetAngle.unlock();
+	   _pointPID->reset();
+	   _anglePID->reset();
+
+	   bool empty = _targets.empty();
+	   if(empty) {
+		   stop();
+	   }
    }
 }
 void Robot::avoid() {
