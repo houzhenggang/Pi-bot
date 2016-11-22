@@ -173,12 +173,12 @@ double Robot::getTargetY() {
 	mtxTargets.lock();
 	double y = 0;
   if(_targets.size()) {
-	  return _targets.front()->getX();
+	   y =_targets.front()->getY();
   } else {
 	  std::cerr << "/*Error: Requested target value were no target set */" << '\n';
 
   }
-
+  mtxTargets.unlock();
   return y;
 }
 double Robot::getTargetAngle() {
@@ -192,9 +192,9 @@ void Robot::goTo(double x, double y) {
 	mtxState.lock();
     _state = Go;
     mtxState.unlock();
-    mtxTargetAngle.lock();
+    mtxTargets.lock();
     _targets.push_back(new Point(x,y));
-    mtxTargetAngle.unlock();
+    mtxTargets.unlock();
 }
 /*
  * Stop the robot moving
@@ -325,21 +325,18 @@ void Robot::state() {
     if(_left_1->trig() || _left_2->trig() || _center->trig()   ||_right_1->trig() ||  _right_2->trig()) {
     	trigger = true;
     }
-    //mtxState.lock();
-     if( _state == Rotate && !trigger) {
-    	 //mtxState.unlock();
+    mtxState.lock();
+    Behavour state = _state;
+    mtxState.unlock();
+     if( state == Rotate && !trigger) {
           rotate();
-     } else if( _state == Forward && !trigger) {
-    	 //mtxState.unlock();
+     } else if( state == Forward && !trigger) {
            forward();
-     } else if( _state == Go &&  _targets.front() != NULL && trigger) {
-    	 //mtxState.unlock();
+     } else if( state == Go && trigger) {
     	 avoid();
-     } else if( _state == Go &&  _targets.front() != NULL) {
-    	 //mtxState.unlock();
+     } else if( state == Go) {
           go();
      } else if(trigger){
-    	 //mtxState.unlock();
     	 pause();
      }
 
@@ -387,12 +384,18 @@ void Robot::rotate() {
 
 
 void Robot::go() {
+
+	mtxTargets.lock();
+	if(_targets.empty()) {
+		mtxTargets.unlock();
+		stop();
+		return;
+	}
 	mtxPoint.lock();
-	mtxTargetAngle.lock();
     double freq_velocity = _pointPID->next(_position,_targets.front());
     if(freq_velocity>100)
         freq_velocity = 100;
-    mtxTargetAngle.unlock();
+    mtxTargets.unlock();
 
 
    double xdiff= _targets.front()->getX()-_position->getX();
@@ -418,19 +421,11 @@ void Robot::go() {
 
    } else {
 	   //if there is another target
-	   mtxTargetAngle.lock();
+	   mtxTargets.lock();
 	   _targets.pop_front();
-	   mtxTargetAngle.unlock();
-	   mtxTargetAngle.lock();
-
-	   mtxTargetAngle.unlock();
+	   mtxTargets.unlock();
 	   _pointPID->reset();
 	   _anglePID->reset();
-
-	   bool empty = _targets.empty();
-	   if(empty) {
-		   stop();
-	   }
    }
 }
 void Robot::avoid() {

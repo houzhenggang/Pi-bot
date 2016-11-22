@@ -78,6 +78,7 @@ TEST_CASE( "Robot object", "test methods" ) {
 		std::cout <<"rotating to pi/2" << std::endl;
 
 		test->rotateTo(M_PI/2);
+		REQUIRE(test->getTargetAngle() == M_PI/2 );
 		for(int i = 0; i < 10; i++) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			std::cout << "Angle is at:" << test->getAngle() << std::endl;
@@ -203,6 +204,9 @@ TEST_CASE( "Robot goto", "test move method" ) {
 
 	SECTION("Test goto"){
 		test->goTo(1,1);
+		REQUIRE(test->getTargetX() == 1);
+		REQUIRE(test->getTargetY() == 1);
+
 		for(int i = 0; i < 30 ; i++) {
 			Json::Value value = test->getJSON();
 			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["state"]<<std::endl;
@@ -214,6 +218,8 @@ TEST_CASE( "Robot goto", "test move method" ) {
 
 
 		test->goTo(4,7);
+		REQUIRE(test->getTargetX() == 4);
+		REQUIRE(test->getTargetY() == 7);
 		for(int i = 0; i < 30 ; i++) {
 			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
 			std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -222,6 +228,8 @@ TEST_CASE( "Robot goto", "test move method" ) {
 		REQUIRE(test->getY() ==Approx(7 ).epsilon( 0.1 ));
 
 		test->goTo(-4,-3);
+		REQUIRE(test->getTargetX() == -4);
+		REQUIRE(test->getTargetY() == -3);
 		for(int i = 0; i < 40 ; i++) {
 			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
 			std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -235,4 +243,25 @@ TEST_CASE( "Robot goto", "test move method" ) {
 
 
 	}
+
+	SECTION("Test targers"){
+			test->goTo(1,1);
+			test->goTo(2,-7);
+			test->goTo(-1,3);
+			REQUIRE(test->getTargetX() == 1);
+			REQUIRE(test->getTargetY() == 1);
+			for(int i = 0; i < 100 ; i++) {
+				Json::Value value = test->getJSON();
+				std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY()<<std::endl;
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+			}
+			REQUIRE(test->getX() ==Approx(-1 ).epsilon( 0.1 ));
+			REQUIRE(test->getY() ==Approx(3 ).epsilon( 0.1 ));
+
+
+			delete test;
+
+
+
+		}
 }
