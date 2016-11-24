@@ -21,7 +21,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Wheel.h"
+#include "Wheel.hpp"
 #include <math.h>
 
 

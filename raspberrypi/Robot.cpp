@@ -21,7 +21,7 @@
 */
 
 
-#include "Robot.h"
+#include "Robot.hpp"
 
 Robot::Robot()
 {
@@ -80,7 +80,6 @@ Robot::Robot()
 
     time_between_updates = 100;
     running = true;
-    std::cout << "starting thread" << std::endl;
     std::thread t2(std::bind(&Robot::heartbeat,this));
     t1 = std::move(t2);
 
@@ -643,7 +642,6 @@ Robot::~Robot() {
 	update_mtx.unlock();
 	//wait for thread to finish (all variables should still be accessable to destructor has finished)
 
-	std::cout << "stopping thread" << std::endl;
 
 	if(t1.joinable())
 		t1.join();

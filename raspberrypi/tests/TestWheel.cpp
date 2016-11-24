@@ -25,11 +25,10 @@
 #include "TestInterInterface.hpp"
 #include <thread>
 #include <chrono>
-#include "../Wheel.h"
+#include "../Wheel.hpp"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 
-const double M_PI = 3.14159265359;
 
 /*
 *simulate a wheel turning

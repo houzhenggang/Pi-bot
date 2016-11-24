@@ -20,7 +20,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../PIDAngle.h"
+#include "../PIDAngle.hpp"
 #include "../json/json.h"
 #include <sstream>
 #include <iomanip>

@@ -26,7 +26,7 @@
 #define INTERINTERFACE_cpp
 
 
-#include "InterInterface.h"
+#include "InterInterface.hpp"
 
 
 /*

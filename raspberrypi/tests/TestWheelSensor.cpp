@@ -23,13 +23,13 @@
 
 
 #include "TestInterInterface.hpp"
-#include "../WheelSensor.h"
+#include "../WheelSensor.hpp"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 #include <thread>
 #include <chrono>
 
-const double M_PI = 3.14159265359;
+//const double M_PI = 3.14159265359;
 
 TEST_CASE( "WheelSensor constructor", "test methods" ) {
   //Test the constructor

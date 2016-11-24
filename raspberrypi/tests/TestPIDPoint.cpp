@@ -20,7 +20,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../PIDPoint.h"
+#include "../PIDPoint.hpp"
 #include "../json/json.h"
 #include "sstream"
 #include <iomanip>
@@ -43,6 +43,7 @@ TEST_CASE( "PID object", "test methods" ) {
   PIDPoint *test = new PIDPoint(50,3,5);
   PIDPoint *second = new PIDPoint(0,0,0);
   stringstream ss;
+  Json::Value root;
 
   //Test the constructor
   SECTION("Test constructor ") {
@@ -54,7 +55,7 @@ TEST_CASE( "PID object", "test methods" ) {
   }
   //test the stream out method
   SECTION("Test stream out ") {
-    Json::Value root;
+
     ss << *test;
     ss >> root;
 
@@ -97,7 +98,7 @@ TEST_CASE( "PID object", "test methods" ) {
     Point *target = new Point(100,-50);
     Point *value = new Point(0,0);
     double angleValue = 0;
-    PIDAngle *pidAngle = new PIDAngle(0.2,0.02,0.02);
+    PIDPoint *pidPoint = new PIDPoint(0.2,0.02,0.02);
 
     test->setLinear(0.3);
     test->setDifferential(0.02);

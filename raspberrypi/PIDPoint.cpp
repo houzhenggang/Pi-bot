@@ -20,8 +20,11 @@
 *    You should have received a copy of the GNU General Public License
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PIDPoint.h"
+#include "PIDPoint.hpp"
 #include <cmath>
+
+#ifndef PIDPOINT_CPP
+#define PIDPOINT_CPP
 
 /*
 *
@@ -92,3 +95,5 @@ std::istream &operator>>(std::istream& stream,PIDPoint &ob)
   ob.setJSON(root);
   return stream;
 }
+
+#endif

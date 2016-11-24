@@ -20,7 +20,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PIDAngle.h"
+#include "PIDAngle.hpp"
 #include <cmath>
 
 PIDAngle::PIDAngle(double linear,double intergral, double differential) : PID(linear,intergral,differential) {

@@ -19,6 +19,7 @@ To Do
 Add basic method for serial imput.
 Add a pythonn module so can be called from python
 add a mouse event class to get wheel distance/velocity form a computer mouse.
+finish testing pidpoint class
 test the avoid method
 add a sonic sensor to the possible sensors.
 add a cliff sensor

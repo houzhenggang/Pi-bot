@@ -20,7 +20,7 @@
 *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PID.h"
+#include "PID.hpp"
 /*
 *Implementaion of a PID controller
 *
