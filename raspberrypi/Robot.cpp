@@ -625,11 +625,11 @@ void Robot::setJSON(Json::Value root){
     _target_distance = root.get("target-distance",0).asDouble();
   update_mtx.unlock();
 }
-ostream& operator<<(ostream& stream,Robot &ob) {
+std::ostream& operator<<(std::ostream& stream,Robot &ob) {
   stream<< ob.getJSON();
   return stream;
 }
-istream& operator>>(istream& stream,Robot &ob) {
+std::istream& operator>>(std::istream& stream,Robot &ob) {
   Json::Value root;
   stream>>root;
   ob.setJSON(root);

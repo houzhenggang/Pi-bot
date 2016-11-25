@@ -142,12 +142,12 @@ void WheelSensor::setJSON(Json::Value root) {
 
 }
 
-ostream& operator<<(ostream& stream, WheelSensor &ob) {
+std::ostream& operator<<(std::ostream& stream, WheelSensor &ob) {
 	Json::Value root = ob.getJSON();
 	stream << root;
 	return stream;
 }
-istream& operator>>(istream& stream, WheelSensor &ob) {
+std::istream& operator>>(std::istream& stream, WheelSensor &ob) {
 	Json::Value root;
 	stream >> root;
 	ob.setJSON(root);

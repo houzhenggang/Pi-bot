@@ -43,7 +43,7 @@
 class MouseSensor
 {
 public:
-  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 2);
+  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 2, double ratio =1);
     double getDistance();
     double getVelocity();
     double getDiameter();

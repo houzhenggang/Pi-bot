@@ -162,13 +162,13 @@ Json::Value Wheel::getJSON() {
   return root;
 }
 
-ostream& operator<<(ostream& stream,Wheel &ob)
+std::ostream& operator<<(std::ostream& stream,Wheel &ob)
 {
   Json::Value root = ob.getJSON();
   stream << root;
   return stream;
 }
-istream& operator>>(istream& stream,Wheel  &ob)
+std::istream& operator>>(std::istream& stream,Wheel  &ob)
 {
     Json::Value root;
     stream >> root;

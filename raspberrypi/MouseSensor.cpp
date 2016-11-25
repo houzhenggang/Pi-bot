@@ -25,6 +25,21 @@
 
 #include "MouseSensor.hpp"
 
+/*
+ * This class models a mouse used to get the position of a robot.
+ * The mouse will be placed near to where the wheel is in contact with the floor
+ * It should measure both the distance travelled and the velocity.
+ *
+ * By knowing the distance between the mouse sensors placed at each wheel it is possible
+ * to work out the angle that the robot is at.
+ *
+ * When moving in a forward motion the rotational velocity of the wheels is proportional to the
+ * velocity as measured by the mouse.
+ *
+ * TODO when the robot is turning there will be a slight discrepancy due to the wheel having longer or
+ * shorter to travel. This is still to be accounted for.
+ */
+
 MouseSensor::MouseSensor(std::string path ,double diameter, int millisecond_updates) {
 
 	_distance = 0;
@@ -215,18 +230,18 @@ void MouseSensor::setJSON(Json::Value root) {
 
 }
 
-/*ostream& operator<<(ostream& stream, MouseSensor &ob) {
-	Json::Value root = ob.getJSON();
-	stream << root;
-	return stream;
+std::ostream& operator<<(std::ostream& stream,MouseSensor &ob) {
+  Json::Value root = ob.getJSON();
+  stream << root;
+  return stream;
 }
-istream& operator>>(istream& stream, MouseSensor &ob) {
-	Json::Value root;
-	stream >> root;
-	ob.setJSON(root);
-	return stream;
+std::istream& operator>>(std::istream& stream,MouseSensor  &ob) {
+    Json::Value root;
+    stream >> root;
+    ob.setJSON(root);
+    return stream;
 
-}*/
+}
 
 MouseSensor::~MouseSensor() {
 	running_mtx.lock();
