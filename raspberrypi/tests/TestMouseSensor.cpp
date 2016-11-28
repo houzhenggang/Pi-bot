@@ -28,6 +28,8 @@
 #include "../catch/catch.hpp"
 #include <thread>
 #include <chrono>
+#include <iostream>
+#include <fstream>
 
 
 
@@ -44,7 +46,19 @@ TEST_CASE( "WheelSensor constructor", "test methods" ) {
     REQUIRE( test->getOmega() == 0 );
   }
 }
+/*
+ *
+ *
+ *  Testing by sending mouse information directly via mouse events use swmouse as a dummy mouse
+ *
+ *	Asume that the mouse has a dpi of 400;
+ */
 
 TEST_CASE( "WheelSensor get and set update methods", "test methods" ) {
+	ofstream myfile;
+	  myfile.open ("/dev/swmouse");
+	  //One inch in x direction
+	  myfile << "x 400";
+	  myfile.close();
 
 }

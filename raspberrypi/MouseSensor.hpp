@@ -34,6 +34,7 @@
 #include <iostream>
 #include <mutex>
 
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/input.h>
@@ -43,7 +44,7 @@
 class MouseSensor
 {
 public:
-  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 2, double ratio =1);
+  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 2);
     double getDistance();
     double getVelocity();
     double getDiameter();

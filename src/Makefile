@@ -18,8 +18,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-obj-m += swmouse.ko
-obj-m += swkeybd.ko
+obj-m += swmouse.o
+obj-m += swkeybd.o
 
 
 all:
