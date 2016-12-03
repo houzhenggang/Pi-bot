@@ -30,13 +30,12 @@
 
 //const double M_PI  =3.141592653589793238463;
 const int MAX_FREQUENCY = 100;
-Wheel::Wheel(float diameter,int motorPinForward,int motorPinReverse,WheelSensor *sensor)
+Wheel::Wheel(int motorPinForward,int motorPinReverse,WheelSensor *sensor)
 {
   _sensor = sensor;
     _frequency = 0;
     _motorPinForward = motorPinForward;
     _motorPinReverse = motorPinReverse;
-    _diameter = diameter;
 
     _forward = true;
 
@@ -71,7 +70,7 @@ int Wheel::getFrequency(){
 }
 
 void Wheel::update() {
-  _sensor->update(_diameter,_forward);
+  _sensor->update();
 }
 
 /*
@@ -135,8 +134,6 @@ void Wheel::stop() {
    pwm(_motorPinForward,0);
 }
 void Wheel::setJSON(Json::Value root) {
-  if(root.isMember("diameter"))
-    _diameter = root.get("diameter",0).asFloat();
   if(root.isMember("forward"))
     _forward = root.get("forward",0).asBool();
   if(root.isMember("frequency"))
@@ -146,19 +143,32 @@ void Wheel::setJSON(Json::Value root) {
   if(root.isMember("motor-reverse-pin"))
     _motorPinReverse = root.get("motor-reverse-pin",0).asInt();
   if(root.isMember("sensor")) {
-    _sensor->setJSON(root.get("sensor",""));
-  }
+      _sensor->setJSON(root.get("sensor",""));
+    } else if(root.isMember("wheel-encoder")) {
+      _sensor->setJSON(root.get("wheel-encoder",""));
+    } else if(root.isMember("mouse-sensor")){
+      _sensor->setJSON(root.get("mouse-sensor",""));
+    }
+
+
 
 }
 
 Json::Value Wheel::getJSON() {
   Json::Value root;
-  root["diameter"] = _diameter;
   root["forward"] =_forward;
   root["frequency"] = _frequency;
   root["motor-forward-pin"] = _motorPinForward;
   root["motor-reverse-pin"] = _motorPinReverse;
-  root["sensor"] = _sensor->getJSON();
+
+  WheelEncoder * encoder = dynamic_cast<WheelEncoder *>(_sensor);
+  if(encoder != NULL)
+    root["wheel-encoder"] = encoder->getJSON();
+  MouseSensor* msensor = dynamic_cast<MouseSensor *>(_sensor);
+  if(msensor != NULL)
+    root["mouse-sensor"] = msensor->getJSON();
+  if(_sensor !=NULL)
+    root["sensor"] = _sensor->getJSON();
   return root;
 }
 

@@ -22,6 +22,8 @@
 
 
 
+
+
 //#include "TestInterInterface.hpp"
 #include "../MouseSensor.hpp"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
@@ -30,20 +32,68 @@
 #include <chrono>
 #include <iostream>
 #include <fstream>
+#include <string>
+
+
+/*
+* Writing evelnts to input echos the events back.
+*/
+
+void writeEvent(int x,int y,std::string mouse) {
+  struct input_event event, event_end;
+
+  int fd = open(mouse.c_str(), O_RDWR);
+  if (fd < 0) {
+    std::cerr << "/* Errro open mouse: */" << std::strerror(errno)<< '\n';
+    return;
+  }
+  std::memset(&event, 0, sizeof(event));
+  std::memset(&event, 0, sizeof(event_end));
+  gettimeofday(&event.time, NULL);
+  event.type = EV_REL;
+  event.code = REL_X;
+  event.value = x;
+  gettimeofday(&event_end.time, NULL);
+  event_end.type = EV_SYN;
+  event_end.code = SYN_REPORT;
+  event_end.value = 0;
+
+  //Writing evelnts to input echos the events back.
+  write(fd, &event, sizeof(event));// Move the mouse
+  write(fd, &event_end, sizeof(event_end));// Show move
+
+  gettimeofday(&event.time, NULL);
+  event.type = EV_REL;
+  event.code = REL_Y;
+  event.value = y;
+  gettimeofday(&event_end.time, NULL);
+  event_end.type = EV_SYN;
+  event_end.code = SYN_REPORT;
+  event_end.value = 0;
+
+  //Writing evelnts to input echos the events back.
+  write(fd, &event, sizeof(event));// Move the mouse
+  write(fd, &event_end, sizeof(event_end));// Show move
+
+  close(fd);
+  return;
+}
 
 
 
+TEST_CASE( "WheelSensor", "test methods" ) {
+  std::string s = "/dev/input/event7";
 
-TEST_CASE( "WheelSensor constructor", "test methods" ) {
-  //Test the constructor
-  SECTION( "Test constructor" )  {
-	std::string s = "/dev/input/event4";
-
-    MouseSensor *test = new MouseSensor(s);
+  MouseSensor *test = new MouseSensor(s);
     //test get
+  //Test the constructor
+  SECTION( "Test get methods" )  {
+
+
     REQUIRE( test->getDistance() == 0 );
     REQUIRE( test->getVelocity() == 0 );
     REQUIRE( test->getOmega() == 0 );
+    delete test;
   }
 }
 /*
@@ -55,10 +105,20 @@ TEST_CASE( "WheelSensor constructor", "test methods" ) {
  */
 
 TEST_CASE( "WheelSensor get and set update methods", "test methods" ) {
-	ofstream myfile;
-	  myfile.open ("/dev/swmouse");
-	  //One inch in x direction
-	  myfile << "x 400";
-	  myfile.close();
+  std::string s = "/dev/input/event6";
+  MouseSensor *test = new MouseSensor(s);
+  //dpi is 400;
+
+
+
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+  writeEvent(400,0,s);
+
+  std::cout<<*test;
+  REQUIRE( test->getDistance() == 400 );
+  REQUIRE( test->getVelocity() == Approx( 400/10 ).epsilon( 0.1 )  );
+  REQUIRE( test->getOmega() == Approx( 4000 ).epsilon( 10 ) );
+  delete test;
 
 }

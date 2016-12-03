@@ -22,135 +22,224 @@
 
 #include "WheelSensor.hpp"
 
-WheelSensor::WheelSensor(int pin, int ticks) :
-		InterInterface(pin) {
-	pinMode(pin, OUTPUT);
+#ifndef WheelSENSOR_CPP
+#define WheelSENSOR_CPP
 
-	_previousDistance = 0;
-	_distance = 0;
-	_ticks = ticks;
-	_omega = 0;
-	_prevPulses = 0;
-	_velocity = 0;
-	_timeLastUpdate = std::chrono::high_resolution_clock::now();
+WheelSensor::WheelSensor(int millisecond_updates, double diameter) {
+
+ _distance = 0;
+ _omega = 0;
+ _velocity = 0;
+ _diameter = diameter;
+ _millisecond_updates = millisecond_updates;
+
+ /*using namespace std::chrono;
+ microseconds micros = duration_cast< microseconds >(system_clock::now().time_since_epoch());
+
+ using namespace std;
+ _timeLastUpdate = ((double)micros.count()/1000000);*/
+
+ _timeLastUpdate  = std::chrono::high_resolution_clock::now();
+
+}
+/*
+*Start the sensor listening
+*/
+void WheelSensor::start() {
+
+	running_mtx.lock();
+	if(!_running) {
+			_running = true;
+			std::thread t2(std::bind(&WheelSensor::run, this));
+			t1 = std::move(t2);
+	}
+	running_mtx.unlock();
+}
+/*
+*Stop the sensor listening
+*/
+void WheelSensor::stop() {
+	running_mtx.lock();
+	_running = false;
+	running_mtx.unlock();
+	if(t1.joinable())
+		t1.join();
+		//TODO turn this code into c++ type file io
 }
 
+
+
+
 /*
- *
- *Return the total distance travelled by the wheel
- *
- */
+*
+*Return the total distance travelled by the wheel
+*
+*/
 
 double WheelSensor::getDistance() {
-	return _distance;
+ distance_mtx.lock();
+ double distance = _distance;
+ distance_mtx.unlock();
+ return distance;
 }
 
 /*
- *
- * Get the velocity of the edge of the wheel
- *
- */
+*
+* Get the velocity of the edge of the wheel
+*
+*/
 
 double WheelSensor::getVelocity() {
-	return _velocity;
+ velocity_mtx.lock();
+ double velocity = _velocity;
+ velocity_mtx.unlock();
+ return velocity;
 
 }
 
 /*
- *
- *Update the state of the wheel
- *
- */
-void WheelSensor::update(double diameter, bool forward) {
-	_previousDistance = _distance;
+*
+* Get the omega  of the wheel
+*
+*/
 
-	//Find out the distance the wheel has turned from the pulses;
-	double cnst = M_PI * diameter / (2 * _ticks);
+double WheelSensor::getOmega() {
+ omega_mtx.lock();
+ double omega = _omega;
+ omega_mtx.unlock();
+ return omega;
 
-	//Avarage the pules to get a more accurate figure
-	unsigned long pulses = (_upPulse + _downPulse);
+}
 
-	//change in the pulses since last time
-	unsigned int deltaPulses = pulses - _prevPulses;
-	_prevPulses = pulses;
+/*
+*
+* Get the diameter  of the wheel
+*
+*/
 
-	if (forward) {
-		_distance = _distance + cnst * deltaPulses;
-	} else {
-		_distance = _distance - cnst * deltaPulses;
-	}
+double WheelSensor::getDiameter() {
+ omega_mtx.lock();
+ double diameter = _diameter;
+ omega_mtx.unlock();
+ return diameter;
+
+}
+
+/*
+*
+*Set the total distance travelled by the wheel
+*
+*/
+
+void WheelSensor::setDistance(double distance) {
+ distance_mtx.lock();
+ _distance = distance;
+ distance_mtx.unlock();
+}
+
+/*
+*
+* Set the velocity of the edge of the wheel
+*
+*/
+
+void WheelSensor::setVelocity(double velocity) {
+ velocity_mtx.lock();
+ _velocity = velocity;
+ velocity_mtx.unlock();
+}
+
+/*
+*
+* Set the omega  of the wheel
+*
+*/
+
+void WheelSensor::setOmega(double omega) {
+ omega_mtx.lock();
+ _omega = omega;
+ omega_mtx.unlock();
+}
+
+
+/*
+*
+* robot running method
+*
+*/
+
+void WheelSensor::run() {
+ running_mtx.lock();
+ bool running = _running;
+ running_mtx.unlock();
+
+ while(running) {
+
+	 running_mtx.lock();
+	 running = _running;
+	 running_mtx.unlock();
+	 update();
+	 std::this_thread::sleep_for(std::chrono::milliseconds(_millisecond_updates));
+ }
+}
+
+double WheelSensor::getDuration() {
 	auto now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast
 			< std::chrono::milliseconds > (now - _timeLastUpdate);
 	//work out the rotational freqency in radians per second;
 	double timespan = time_span.count();
-	double f = ((double) deltaPulses) / (2 * _ticks * timespan);
-
-	if (forward)
-		_omega = 2 * M_PI * f;
-	else
-		_omega = -2 * M_PI * f;
-	_velocity = _omega * diameter / 2;
 	_timeLastUpdate = now;
 }
+
+
 Json::Value WheelSensor::getJSON() {
-	Json::Value root;
-	root["ticks"] = _ticks;
-	root["distance"] = _distance;
-	root["velocity"] = _velocity;
-	root["previous-distance"] = _previousDistance;
-	root["omega"] = _omega;
-	root["previous-pulses"] = _prevPulses;
-	root["previous-pulse-time"] = std::chrono::duration_cast
-			< std::chrono::microseconds
-			> (_timeLastUpdate.time_since_epoch()).count();
-	//due to being in a potected method can access protected variables of inhertited class
-	//may be better to write a method in the inhertited class that returns a json object
-	root["pin"] = _pin;
-	root["up-pulses"] = _upPulse;
-	root["down-pulses"] = _downPulse;
-	return root;
+ Json::Value root;
+ root["distance"] = getDistance();
+ root["velocity"] = getVelocity();
+ root["omega"] = getOmega();
+ root["diameter"] = getDiameter();
+ update_mtx.lock();
+ std::chrono::microseconds micros = std::chrono::duration_cast< std::chrono::microseconds >( _timeLastUpdate.time_since_epoch());
+ root["previous-pulse-time"] =micros.count();
+ update_mtx.unlock();
+ return root;
 
 }
 void WheelSensor::setJSON(Json::Value root) {
-	if (root.isMember("ticks"))
-		_ticks = root.get("ticks", 0).asInt();
-	if (root.isMember("distance"))
-		_distance = root.get("distance", 0).asDouble();
-	if (root.isMember("velocity"))
-		_velocity = root.get("velocity", 0).asDouble();
-	if (root.isMember("previous-distance"))
-		_previousDistance = root.get("previous-distance", 0).asDouble();
-	if (root.isMember("omega"))
-		_omega = root.get("omega", 0).asDouble();
-	if (root.isMember("previous-pulses"))
-		_prevPulses = root.get("previous-pulses", 0).asUInt64();
-	if (root.isMember("previous-pulse-time")) {
-		long t = root.get("previous-pulse-time", 0).asInt64();
-		std::chrono::milliseconds ms { t };
-		_timeLastUpdate = std::chrono::high_resolution_clock::time_point(ms);
-	}
+ if (root.isMember("distance"))
+	 setDistance(root.get("distance", 0).asDouble());
+ if (root.isMember("velocity"))
+	 setVelocity(root.get("velocity", 0).asDouble());
+ if (root.isMember("omega"))
+	 setOmega(root.get("omega", 0).asDouble());
+ if (root.isMember("previous-pulse-time")) {
+	  int micros = root.get("previous-pulse-time", 0).asInt();
 
-	//due to being in a potected method can access protected variables of inhertited class
-	//may be better to write a method in the inhertited class that returns a json object
-	if (root.isMember("pin"))
-		_pin = root.get("pin", 0).asInt();
-	if (root.isMember("up-pulses"))
-		_upPulse = root.get("up-pulses", 0).asInt();
-	if (root.isMember("down-pulses"))
-		_downPulse = root.get("down-pulses", 0).asInt();
+	 const std::chrono::microseconds  duration_microseconds = std::chrono::microseconds(micros);
+  update_mtx.lock();
+	 _timeLastUpdate = std::chrono::high_resolution_clock::time_point(duration_microseconds);
+	 update_mtx.unlock();
+ }
 
 }
 
-std::ostream& operator<<(std::ostream& stream, WheelSensor &ob) {
-	Json::Value root = ob.getJSON();
-	stream << root;
-	return stream;
+std::ostream& operator<<(std::ostream& stream,WheelSensor &ob) {
+ Json::Value root = ob.getJSON();
+ stream << root;
+ return stream;
 }
-std::istream& operator>>(std::istream& stream, WheelSensor &ob) {
-	Json::Value root;
-	stream >> root;
-	ob.setJSON(root);
-	return stream;
+std::istream& operator>>(std::istream& stream,WheelSensor  &ob) {
+	 Json::Value root;
+	 stream >> root;
+	 ob.setJSON(root);
+	 return stream;
 
 }
+
+
+WheelSensor::~WheelSensor() {
+ stop();
+}
+
+#endif

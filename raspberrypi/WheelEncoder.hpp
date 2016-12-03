@@ -1,10 +1,10 @@
 /**
 * @Author: Kieran Wyse
-* @Date:   22-11-2016
+* @Date:   28-10-2016
 * @Email:  kieranwyse@gmail.com
 * @Project: Pi-Bot
 * @Last modified by:   Kieran Wyse
-* @Last modified time: 22-11-2016
+* @Last modified time: 08-11-2016
 * @License: GPL v3
 *     This program is free software: you can redistribute it and/or modify
 *    it under the terms of the GNU General Public License as published by
@@ -21,44 +21,37 @@
 */
 
 
-#ifndef MOUSESENSOR_H
-#define MOUSESENSOR_H
+#ifndef WHEELENCODER_H
+#define WHEELENCODER_H
+
 
 #include <typeinfo>
-#include "json/json.h"
-
-
-
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <linux/input.h>
-#include <fcntl.h>
-
+#include "InterInterface.hpp"
 #include "WheelSensor.hpp"
+#include <chrono>
+#include <ctime>
+#include <sstream>
 
 
-class MouseSensor : public WheelSensor
+
+class WheelEncoder : public InterInterface, public WheelSensor
 {
-public:
-  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 10);
-    ~MouseSensor();
-
-    friend std::ostream& operator<<(std::ostream& stream,MouseSensor &ob);
-    friend std::istream& operator>>(std::istream& stream,MouseSensor &ob);
+  public:
+    WheelEncoder(int pin,int ticks,double diameter = 0.1, int millisecond_updates = 10);
+    void setForward(bool forward);
+    bool getForward();
+    void update();
+    friend std::ostream& operator<<(std::ostream& stream,WheelEncoder &ob);
+    friend std::istream& operator>>(std::istream& stream,WheelEncoder &ob);
     Json::Value getJSON();
     void setJSON(Json::Value root);
-
   protected:
-    void update();
 
   private:
-    std::mutex path_mtx;
-    std::string _path;
-    //TODO turn this code into c++ type file io
-    int _fd;
-    //std::fstream fh;
-    struct input_event _ie;
+    int _ticks;
+    unsigned long _prevPulses;
+    bool _forward;
+    std::mutex forward_mtx;
 };
 
 #endif

@@ -22,16 +22,19 @@
 
 #ifndef WHEEL_H
 #define WHEEL_H
-
+#include <typeinfo>
+#include "InterInterface.hpp"
 
 #include "WheelSensor.hpp"
+#include "WheelEncoder.hpp"
+#include "MouseSensor.hpp"
 
 #include "TractionControl.hpp"
 
 class Wheel
 {
   public:
-    Wheel(float diameter,int motorPinForward,int motorPinReverse,WheelSensor *sensor);
+    Wheel(int motorPinForward,int motorPinReverse,WheelSensor *sensor);
     double getVelocity();
     double getDistance();
     int getFrequency();
@@ -53,7 +56,6 @@ class Wheel
     int _frequency;
     int _motorPinForward;
     int _motorPinReverse;
-    float _diameter;
     bool _forward;
 
 

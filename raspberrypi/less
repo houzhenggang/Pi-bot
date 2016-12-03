@@ -1,2 +1,0 @@
-cc   tests/TestTractionControl.o   -o tests/TestTractionControl
-<builtin>: recipe for target 'tests/TestTractionControl' failed

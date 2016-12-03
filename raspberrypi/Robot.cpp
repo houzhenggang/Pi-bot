@@ -69,8 +69,8 @@ Robot::Robot()
    double wheel_diameter = 0.065;
    int wheel_ticks = 40;
 
-    _left = new Wheel(wheel_diameter,wheel_left_forward,wheel_left_reverse, new WheelSensor(wheel_sensor_left,wheel_ticks));
-    _right = new Wheel(wheel_diameter,wheel_right_forward,wheel_right_reverse,new WheelSensor(wheel_sensor_right,wheel_ticks));
+    _left = new Wheel(wheel_left_forward,wheel_left_reverse, new WheelEncoder(wheel_sensor_left,wheel_ticks,wheel_diameter));
+    _right = new Wheel(wheel_right_forward,wheel_right_reverse,new WheelEncoder(wheel_sensor_right,wheel_ticks,wheel_diameter));
     _left_1 = new Sensor(sensor_left_1);
     _left_2 = new Sensor(sensor_left_2);
     _center = new Sensor(sensor_center);
@@ -109,8 +109,12 @@ void Robot::pullup() {
     _center->pullup();
     _right_1->pullup();
     _right_2->pullup();
-    _left->getSensor()->pullup();
-    _right->getSensor()->pullup();
+    WheelEncoder *left = dynamic_cast <WheelEncoder *> (_left->getSensor());
+    if(left != NULL)
+      left->pullup();
+    WheelEncoder *right = dynamic_cast <WheelEncoder *> (_right->getSensor());
+    if(right != NULL)
+      right->pullup();
 }
 /*
  * Get the x postion of the robot in metres

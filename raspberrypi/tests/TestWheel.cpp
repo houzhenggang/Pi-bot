@@ -1,4 +1,4 @@
-/**
+/*
 * @Author: Kieran Wyse
 * @Date:   02-11-2016
 * @Email:  kieranwyse@gmail.com
@@ -21,13 +21,13 @@
 */
 
 
-
 #include "TestInterInterface.hpp"
 #include <thread>
 #include <chrono>
 #include "../Wheel.hpp"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
+#include "../WheelEncoder.hpp"
 
 
 /*
@@ -40,7 +40,7 @@
 
 TEST_CASE( "Wheel constructor", "test methods" ) {
   //Test the constructor
-  Wheel *test = new Wheel(0.1,2,3,new WheelSensor(4,20));
+  Wheel *test = new Wheel(2,3,new WheelEncoder(4,20,0.1));
   SECTION( "Test constructor" )  {
     //test get
   }
@@ -66,9 +66,9 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
   float diameter = 0.1;
 
-  Wheel *test = new Wheel(diameter,forwardpin,backwardpin,new WheelSensor(sensorPin1,ticks[sensorPin1]));
+  Wheel *test = new Wheel(forwardpin,backwardpin,new WheelEncoder(sensorPin1,ticks[sensorPin1],diameter));
 
-  Wheel *test2 = new Wheel(diameter,forwardpin2,backwardpin2,new WheelSensor(sensorPin2,ticks[sensorPin2]));
+  Wheel *test2 = new Wheel(forwardpin2,backwardpin2,new WheelEncoder(sensorPin2,ticks[sensorPin2],diameter));
 
   SECTION( "Test frequency" )  {
 
@@ -99,6 +99,9 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     REQUIRE(pins[backwardpin] == PWMRANGE);
 
     test->setFrequency(0);
+
+    delete test;
+    delete test2;
   }
   SECTION( "simulate wheel turning 1 second" )  {
     test->setFrequency(50);
@@ -110,6 +113,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     REQUIRE(test->getDistance() > 0);
 
     test->setFrequency(0);
+    delete test;
+    delete test2;
   }
   SECTION( "simulate wheel turning 10 meters" )  {
     test->setFrequency(50);
@@ -121,6 +126,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     test->setFrequency(0);
     REQUIRE(test->getDistance() > 10);
     test->setFrequency(0);
+    delete test;
+    delete test2;
   }
   SECTION ("Test two wheels concurrently") {
       	test->setFrequency(50);
@@ -139,6 +146,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
       	test->setFrequency(0);
       	test2->setFrequency(0);
+        delete test;
+        delete test2;
 
       }
 }
@@ -151,7 +160,7 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
 
 
-    WheelSensor *sensor = new WheelSensor(sensorpin1,ticks1);
+    WheelEncoder *sensor = new WheelEncoder(sensorpin1,ticks1,diameter1);
 
     for(int i = 0; i < ticks1; i++) {
       pin10Risingfunc();
@@ -159,7 +168,7 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     }
     //wait one second
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    sensor->update(diameter1,forward1);
+    sensor->update();
     int forwardpin = 6;
     int backwardpin = 7;
     float diameter = 0.2;
@@ -169,14 +178,14 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     sensorPin[backwardpin] = sensorpin1;
     ticks[sensorpin1] =ticks1;
 
-    Wheel *test = new Wheel(diameter,forwardpin,backwardpin,sensor);
+    Wheel *test = new Wheel(forwardpin,backwardpin,sensor);
     test->setFrequency(frequency);
 
 
 
 
 
-    Wheel *test2 = new Wheel(0.1,2,3,new WheelSensor(4,10));
+    Wheel *test2 = new Wheel(2,3,new WheelEncoder(4,10,0.1));
     SECTION( "Test stream out method" )  {
       std::stringstream sstream;
       Json::Value root;
@@ -192,7 +201,6 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(s.get("previous-distance",0) ==0);
       REQUIRE(s.get("previous-pulses",0) == 2*ticks1);
 
-      REQUIRE(root.get("diameter",0) == diameter);
       REQUIRE(root.get("forward",0) == true);
       REQUIRE(root.get("motor-forward-pin",0) == forwardpin);
       REQUIRE(root.get("motor-reverse-pin",0) == backwardpin);
@@ -200,7 +208,8 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
       test->setFrequency(0);
 
-
+      delete test;
+      delete test2;
     }
 
     SECTION( "Test stream in method" )  {
@@ -208,7 +217,6 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       Json::Value root;
       std::stringstream ss;
       ss << "{" << std::endl;
-      ss << "\"diameter\": 0.14,"<< std::endl;
       ss << "\"forward\": false,"<< std::endl;
       ss << "\"motor-forward-pin\": 12,"<< std::endl;
       ss << "\"motor-reverse-pin\": 15," << std::endl;
@@ -242,7 +250,6 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(s.get("previous-distance",0).asDouble() == 5.0 );
       REQUIRE(s.get("previous-pulses",0) == 15 );
 
-      REQUIRE(root.get("diameter",0).asDouble() == Approx( 0.14 ).epsilon( 0.01 ) );
       REQUIRE(root.get("forward",0).asBool() == false);
       REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
       REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
@@ -257,16 +264,19 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
 
 
       ss << *test;
+      WheelEncoder *encoder = dynamic_cast<WheelEncoder *>(test->getSensor());
       ss >> *test2;
+      WheelEncoder *encoder2 = dynamic_cast<WheelEncoder *>(test2->getSensor());
 
-      REQUIRE( test2->getSensor()->pin() == sensorpin1 );
-      REQUIRE( test2->getSensor()->getDownPulse() == test->getSensor()->getDownPulse() );
-      REQUIRE( test2->getSensor()->getUpPulse() == test->getSensor()->getUpPulse());
-      REQUIRE( test2->getSensor()->trig() == test->getSensor()->trig());
+      REQUIRE( encoder2->pin() == sensorpin1 );
+      REQUIRE( encoder2->getDownPulse() == encoder->getDownPulse() );
+      REQUIRE( encoder2->getUpPulse() == encoder->getUpPulse());
+      REQUIRE( encoder2->trig() == encoder->trig());
       //test get
       REQUIRE( test2->getVelocity() == test->getVelocity() );
       REQUIRE( test2->getDistance() == test->getDistance() );
-
+      delete test;
+      delete test2;
 
     }
 

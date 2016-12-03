@@ -25,34 +25,64 @@
 #define WHEELSENSOR_H
 
 
-
-#include "InterInterface.h"
+#include <typeinfo>
 #include <chrono>
 #include <ctime>
+#include <thread>
+#include <string>
+#include <sstream>
+#include <cstring>
+#include <iostream>
+#include <mutex>
+
+#include "json/json.h"
 
 
 
-class WheelSensor : public InterInterface
+
+class WheelSensor
 {
   public:
-    WheelSensor(int pin,int ticks);
+    WheelSensor(int millisecond_updates = 10, double diameter = 0.1);
+    double getDiameter();
     double getDistance();
     double getVelocity();
-    void update(double diameter, bool forward);
+    double getOmega();
+    void setDistance(double distance);
+    void setVelocity(double velocity);
+    void setDiameter(double diameter);
+    void setOmega(double omega);
+    void start();
+    void stop();
+    virtual void update() = 0;
     friend std::ostream& operator<<(std::ostream& stream,WheelSensor &ob);
     friend std::istream& operator>>(std::istream& stream,WheelSensor &ob);
     Json::Value getJSON();
     void setJSON(Json::Value root);
+    ~WheelSensor();
   protected:
-
-  private:
-    double _previousDistance;
-    double _distance;
-    double _omega;
-    double _velocity;
-    int _ticks;
-    unsigned long _prevPulses;
     std::chrono::high_resolution_clock::time_point  _timeLastUpdate;
+
+
+    double getDuration();
+    private:
+      std::thread t1;
+      void run();
+      std::mutex running_mtx;
+      bool _running;
+      int _millisecond_updates;
+      std::mutex distance_mtx;
+      double _distance;
+      std::mutex omega_mtx;
+      double _omega;
+      std::mutex velocity_mtx;
+      double _velocity;
+      std::mutex diameter_mtx;
+      double  _diameter;
+
+      std::mutex update_mtx;
+      //double  _timeLastUpdate;
+
 };
 
 #endif
