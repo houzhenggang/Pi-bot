@@ -52,6 +52,8 @@ class WheelSensor
     void setVelocity(double velocity);
     void setDiameter(double diameter);
     void setOmega(double omega);
+    void setForward(bool forward);
+    bool getForward();
     void start();
     void stop();
     virtual void update() = 0;
@@ -82,6 +84,8 @@ class WheelSensor
 
       std::mutex update_mtx;
       //double  _timeLastUpdate;
+      bool _forward;
+      std::mutex forward_mtx;
 
 };
 

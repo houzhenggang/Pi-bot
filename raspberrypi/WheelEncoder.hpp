@@ -38,8 +38,7 @@ class WheelEncoder : public InterInterface, public WheelSensor
 {
   public:
     WheelEncoder(int pin,int ticks,double diameter = 0.1, int millisecond_updates = 10);
-    void setForward(bool forward);
-    bool getForward();
+
     void update();
     friend std::ostream& operator<<(std::ostream& stream,WheelEncoder &ob);
     friend std::istream& operator>>(std::istream& stream,WheelEncoder &ob);
@@ -50,8 +49,7 @@ class WheelEncoder : public InterInterface, public WheelSensor
   private:
     int _ticks;
     unsigned long _prevPulses;
-    bool _forward;
-    std::mutex forward_mtx;
+    
 };
 
 #endif

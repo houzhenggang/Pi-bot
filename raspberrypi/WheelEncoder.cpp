@@ -27,35 +27,11 @@ WheelEncoder::WheelEncoder(int pin, int ticks, double diameter,int millisecond_u
 	pinMode(pin, OUTPUT);
 	_ticks = ticks;
 	_prevPulses = 0;
-	_forward = true;
+	setForward(true);
 }
 
 
-/*
-*
-* The wheel sensor is forward_mtx
-*
-*/
 
-bool WheelEncoder::getForward() {
- forward_mtx.lock();
- double forward = _forward;
- forward_mtx.unlock();
- return forward;
-
-}
-
-/*
-*
-*Set the wheel sensor to forward , true or backwards false
-*
-*/
-
-void WheelEncoder::setForward(bool forward) {
- forward_mtx.lock();
- _forward = forward;
- forward_mtx.unlock();
-}
 
 /*
  *
@@ -65,7 +41,7 @@ void WheelEncoder::setForward(bool forward) {
 void WheelEncoder::update() {
 
 	//Find out the distance the wheel has turned from the pulses;
-	double cnst = M_PI * getDiameter() / (2 * _ticks);
+	double cnst = M_PI * getDiameter() / (2* _ticks);
 
 	//Avarage the pules to get a more accurate figure
 	unsigned long pulses = (_upPulse + _downPulse);
@@ -73,6 +49,9 @@ void WheelEncoder::update() {
 	//change in the pulses since last time
 	unsigned int deltaPulses = pulses - _prevPulses;
 	_prevPulses = pulses;
+
+	if(deltaPulses == 0)
+		return;
 
 	if (getForward()) {
 		setDistance(getDistance() + cnst * deltaPulses);
@@ -118,8 +97,6 @@ void WheelEncoder::setJSON(Json::Value root) {
 	InterInterface::setJSON(root);
 	if (root.isMember("ticks"))
 		_ticks = root.get("ticks", 0).asInt();
-	if (root.isMember("forward"))
-		setForward(root.get("forward", true).asBool());
 	if (root.isMember("previous-pulses"))
 		_prevPulses = root.get("previous-pulses", 0).asUInt64();
 

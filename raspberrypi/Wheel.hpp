@@ -56,7 +56,6 @@ class Wheel
     int _frequency;
     int _motorPinForward;
     int _motorPinReverse;
-    bool _forward;
 
 
 };

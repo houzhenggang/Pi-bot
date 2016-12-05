@@ -190,21 +190,21 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       std::stringstream sstream;
       Json::Value root;
       sstream << *test;
-      sstream >> root;
-      Json::Value s =root.get("sensor","");
-      REQUIRE(s.get("pin",0) ==  sensorpin1);
-      REQUIRE(s.get("up-pulses",0) == ticks1 );
-      REQUIRE(s.get("down-pulses",0) == ticks1 );
-      REQUIRE(s.get("distance",0) == M_PI*diameter1 );
-      REQUIRE(s.get("velocity",0) == M_PI*diameter1 );
-      REQUIRE(s.get("omega",0) == 2*M_PI);
-      REQUIRE(s.get("previous-distance",0) ==0);
-      REQUIRE(s.get("previous-pulses",0) == 2*ticks1);
 
-      REQUIRE(root.get("forward",0) == true);
-      REQUIRE(root.get("motor-forward-pin",0) == forwardpin);
-      REQUIRE(root.get("motor-reverse-pin",0) == backwardpin);
-      REQUIRE(root.get("frequency",0) == frequency);
+      sstream >> root;
+      std::cout << root;
+      Json::Value s =root.get("wheel-encoder","");
+      REQUIRE(s.get("pin",0).asInt() ==  sensorpin1);
+      REQUIRE(s.get("up-pulses",0).asInt() == ticks1 );
+      REQUIRE(s.get("down-pulses",0).asInt() == ticks1 );
+      REQUIRE(s.get("distance",0).asDouble() == M_PI*diameter1 );
+      REQUIRE(s.get("velocity",0).asDouble() == M_PI*diameter1 );
+      REQUIRE(s.get("omega",0).asDouble() == 2*M_PI);
+      REQUIRE(s.get("previous-pulses",0).asInt() == 2*ticks1);
+
+      REQUIRE(root.get("motor-forward-pin",0).asInt() == forwardpin);
+      REQUIRE(root.get("motor-reverse-pin",0).asInt() == backwardpin);
+      REQUIRE(root.get("frequency",0).asInt() == frequency);
 
       test->setFrequency(0);
 
@@ -217,18 +217,19 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       Json::Value root;
       std::stringstream ss;
       ss << "{" << std::endl;
-      ss << "\"forward\": false,"<< std::endl;
       ss << "\"motor-forward-pin\": 12,"<< std::endl;
       ss << "\"motor-reverse-pin\": 15," << std::endl;
       ss <<" \"frequency\": 22 ," << std::endl;
-      ss <<  "\"sensor\" : " << std::endl;
+      ss <<  "\"wheel-encoder\" : " << std::endl;
       ss <<"{" <<std::endl;
       ss <<" \"pin\" : 2 ," <<std::endl;
       ss <<" \"up-pulses\" : 14, " <<std::endl;
+      ss <<" \"forward\" : false, " <<std::endl;
       ss <<" \"down-pulses\" : 13, " <<std::endl;
       ss << "\"distance\" : 5.3, " <<std::endl;
       ss << "\"velocity\" : 1.1, " << std::endl;
-      ss << "\"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27 }";
+      ss << "\"omega\" : 4.5, " << std::endl;
+      ss << "\"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27 }";
       ss << "}";
       ss << std::endl;
 
@@ -239,7 +240,7 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       ss << *test;
 
       ss >> root;
-      Json::Value s = root.get("sensor","");
+      Json::Value s = root.get("wheel-encoder","");
       REQUIRE(s.get("ticks",0) == 27 );
       REQUIRE(s.get("pin",0) == 2 );
       REQUIRE(s.get("up-pulses",0) == 14 );
@@ -247,10 +248,9 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
       REQUIRE(s.get("distance",0) == 5.3 );
       REQUIRE(s.get("velocity",0) == 1.1 );
       REQUIRE(s.get("omega",0) ==4.5 );
-      REQUIRE(s.get("previous-distance",0).asDouble() == 5.0 );
       REQUIRE(s.get("previous-pulses",0) == 15 );
+      REQUIRE(s.get("forward",0).asBool() == false);
 
-      REQUIRE(root.get("forward",0).asBool() == false);
       REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
       REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
       REQUIRE(root.get("frequency",0).asInt() == 22);

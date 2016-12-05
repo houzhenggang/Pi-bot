@@ -37,8 +37,6 @@ Wheel::Wheel(int motorPinForward,int motorPinReverse,WheelSensor *sensor)
     _motorPinForward = motorPinForward;
     _motorPinReverse = motorPinReverse;
 
-    _forward = true;
-
     _contol = new TractionControl(10);
 
     int pwmRange = MAX_FREQUENCY;
@@ -108,11 +106,11 @@ void Wheel::setFrequency(int frequency) {
    //frequency = _contol->modify( frequency);
    if(frequency != _frequency) {
 	   if(frequency > 0) {
-	          _forward = true;
+            _sensor->setForward(true);
 	          pwm(_motorPinForward,frequency);
 	          pwm(_motorPinReverse,0);
 	      } else {
-	          _forward = false;
+	          _sensor->setForward(false);
 	          pwm(_motorPinForward,0);
 	          pwm(_motorPinReverse,-frequency);
 	      }
@@ -134,8 +132,6 @@ void Wheel::stop() {
    pwm(_motorPinForward,0);
 }
 void Wheel::setJSON(Json::Value root) {
-  if(root.isMember("forward"))
-    _forward = root.get("forward",0).asBool();
   if(root.isMember("frequency"))
     _frequency = root.get("frequency",0).asInt();
   if(root.isMember("motor-forward-pin"))
@@ -145,9 +141,11 @@ void Wheel::setJSON(Json::Value root) {
   if(root.isMember("sensor")) {
       _sensor->setJSON(root.get("sensor",""));
     } else if(root.isMember("wheel-encoder")) {
-      _sensor->setJSON(root.get("wheel-encoder",""));
+      WheelEncoder * encoder = dynamic_cast<WheelEncoder *>(_sensor);
+      encoder->setJSON(root.get("wheel-encoder",""));
     } else if(root.isMember("mouse-sensor")){
-      _sensor->setJSON(root.get("mouse-sensor",""));
+      MouseSensor* msensor = dynamic_cast<MouseSensor *>(_sensor);
+      msensor->setJSON(root.get("mouse-sensor",""));
     }
 
 
@@ -156,18 +154,18 @@ void Wheel::setJSON(Json::Value root) {
 
 Json::Value Wheel::getJSON() {
   Json::Value root;
-  root["forward"] =_forward;
   root["frequency"] = _frequency;
   root["motor-forward-pin"] = _motorPinForward;
   root["motor-reverse-pin"] = _motorPinReverse;
 
   WheelEncoder * encoder = dynamic_cast<WheelEncoder *>(_sensor);
+  MouseSensor* msensor = dynamic_cast<MouseSensor *>(_sensor);
+
   if(encoder != NULL)
     root["wheel-encoder"] = encoder->getJSON();
-  MouseSensor* msensor = dynamic_cast<MouseSensor *>(_sensor);
-  if(msensor != NULL)
+  else if(msensor != NULL)
     root["mouse-sensor"] = msensor->getJSON();
-  if(_sensor !=NULL)
+  else if(_sensor !=NULL)
     root["sensor"] = _sensor->getJSON();
   return root;
 }

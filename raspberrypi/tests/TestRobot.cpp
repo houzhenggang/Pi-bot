@@ -82,6 +82,9 @@ TEST_CASE( "Robot object", "test methods" ) {
 		for(int i = 0; i < 10; i++) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			std::cout << "Angle is at:" << test->getAngle() << std::endl;
+			Json::Value bot = test->getJSON();
+			std::cout <<"left wheel" << bot["left-wheel"]["wheel-encoder"]["forward"]<< std::endl;;
+			std::cout <<"right wheel" << bot["right-wheel"]["wheel-encoder"]["forward"] << std::endl;
 		}
 		test->stop();
 
@@ -126,6 +129,7 @@ TEST_CASE( "Robot object", "test methods" ) {
 		for(int i = 0; i < 10; i++) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			std::cout << "Angle is at:" << test->getAngle() << std::endl;
+
 		}
 		test->stop();
 
@@ -221,7 +225,8 @@ TEST_CASE( "Robot goto", "test move method" ) {
 		REQUIRE(test->getTargetX() == 4);
 		REQUIRE(test->getTargetY() == 7);
 		for(int i = 0; i < 30 ; i++) {
-			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+			Json::Value value = test->getJSON();
+			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["state"]<<std::endl;
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		REQUIRE(test->getX() ==Approx(4 ).epsilon( 0.1 ));
@@ -231,7 +236,8 @@ TEST_CASE( "Robot goto", "test move method" ) {
 		REQUIRE(test->getTargetX() == -4);
 		REQUIRE(test->getTargetY() == -3);
 		for(int i = 0; i < 40 ; i++) {
-			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<std::endl;
+			Json::Value value = test->getJSON();
+			std::cout <<"goto robot at x:" <<test->getX()<<" y at:"<<test->getY() <<value["state"]<<std::endl;
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 		REQUIRE(test->getX() ==Approx(-4 ).epsilon( 0.1 ));

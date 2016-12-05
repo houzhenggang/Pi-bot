@@ -67,7 +67,31 @@ void WheelSensor::stop() {
 		//TODO turn this code into c++ type file io
 }
 
+/*
+*
+* The wheel sensor is forward_mtx
+*
+*/
 
+bool WheelSensor::getForward() {
+ forward_mtx.lock();
+ double forward = _forward;
+ forward_mtx.unlock();
+ return forward;
+
+}
+
+/*
+*
+*Set the wheel sensor to forward , true or backwards false
+*
+*/
+
+void WheelSensor::setForward(bool forward) {
+ forward_mtx.lock();
+ _forward = forward;
+ forward_mtx.unlock();
+}
 
 
 /*
@@ -199,6 +223,7 @@ Json::Value WheelSensor::getJSON() {
  root["velocity"] = getVelocity();
  root["omega"] = getOmega();
  root["diameter"] = getDiameter();
+ root["forward"] = getForward();
  update_mtx.lock();
  std::chrono::microseconds micros = std::chrono::duration_cast< std::chrono::microseconds >( _timeLastUpdate.time_since_epoch());
  root["previous-pulse-time"] =micros.count();
@@ -213,6 +238,8 @@ void WheelSensor::setJSON(Json::Value root) {
 	 setVelocity(root.get("velocity", 0).asDouble());
  if (root.isMember("omega"))
 	 setOmega(root.get("omega", 0).asDouble());
+ if (root.isMember("forward"))
+   setForward(root.get("forward", true).asBool());
  if (root.isMember("previous-pulse-time")) {
 	  int micros = root.get("previous-pulse-time", 0).asInt();
 

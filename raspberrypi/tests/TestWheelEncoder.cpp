@@ -137,7 +137,7 @@ TEST_CASE( "Wheel sesnor test second update", "streem methods" ) {
   int pin1 = 10;
   WheelEncoder *test1 = new WheelEncoder(pin1,ticks1,diameter1);
 
- //One rotation in a second
+  //One rotation in a second
   for(int i = 0; i < ticks1; i++) {
     pin10Risingfunc();
     pin10Fallingfunc();
@@ -163,15 +163,15 @@ TEST_CASE( "Wheel sesnor test second update", "streem methods" ) {
 
   SECTION( " reverse the wheel" )  {
     //One rotation in a second
-     test1->setForward(false);
-     for(int i = 0; i < ticks1; i++) {
-       pin10Risingfunc();
-       pin10Fallingfunc();
-     }
-     //wait one second
-     std::this_thread::sleep_for(std::chrono::seconds(1));
+    test1->setForward(false);
+    for(int i = 0; i < ticks1; i++) {
+      pin10Risingfunc();
+      pin10Fallingfunc();
+    }
+    //wait one second
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
-     test1->update();
+    test1->update();
 
     // Two rotations per second
     REQUIRE( test1->getVelocity() == -M_PI*diameter1 );
@@ -179,81 +179,109 @@ TEST_CASE( "Wheel sesnor test second update", "streem methods" ) {
     REQUIRE((double) test1->getDistance() == Approx( 2*M_PI*diameter1 ).epsilon( 0.01 ) );
   }
 }
-  TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
-    //test the stream out method
-    double diameter1 = 0.1;
-    bool forward1 = true;
-    int ticks1 = 20;
-    int pin1 = 10;
-    double diameter2 = 0.2;
-    bool forward2 = false;
-    int ticks2 = 10;
-    int pin2 = 5;
-    WheelEncoder *test1 = new WheelEncoder(pin1,ticks1,diameter1);
+TEST_CASE( "Wheel encoder thread methods", "thread methdos" ) {
+  double diameter = 0.1;
+  bool forward = true;
+  int ticks = 20;
+  int pin = 10;
+  WheelEncoder *test = new WheelEncoder(pin,ticks,diameter);
+  test->setForward(forward);
 
-    for(int i = 0; i < ticks1; i++) {
+  SECTION( " test start method" )  {
+    //One rotation in a second
+    test->start();
+    for(int i = 0; i < ticks; i++) {
       pin10Risingfunc();
       pin10Fallingfunc();
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    //wait one second
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    test1->update();
 
+    test->stop();
 
-    WheelEncoder *test2 = new WheelEncoder(pin2,ticks2,diameter2);
-    SECTION( "Test stream out method" )  {
-      std::stringstream sstream;
-      Json::Value root;
-      sstream << *test1;
-      sstream >> root;
-      cout << *test1;
-      REQUIRE(root.get("pin","0") ==  pin1);
-      REQUIRE(root.get("up-pulses","0") == ticks1 );
-      REQUIRE(root.get("down-pulses","0") == ticks1 );
-      REQUIRE(root.get("distance","0") == M_PI*diameter1 );
-      REQUIRE(root.get("velocity","0") == M_PI*diameter1 );
-      REQUIRE(root.get("omega","0") == 2*M_PI);
-      REQUIRE(root.get("previous-pulses","0") == 2*ticks1);
-    }
-    SECTION( "Test stream in method" )  {
-      //Test the stream in mehtod
-      Json::Value root;
-      InterInterface *second = new InterInterface(10);
-      std::stringstream ss;
-      ss <<  "{ \"pin\" : 2 , \"up-pulses\" : 14, \"down-pulses\" : 13, \"distance\" : 5.3, \"velocity\" : 1.1, \"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27   }";
-      ss << std::endl;
-
-      ss >> *test2;
-
-      ss << *test2;
-
-      ss >> root;
-      REQUIRE(root.get("ticks","0") == 27 );
-      REQUIRE(root.get("pin","0") == 2 );
-      REQUIRE(root.get("up-pulses","0") == 14 );
-      REQUIRE(root.get("down-pulses","0") == 13 );
-      REQUIRE(root.get("distance","0") == 5.3 );
-      REQUIRE(root.get("velocity","0") == 1.1 );
-      REQUIRE(root.get("omega","0") ==4.5 );
-      REQUIRE(root.get("previous-pulses","0") == 15 );
-
-    }
-    SECTION( "Test stream serialisation " )  {
-      //test serialisation in jason
-      std::stringstream ss;
-
-
-      ss << *test1;
-      ss >> *test2;
-
-      REQUIRE( test2->pin() == pin1 );
-      REQUIRE( test2->getDownPulse() == ticks1 );
-      REQUIRE( test2->getUpPulse() == ticks1);
-      REQUIRE( test2->trig() == true);
-      //test get
-      REQUIRE( test2->getVelocity() == M_PI*diameter1 );
-      REQUIRE( test2->getDistance() == M_PI*diameter1 );
-
-
-    }
+    // one rotations per ticks * 0.1 seconds
+    REQUIRE( test->getVelocity() == Approx(M_PI*diameter/(0.1*ticks)).epsilon(0.02) );
+    // A total of 3 rotations
+    REQUIRE((double) test->getDistance() == Approx( M_PI*diameter ).epsilon( 0.01 ) );
+    delete test;
   }
+
+}
+TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
+  //test the stream out method
+  double diameter1 = 0.1;
+  bool forward1 = true;
+  int ticks1 = 20;
+  int pin1 = 10;
+  double diameter2 = 0.2;
+  bool forward2 = false;
+  int ticks2 = 10;
+  int pin2 = 5;
+  WheelEncoder *test1 = new WheelEncoder(pin1,ticks1,diameter1);
+
+  for(int i = 0; i < ticks1; i++) {
+    pin10Risingfunc();
+    pin10Fallingfunc();
+  }
+  //wait one second
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  test1->update();
+
+
+  WheelEncoder *test2 = new WheelEncoder(pin2,ticks2,diameter2);
+  SECTION( "Test stream out method" )  {
+    std::stringstream sstream;
+    Json::Value root;
+    sstream << *test1;
+    sstream >> root;
+    cout << *test1;
+    REQUIRE(root.get("pin","0") ==  pin1);
+    REQUIRE(root.get("up-pulses","0") == ticks1 );
+    REQUIRE(root.get("down-pulses","0") == ticks1 );
+    REQUIRE(root.get("distance","0") == M_PI*diameter1 );
+    REQUIRE(root.get("velocity","0") == M_PI*diameter1 );
+    REQUIRE(root.get("omega","0") == 2*M_PI);
+    REQUIRE(root.get("previous-pulses","0") == 2*ticks1);
+  }
+  SECTION( "Test stream in method" )  {
+    //Test the stream in mehtod
+    Json::Value root;
+    InterInterface *second = new InterInterface(10);
+    std::stringstream ss;
+    ss <<  "{ \"pin\" : 2 , \"up-pulses\" : 14, \"down-pulses\" : 13, \"distance\" : 5.3, \"velocity\" : 1.1, \"omega\" : 4.5, \"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27   }";
+    ss << std::endl;
+
+    ss >> *test2;
+
+    ss << *test2;
+
+    ss >> root;
+    REQUIRE(root.get("ticks","0") == 27 );
+    REQUIRE(root.get("pin","0") == 2 );
+    REQUIRE(root.get("up-pulses","0") == 14 );
+    REQUIRE(root.get("down-pulses","0") == 13 );
+    REQUIRE(root.get("distance","0") == 5.3 );
+    REQUIRE(root.get("velocity","0") == 1.1 );
+    REQUIRE(root.get("omega","0") ==4.5 );
+    REQUIRE(root.get("previous-pulses","0") == 15 );
+
+  }
+  SECTION( "Test stream serialisation " )  {
+    //test serialisation in jason
+    std::stringstream ss;
+
+
+    ss << *test1;
+    ss >> *test2;
+
+    REQUIRE( test2->pin() == pin1 );
+    REQUIRE( test2->getDownPulse() == ticks1 );
+    REQUIRE( test2->getUpPulse() == ticks1);
+    REQUIRE( test2->trig() == true);
+    //test get
+    REQUIRE( test2->getVelocity() == M_PI*diameter1 );
+    REQUIRE( test2->getDistance() == M_PI*diameter1 );
+
+
+  }
+}
