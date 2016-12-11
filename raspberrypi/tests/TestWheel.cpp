@@ -130,154 +130,200 @@ TEST_CASE( "Wheel get and set methods", "test methods" ) {
     delete test2;
   }
   SECTION ("Test two wheels concurrently") {
-      	test->setFrequency(50);
-      	test2->setFrequency(100);
-      	for(int i = 0; i < 10;i++){
-      		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      		test2->update();
-      		test->update();
-      	}
+    test->setFrequency(50);
+    test2->setFrequency(100);
+    for(int i = 0; i < 10;i++){
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      test2->update();
+      test->update();
+    }
 
-      	//maximum rate is5 revolutions per second
-      	std::cout <<*test;
-      	std::cout <<*test2;
-      	REQUIRE(test2->getVelocity() == Approx( (double)5*diameter*M_PI ).epsilon( 0.01 ));
-      	REQUIRE(test->getVelocity() == Approx( (double)2.5*diameter*M_PI ).epsilon( 0.01 ));
+    //maximum rate is5 revolutions per second
+    std::cout <<*test;
+    std::cout <<*test2;
+    REQUIRE(test2->getVelocity() == Approx( (double)5*diameter*M_PI ).epsilon( 0.01 ));
+    REQUIRE(test->getVelocity() == Approx( (double)2.5*diameter*M_PI ).epsilon( 0.01 ));
 
-      	test->setFrequency(0);
-      	test2->setFrequency(0);
-        delete test;
-        delete test2;
+    test->setFrequency(0);
+    test2->setFrequency(0);
+    delete test;
+    delete test2;
 
-      }
+  }
 }
-  TEST_CASE( "Wheel stream", "streem methods" ) {
-    //test the stream out method
-    double diameter1 = 0.1;
-    bool forward1 = true;
-    int ticks1 = 20;
-    int sensorpin1 = 10;
+TEST_CASE( "Test threading of sensors wheels", "test methods" ) {
+  //Test the constructor
+  int forwardpin = 1;
+  int backwardpin = 2;
+  int sensorPin1 = 4;
+  sensorPin[forwardpin] = sensorPin1;
+  sensorPin[backwardpin] = sensorPin1;
+  ticks[sensorPin1] =20;
 
+  int forwardpin2 = 11;
+  int backwardpin2 = 12;
+  int sensorPin2 = 13;
+  sensorPin[forwardpin2] = sensorPin2;
+  sensorPin[backwardpin2] = sensorPin2;
+  ticks[sensorPin2] =20;
 
+  float diameter = 0.1;
 
-    WheelEncoder *sensor = new WheelEncoder(sensorpin1,ticks1,diameter1);
+  Wheel *test = new Wheel(forwardpin,backwardpin,new WheelEncoder(sensorPin1,ticks[sensorPin1],diameter));
 
-    for(int i = 0; i < ticks1; i++) {
-      pin10Risingfunc();
-      pin10Fallingfunc();
+  Wheel *test2 = new Wheel(forwardpin2,backwardpin2,new WheelEncoder(sensorPin2,ticks[sensorPin2],diameter));
+  SECTION ("Test two wheels concurrently") {
+    test->getSensor()->start();
+    test2->getSensor()->start();
+    test->setFrequency(50);
+    test2->setFrequency(100);
+    for(int i = 0; i < 10;i++){
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    //wait one second
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    sensor->update();
-    int forwardpin = 6;
-    int backwardpin = 7;
-    float diameter = 0.2;
-    int frequency = 60;
+    test->getSensor()->stop();
+    test2->getSensor()->stop();
 
-    sensorPin[forwardpin] = sensorpin1;
-    sensorPin[backwardpin] = sensorpin1;
-    ticks[sensorpin1] =ticks1;
+    //maximum rate is5 revolutions per second
+    std::cout <<*test;
+    std::cout <<*test2;
 
-    Wheel *test = new Wheel(forwardpin,backwardpin,sensor);
-    test->setFrequency(frequency);
+    REQUIRE(test2->getVelocity() == Approx( (double)5*diameter*M_PI ).epsilon( 0.01 ));
+    REQUIRE(test->getVelocity() == Approx( (double)2.5*diameter*M_PI ).epsilon( 0.01 ));
 
+    test->setFrequency(0);
+    test2->setFrequency(0);
+    delete test;
+    delete test2;
 
-
-
-
-    Wheel *test2 = new Wheel(2,3,new WheelEncoder(4,10,0.1));
-    SECTION( "Test stream out method" )  {
-      std::stringstream sstream;
-      Json::Value root;
-      sstream << *test;
-
-      sstream >> root;
-      std::cout << root;
-      Json::Value s =root.get("wheel-encoder","");
-      REQUIRE(s.get("pin",0).asInt() ==  sensorpin1);
-      REQUIRE(s.get("up-pulses",0).asInt() == ticks1 );
-      REQUIRE(s.get("down-pulses",0).asInt() == ticks1 );
-      REQUIRE(s.get("distance",0).asDouble() == M_PI*diameter1 );
-      REQUIRE(s.get("velocity",0).asDouble() == M_PI*diameter1 );
-      REQUIRE(s.get("omega",0).asDouble() == 2*M_PI);
-      REQUIRE(s.get("previous-pulses",0).asInt() == 2*ticks1);
-
-      REQUIRE(root.get("motor-forward-pin",0).asInt() == forwardpin);
-      REQUIRE(root.get("motor-reverse-pin",0).asInt() == backwardpin);
-      REQUIRE(root.get("frequency",0).asInt() == frequency);
-
-      test->setFrequency(0);
-
-      delete test;
-      delete test2;
-    }
-
-    SECTION( "Test stream in method" )  {
-      //Test the stream in mehtod
-      Json::Value root;
-      std::stringstream ss;
-      ss << "{" << std::endl;
-      ss << "\"motor-forward-pin\": 12,"<< std::endl;
-      ss << "\"motor-reverse-pin\": 15," << std::endl;
-      ss <<" \"frequency\": 22 ," << std::endl;
-      ss <<  "\"wheel-encoder\" : " << std::endl;
-      ss <<"{" <<std::endl;
-      ss <<" \"pin\" : 2 ," <<std::endl;
-      ss <<" \"up-pulses\" : 14, " <<std::endl;
-      ss <<" \"forward\" : false, " <<std::endl;
-      ss <<" \"down-pulses\" : 13, " <<std::endl;
-      ss << "\"distance\" : 5.3, " <<std::endl;
-      ss << "\"velocity\" : 1.1, " << std::endl;
-      ss << "\"omega\" : 4.5, " << std::endl;
-      ss << "\"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27 }";
-      ss << "}";
-      ss << std::endl;
+  }
+}
+TEST_CASE( "Wheel stream", "streem methods" ) {
+  //test the stream out method
+  double diameter1 = 0.1;
+  bool forward1 = true;
+  int ticks1 = 20;
+  int sensorpin1 = 10;
 
 
-      ss >> *test;
+
+  WheelEncoder *sensor = new WheelEncoder(sensorpin1,ticks1,diameter1);
+
+  for(int i = 0; i < ticks1; i++) {
+    pin10Risingfunc();
+    pin10Fallingfunc();
+  }
+  //wait one second
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  sensor->update();
+  int forwardpin = 6;
+  int backwardpin = 7;
+  float diameter = 0.2;
+  int frequency = 60;
+
+  sensorPin[forwardpin] = sensorpin1;
+  sensorPin[backwardpin] = sensorpin1;
+  ticks[sensorpin1] =ticks1;
+
+  Wheel *test = new Wheel(forwardpin,backwardpin,sensor);
+  test->setFrequency(frequency);
 
 
-      ss << *test;
-
-      ss >> root;
-      Json::Value s = root.get("wheel-encoder","");
-      REQUIRE(s.get("ticks",0) == 27 );
-      REQUIRE(s.get("pin",0) == 2 );
-      REQUIRE(s.get("up-pulses",0) == 14 );
-      REQUIRE(s.get("down-pulses",0) == 13 );
-      REQUIRE(s.get("distance",0) == 5.3 );
-      REQUIRE(s.get("velocity",0) == 1.1 );
-      REQUIRE(s.get("omega",0) ==4.5 );
-      REQUIRE(s.get("previous-pulses",0) == 15 );
-      REQUIRE(s.get("forward",0).asBool() == false);
-
-      REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
-      REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
-      REQUIRE(root.get("frequency",0).asInt() == 22);
-
-      test->setFrequency(0);
-
-    }
-    SECTION( "Test stream serialisation " )  {
-      //test serialisation in jason
-      std::stringstream ss;
 
 
-      ss << *test;
-      WheelEncoder *encoder = dynamic_cast<WheelEncoder *>(test->getSensor());
-      ss >> *test2;
-      WheelEncoder *encoder2 = dynamic_cast<WheelEncoder *>(test2->getSensor());
 
-      REQUIRE( encoder2->pin() == sensorpin1 );
-      REQUIRE( encoder2->getDownPulse() == encoder->getDownPulse() );
-      REQUIRE( encoder2->getUpPulse() == encoder->getUpPulse());
-      REQUIRE( encoder2->trig() == encoder->trig());
-      //test get
-      REQUIRE( test2->getVelocity() == test->getVelocity() );
-      REQUIRE( test2->getDistance() == test->getDistance() );
-      delete test;
-      delete test2;
+  Wheel *test2 = new Wheel(2,3,new WheelEncoder(4,10,0.1));
+  SECTION( "Test stream out method" )  {
+    std::stringstream sstream;
+    Json::Value root;
+    sstream << *test;
 
-    }
+    sstream >> root;
+    std::cout << root;
+    Json::Value s =root.get("wheel-encoder","");
+    REQUIRE(s.get("pin",0).asInt() ==  sensorpin1);
+    REQUIRE(s.get("up-pulses",0).asInt() == ticks1 );
+    REQUIRE(s.get("down-pulses",0).asInt() == ticks1 );
+    REQUIRE(s.get("distance",0).asDouble() == M_PI*diameter1 );
+    REQUIRE(s.get("velocity",0).asDouble() == M_PI*diameter1 );
+    REQUIRE(s.get("omega",0).asDouble() == 2*M_PI);
+    REQUIRE(s.get("previous-pulses",0).asInt() == 2*ticks1);
+
+    REQUIRE(root.get("motor-forward-pin",0).asInt() == forwardpin);
+    REQUIRE(root.get("motor-reverse-pin",0).asInt() == backwardpin);
+    REQUIRE(root.get("frequency",0).asInt() == frequency);
+
+    test->setFrequency(0);
+
+    delete test;
+    delete test2;
+  }
+
+  SECTION( "Test stream in method" )  {
+    //Test the stream in mehtod
+    Json::Value root;
+    std::stringstream ss;
+    ss << "{" << std::endl;
+    ss << "\"motor-forward-pin\": 12,"<< std::endl;
+    ss << "\"motor-reverse-pin\": 15," << std::endl;
+    ss <<" \"frequency\": 22 ," << std::endl;
+    ss <<  "\"wheel-encoder\" : " << std::endl;
+    ss <<"{" <<std::endl;
+    ss <<" \"pin\" : 2 ," <<std::endl;
+    ss <<" \"up-pulses\" : 14, " <<std::endl;
+    ss <<" \"forward\" : false, " <<std::endl;
+    ss <<" \"down-pulses\" : 13, " <<std::endl;
+    ss << "\"distance\" : 5.3, " <<std::endl;
+    ss << "\"velocity\" : 1.1, " << std::endl;
+    ss << "\"omega\" : 4.5, " << std::endl;
+    ss << "\"previous-distance\" : 5.0, \"previous-pulses\" : 15 , \"ticks\" : 27 }";
+    ss << "}";
+    ss << std::endl;
+
+
+    ss >> *test;
+
+
+    ss << *test;
+
+    ss >> root;
+    Json::Value s = root.get("wheel-encoder","");
+    REQUIRE(s.get("ticks",0) == 27 );
+    REQUIRE(s.get("pin",0) == 2 );
+    REQUIRE(s.get("up-pulses",0) == 14 );
+    REQUIRE(s.get("down-pulses",0) == 13 );
+    REQUIRE(s.get("distance",0) == 5.3 );
+    REQUIRE(s.get("velocity",0) == 1.1 );
+    REQUIRE(s.get("omega",0) ==4.5 );
+    REQUIRE(s.get("previous-pulses",0) == 15 );
+    REQUIRE(s.get("forward",0).asBool() == false);
+
+    REQUIRE(root.get("motor-forward-pin",0).asInt() == 12);
+    REQUIRE(root.get("motor-reverse-pin",0).asInt() == 15);
+    REQUIRE(root.get("frequency",0).asInt() == 22);
+
+    test->setFrequency(0);
+
+  }
+  SECTION( "Test stream serialisation " )  {
+    //test serialisation in jason
+    std::stringstream ss;
+
+
+    ss << *test;
+    WheelEncoder *encoder = dynamic_cast<WheelEncoder *>(test->getSensor());
+    ss >> *test2;
+    WheelEncoder *encoder2 = dynamic_cast<WheelEncoder *>(test2->getSensor());
+
+    REQUIRE( encoder2->pin() == sensorpin1 );
+    REQUIRE( encoder2->getDownPulse() == encoder->getDownPulse() );
+    REQUIRE( encoder2->getUpPulse() == encoder->getUpPulse());
+    REQUIRE( encoder2->trig() == encoder->trig());
+    //test get
+    REQUIRE( test2->getVelocity() == test->getVelocity() );
+    REQUIRE( test2->getDistance() == test->getDistance() );
+    delete test;
+    delete test2;
+
+  }
 
 }

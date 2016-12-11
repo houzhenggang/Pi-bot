@@ -26,6 +26,7 @@
 
 //#include "TestInterInterface.hpp"
 #include "../MouseSensor.hpp"
+#include "wiringPIDummy.hpp"
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "../catch/catch.hpp"
 #include <thread>
@@ -34,58 +35,36 @@
 #include <fstream>
 #include <string>
 
+std::vector<std::string> getMouseDevices() {
+  std::vector<std::string> devices;
+  std::string line;
+  //This file has detials of the input devices attached to the system
+  std::ifstream myfile ("/proc/bus/input/devices");
+  std::string device;
+  //Guess that the last mouse added is the mouse that is used to test
+  if (myfile.is_open()) {
+    for(std::string word; myfile >> word; )
+    if(word.compare(0,14,"Handlers=mouse") == 0) {
+      myfile >> word;
+      devices.push_back(word);
 
-/*
-* Writing evelnts to input echos the events back.
-*/
 
-void writeEvent(int x,int y,std::string mouse) {
-  struct input_event event, event_end;
+    }
+    myfile.close();
+  } else std::cerr << "Unable to open file" << std::endl;
 
-  int fd = open(mouse.c_str(), O_RDWR);
-  if (fd < 0) {
-    std::cerr << "/* Errro open mouse: */" << std::strerror(errno)<< '\n';
-    return;
-  }
-  std::memset(&event, 0, sizeof(event));
-  std::memset(&event, 0, sizeof(event_end));
-  gettimeofday(&event.time, NULL);
-  event.type = EV_REL;
-  event.code = REL_X;
-  event.value = x;
-  gettimeofday(&event_end.time, NULL);
-  event_end.type = EV_SYN;
-  event_end.code = SYN_REPORT;
-  event_end.value = 0;
-
-  //Writing evelnts to input echos the events back.
-  write(fd, &event, sizeof(event));// Move the mouse
-  write(fd, &event_end, sizeof(event_end));// Show move
-
-  gettimeofday(&event.time, NULL);
-  event.type = EV_REL;
-  event.code = REL_Y;
-  event.value = y;
-  gettimeofday(&event_end.time, NULL);
-  event_end.type = EV_SYN;
-  event_end.code = SYN_REPORT;
-  event_end.value = 0;
-
-  //Writing evelnts to input echos the events back.
-  write(fd, &event, sizeof(event));// Move the mouse
-  write(fd, &event_end, sizeof(event_end));// Show move
-
-  close(fd);
-  return;
+return devices;
 }
 
 
 
-TEST_CASE( "WheelSensor", "test methods" ) {
+TEST_CASE( "WheelEncoder", "test methods" ) {
   std::string s = "/dev/input/event7";
 
   MouseSensor *test = new MouseSensor(s);
-    //test get
+
+
+  //test get
   //Test the constructor
   SECTION( "Test get methods" )  {
 
@@ -97,28 +76,152 @@ TEST_CASE( "WheelSensor", "test methods" ) {
   }
 }
 /*
- *
- *
- *  Testing by sending mouse information directly via mouse events use swmouse as a dummy mouse
- *
- *	Asume that the mouse has a dpi of 400;
- */
-
-TEST_CASE( "WheelSensor get and set update methods", "test methods" ) {
-  std::string s = "/dev/input/event6";
-  MouseSensor *test = new MouseSensor(s);
-  //dpi is 400;
+*
+*
+*  Testing by sending mouse information directly via mouse events use swmouse as a dummy mouse
+*
+*	Asume that the mouse has a dpi of 400;
+*/
 
 
+TEST_CASE( "WheelEncoder  update static test", "test mouse event " ) {
+  std::string line;
+  //This file has detials of the input devices attached to the system
+  std::ifstream myfile ("/proc/bus/input/devices");
+  std::string device;
+  //Guess that the last mouse added is the mouse that is used to test
+  if (myfile.is_open()) {
+    for(std::string word; myfile >> word; )
+    if(word.compare(0,14,"Handlers=mouse") == 0) {
+      myfile >> word;
+      device = word;
+    }
+    myfile.close();
+  } else std::cerr << "Unable to open file" << std::endl;
 
+  std::string s = "/dev/input/"+ device;
+  MouseSensor *test = new MouseSensor(s,0.1,1);
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-  writeEvent(400,0,s);
+  //Mouse has 800 dpi in this case
+  test->start();
+  writeEvent(0,1,s);
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  writeEvent(0,799,s);
+
 
   std::cout<<*test;
-  REQUIRE( test->getDistance() == 400 );
-  REQUIRE( test->getVelocity() == Approx( 400/10 ).epsilon( 0.1 )  );
-  REQUIRE( test->getOmega() == Approx( 4000 ).epsilon( 10 ) );
+  REQUIRE( test->getDistance() == 0.0254 );
+  REQUIRE( test->getVelocity() == Approx( 0.0254 ).epsilon( 0.01 )  );
+  REQUIRE( test->getOmega() == Approx( 0.0254/0.05 ).epsilon( 0.01 ) );
   delete test;
 
+}
+
+TEST_CASE( "MouseSensor test movement", "test methods" ) {
+  std::string line;
+  std::ifstream myfile ("/proc/bus/input/devices");
+  std::string device;
+  if (myfile.is_open()) {
+    for(std::string word; myfile >> word; )
+    if(word.compare(0,14,"Handlers=mouse") == 0) {
+      myfile >> word;
+      device = word;
+    }
+    myfile.close();
+  } else std::cout << "Unable to open file";
+
+  std::string s = "/dev/input/"+ device;
+  MouseSensor *test = new MouseSensor(s,0.1,5);
+  //dpi is 400;
+  test->start();
+  auto start = std::chrono::high_resolution_clock::now();
+  std::cout << "move the mouse 10cm "<< std::endl;
+
+  while(test->getDistance() < 0.1) {
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
+    std::cout << test->getDistance() << std::endl;;
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+
+  std::chrono::duration<double> time_span = std::chrono::duration_cast
+  < std::chrono::seconds > (end - start);
+
+  std::cout<<*test;
+  REQUIRE( test->getDistance() == Approx(0.1).epsilon(0.01) );
+  REQUIRE( test->getVelocity() == Approx( 0.1/time_span.count() ).epsilon( 0.01 )  );
+  REQUIRE( test->getOmega() == Approx( 0.1/(time_span.count()*0.05)  ).epsilon( 10 ) );
+  delete test;
+
+}
+
+TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
+  std::vector<std::string> s = getMouseDevices();
+  double diameter = 0.4;
+  int dpi = 400;
+  int updatetime = 3;
+  double distance = 120;
+  double velocity = 69;
+  double omega = 23;
+  MouseSensor *test = new MouseSensor("/dev/input/"+s[0],diameter,updatetime,dpi);
+  test->setDistance(distance);
+  test->setVelocity(velocity);
+  test->setOmega(omega);
+
+  MouseSensor *test2 = new MouseSensor("/dev/input/"+s[0]);
+
+  SECTION( "Test stream out method" )  {
+    std::stringstream sstream;
+    Json::Value root;
+    sstream << *test;
+    sstream >> root;
+
+    REQUIRE(root.get("path","").asString() ==  "/dev/input/"+s[0]);
+    REQUIRE(root.get("dpi",0).asInt() == dpi );
+    REQUIRE(root.get("distance",0).asDouble() == distance );
+    REQUIRE(root.get("velocity",0).asDouble() == velocity );
+    REQUIRE(root.get("omega",0).asDouble() == omega);
+    REQUIRE(root.get("diameter",0).asDouble() == diameter);
+  }
+  SECTION( "Test stream in method" )  {
+    //Test the stream in mehtod
+    Json::Value root;
+
+    std::stringstream ss;
+    ss <<  "{ \"path\" : \"/dev/input/"+s[1]+"\" ,";
+    ss <<  " \"dpi\" : 211,";
+    ss <<  " \"distance\" : 13,";
+    ss <<  " \"velocity\" : 5.3, ";
+    ss <<  "\"omega\" : 1.1, ";
+    ss <<  "\"diameter\" : 4.5 }";
+
+    ss << std::endl;
+
+    ss >> *test2;
+
+    ss << *test2;
+
+    ss >> root;
+    REQUIRE(root.get("path","").asString() == "/dev/input/"+s[1] );
+    REQUIRE(root.get("dpi",0).asInt() == 211 );
+    REQUIRE(root.get("distance",0).asDouble() == 13 );
+    REQUIRE(root.get("velocity",0).asDouble() == 5.3 );
+    REQUIRE(root.get("omega",0).asDouble() == 1.1 );
+    REQUIRE(root.get("diameter",0).asDouble() ==4.5 );
+  }
+  SECTION( "Test stream serialisation " )  {
+    //test serialisation in jason
+    std::stringstream ss;
+
+    ss << *test;
+    std::cout << ss.str();
+    ss >> *test2;
+/*
+    //test get
+    REQUIRE( test2->getVelocity() == velocity );
+    REQUIRE( test2->getDistance() == distance );
+    REQUIRE( test2->getOmega() == omega);
+    REQUIRE( test2->getDPI() == dpi);
+    REQUIRE( test2->getDiameter() == diameter );*/
+  }
 }

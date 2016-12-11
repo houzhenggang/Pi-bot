@@ -41,7 +41,9 @@
 class MouseSensor : public WheelSensor
 {
 public:
-  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 10);
+  	MouseSensor(std::string path= "/dev/input/mouse0",double diameter = 0.1, int millisecond_updates = 10, int dpi=800);
+    int getDPI();
+    void setDPI(int dpi);
     ~MouseSensor();
 
     friend std::ostream& operator<<(std::ostream& stream,MouseSensor &ob);
@@ -59,6 +61,9 @@ public:
     int _fd;
     //std::fstream fh;
     struct input_event _ie;
+    std::mutex dpi_mtx;
+    int _dpi;
+    static double INCHTOM;
 };
 
 #endif

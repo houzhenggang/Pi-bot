@@ -40,9 +40,13 @@
  * shorter to travel. This is still to be accounted for.
  */
 
-MouseSensor::MouseSensor(std::string path ,double diameter, int millisecond_updates)
-  : WheelSensor(millisecond_updates,diameter){
 
+ double MouseSensor::INCHTOM = 0.0254;
+
+
+MouseSensor::MouseSensor(std::string path ,double diameter, int millisecond_updates, int dpi )
+  : WheelSensor(millisecond_updates,diameter){
+  _dpi = dpi;
 	_path = path;
 
 
@@ -53,7 +57,26 @@ MouseSensor::MouseSensor(std::string path ,double diameter, int millisecond_upda
 	}
 }
 
+/*
+*Get the dots per inch for the mouse sensor
+*/
 
+int MouseSensor::getDPI() {
+  dpi_mtx.lock();
+  int dpi = _dpi;
+  dpi_mtx.unlock();
+  return dpi;
+}
+
+/*
+*Set the dots per inch for the mouse sensor
+*/
+
+void MouseSensor::setDPI(int dpi) {
+  dpi_mtx.lock();
+  _dpi = dpi;
+  dpi_mtx.unlock();
+}
 
 /*
  *
@@ -62,23 +85,31 @@ MouseSensor::MouseSensor(std::string path ,double diameter, int millisecond_upda
  */
 void MouseSensor::update() {
 	double previousDistance = getDistance();
-	double deltaDistance = 0;
   //clear the structure
   std::memset(&_ie,0,sizeof(struct input_event));
   //TODO turn this code into c++ type file io
+
 	if (read(_fd, &_ie, sizeof(struct input_event))) {
+
 		if (_ie.type == EV_REL) {
-			if (_ie.code == REL_X) {
-				deltaDistance += _ie.value;
-        int value = _ie.value;
-        std::cout <<"type:"<<_ie.type<<" code:"<<_ie.code <<" value:"<<value;
+
+			if (_ie.code == REL_Y) {
+        std::cout << _ie.type << std::endl;
+				int deltaDistance = _ie.value;
+        //std::cout <<" type:" <<_ie.type <<" code:"<<_ie.code <<" value:"<<_ie.value<< std::endl;
 
       	double deltaTime = 	getDuration();
+        //std::cout << "time is:" << deltaTime <<std::endl;
 
-        setDistance(previousDistance+deltaDistance);
-
-      	setVelocity(deltaDistance / deltaTime);
-      	setOmega(2 * getVelocity() / getDiameter());
+        double distanceM = (INCHTOM*deltaDistance)/_dpi;
+        setDistance(previousDistance+distanceM);
+        if(deltaDistance !=0) {
+          setVelocity(distanceM/ deltaTime);
+      	   setOmega(2 * getVelocity() / getDiameter());
+        } else {
+          setVelocity(0);
+      	   setOmega(0);
+        }
 			}
 		}
 	} else {
@@ -110,6 +141,7 @@ Json::Value MouseSensor::getJSON() {
 	path_mtx.lock();
 	root["path"] = _path;
 	path_mtx.unlock();
+  root["dpi"] = getDPI();
 	return root;
 
 }
@@ -126,6 +158,9 @@ void MouseSensor::setJSON(Json::Value root) {
 
 	}
   path_mtx.unlock();
+  if (root.isMember("dpi")) {
+    setDPI(root.get("dpi", 0).asInt());
+  }
 }
 
 std::ostream& operator<<(std::ostream& stream,MouseSensor &ob) {

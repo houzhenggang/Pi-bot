@@ -23,8 +23,17 @@
 #include <mutex>          // std::mutex
 #include <math.h>
 #include <iostream>
+//#include <fstream>
 #include <chrono>
 #include <list>
+
+#include <fcntl.h> //needed for open file
+#include <unistd.h> //needed for file write and close
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <linux/input.h> // needed for event
+#include <cstring> //beed for memset
+
 #define TESTING
 
 #ifndef WIRINGDUMMY_HPP
@@ -50,6 +59,8 @@ extern std::array<int ,17> ticks;
 extern std::array<int ,17> pwmRanges;
 extern std::array<int,17> sensorPin;
 extern std::array<std::thread,17> workers;
+extern std::array<std::string, 17> hardware_mouse_event;
+
 
 
 extern void (*pin0Risingfunc) (void);
@@ -93,5 +104,5 @@ void wiringPiISR (int pin ,int edge, void (*foo)(void) ) ;
 void pullUpDnControl(int pin, int control);
 void softPwmCreate (int pin , int initialValue, int  pwmRange) ;
 void softPwmWrite (int pin,int duty) ;
-
+void writeEvent(int x,int y,std::string mouse);
 #endif

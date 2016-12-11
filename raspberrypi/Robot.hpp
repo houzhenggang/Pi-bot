@@ -52,6 +52,7 @@ class Robot
   public:
     Robot();
     //stops the robot
+    void start();
     void stop();
     void goTo(double x, double y);
     void rotateTo(double angle);

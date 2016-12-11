@@ -48,6 +48,7 @@ class WheelSensor
     double getDistance();
     double getVelocity();
     double getOmega();
+
     void setDistance(double distance);
     void setVelocity(double velocity);
     void setDiameter(double diameter);
@@ -64,8 +65,6 @@ class WheelSensor
     ~WheelSensor();
   protected:
     std::chrono::high_resolution_clock::time_point  _timeLastUpdate;
-
-
     double getDuration();
     private:
       std::thread t1;

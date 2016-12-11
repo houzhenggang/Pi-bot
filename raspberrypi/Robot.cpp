@@ -79,7 +79,9 @@ Robot::Robot()
 
 
   time_between_updates = 100;
+  update_mtx.lock();
   running = true;
+  update_mtx.unlock();
   std::thread t2(std::bind(&Robot::heartbeat,this));
   t1 = std::move(t2);
 
@@ -200,10 +202,22 @@ void Robot::goTo(double x, double y) {
   mtxTargets.unlock();
 }
 /*
-* Stop the robot moving
+* Start the robot
+*/
+
+void Robot::start() {
+  //_left->getSensor()->start();
+  //_right->getSensor()->start();
+
+}
+/*
+* Stop the robot
 */
 
 void Robot::stop() {
+  update_mtx.lock();
+  running = false;
+  update_mtx.unlock();
   mtxState.lock();
   _state = None;
   mtxState.unlock();
@@ -211,6 +225,8 @@ void Robot::stop() {
   _left->stop();
   _right->stop();
   update_mtx.unlock();
+  _left->getSensor()->stop();
+  _right->getSensor()->stop();
 }
 /*
 * rotate the robot to the angle, in radians
@@ -629,15 +645,13 @@ std::istream& operator>>(std::istream& stream,Robot &ob) {
 }
 
 Robot::~Robot() {
-  update_mtx.lock();
-  running = false;
-  update_mtx.unlock();
-  //wait for thread to finish (all variables should still be accessable to destructor has finished)
 
+  //wait for thread to finish (all variables should still be accessable to destructor has finished)
+  stop();
 
   if(t1.joinable())
   t1.join();
-  stop();
+
 
   delete _left;
   delete _right;

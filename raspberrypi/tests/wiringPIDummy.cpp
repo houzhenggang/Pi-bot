@@ -71,9 +71,16 @@ void (*pin0Risingfunc) (void);
     	      // time between each tick is 1000/(5*ticks)
     	int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
 
-    	muxPin.unlock();
-    	std::this_thread::sleep_for(std::chrono::milliseconds(timebetweenticks));
-    	muxPin.lock();
+      //wake up evey five milliseconds and call mouse event
+      for(int i = 0 ; i < timebetweenticks; i = i+5) {
+        muxPin.unlock();
+      	std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        muxPin.lock();
+        if(hardware_mouse_event[pin] != "")
+          writeEvent(0,pins[pin],hardware_mouse_event[pin]);
+
+      }// when i reachens time between time between simulate an event
+
 
 
 
@@ -155,6 +162,7 @@ void (*pin0Risingfunc) (void);
 
 
 void wiringPiISR (int pin,int edge, void (*foo)(void) )  {
+
   std::cout << "attach function:" << pin <<std::endl;
   if(edge == 1) {
     switch (pin) {
@@ -237,8 +245,11 @@ std::array<int ,17> pwmRanges = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 void softPwmCreate (int pin , int initialValue, int  pwmRange) {
   pwmRanges[pin] = pwmRange;
+  //start up the mouse
+
 
 }
+
 
 std::array<int ,17> pins = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 std::array<int ,17> ticks = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
@@ -278,4 +289,54 @@ void pinMode (int pin, int mode)  {
 
 void pullUpDnControl(int pin, int control) {
 
+}
+
+
+//the mouse is hardware defined
+std::array<std::string, 17> hardware_mouse_event = {};
+
+
+
+/*
+* Writing evelnts to input echos the events back.
+*/
+
+void writeEvent(int x,int y,std::string mouse) {
+  struct input_event event, event_end;
+
+  int fd = open(mouse.c_str(), O_RDWR);
+  if (fd < 0) {
+    std::cerr << "/* Errro open mouse: */" << errno<< '\n';
+    return;
+  }
+  std::memset(&event, 0, sizeof(event));
+  std::memset(&event, 0, sizeof(event_end));
+  gettimeofday(&event.time, NULL);
+  event.type = EV_REL;
+  event.code = REL_X;
+  event.value = x;
+  gettimeofday(&event_end.time, NULL);
+  event_end.type = EV_SYN;
+  event_end.code = SYN_REPORT;
+  event_end.value = 0;
+
+  //Writing evelnts to input echos the events back.
+  write(fd, &event, sizeof(event));// Move the mouse
+  write(fd, &event_end, sizeof(event_end));// Show move
+
+  gettimeofday(&event.time, NULL);
+  event.type = EV_REL;
+  event.code = REL_Y;
+  event.value = y;
+  gettimeofday(&event_end.time, NULL);
+  event_end.type = EV_SYN;
+  event_end.code = SYN_REPORT;
+  event_end.value = 0;
+
+  //Writing evelnts to input echos the events back.
+  write(fd, &event, sizeof(event));// Move the mouse
+  write(fd, &event_end, sizeof(event_end));// Show move
+
+  close(fd);
+  return;
 }
