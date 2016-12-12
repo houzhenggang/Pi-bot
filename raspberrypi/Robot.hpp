@@ -50,7 +50,25 @@ enum Behavour {Go,Avoid,Wall,Rotate,Forward,Pause,None};
 class Robot
 {
   public:
-    Robot();
+    Robot(
+      double wheelbase = 0.155,
+      Wheel* left = new Wheel(
+      9,
+      6,
+      new WheelEncoder(
+        12,
+        40,
+        0.065
+      ))
+      ,Wheel *right = new Wheel(
+      10,
+      5,
+      new WheelEncoder(
+        11,
+        40,
+        0.065
+
+      )));
     //stops the robot
     void start();
     void stop();

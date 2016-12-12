@@ -37,6 +37,7 @@ class Wheel
     Wheel(int motorPinForward,int motorPinReverse,WheelSensor *sensor);
     double getVelocity();
     double getDistance();
+    void setDistance(double distance);
     int getFrequency();
     void setFrequency(int frequency);
     void stop();

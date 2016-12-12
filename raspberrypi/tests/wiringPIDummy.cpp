@@ -69,7 +69,9 @@ void (*pin0Risingfunc) (void);
     	      //1000 milliseconds
     	      //5*ticks =  total number of ticks
     	      // time between each tick is 1000/(5*ticks)
-    	int timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
+      int timebetweenticks = 100;
+      if(sensorPin[pin] != -1)
+        timebetweenticks = ((double)PWMRANGE/pins[pin])*(1000/(maxRotationsPerSecond*ticks[sensorPin[pin]]));
 
       //wake up evey five milliseconds and call mouse event
       for(int i = 0 ; i < timebetweenticks; i = i+5) {
@@ -153,6 +155,8 @@ void (*pin0Risingfunc) (void);
         case 16:
         pin16Risingfunc();
         pin16Fallingfunc();
+        break;
+        default:
         break;
       }
 
@@ -339,4 +343,29 @@ void writeEvent(int x,int y,std::string mouse) {
 
   close(fd);
   return;
+}
+/*
+*get the mouses attached to the system
+*
+*/
+
+std::vector<std::string> getMouseDevices() {
+  std::vector<std::string> devices;
+  std::string line;
+  //This file has detials of the input devices attached to the system
+  std::ifstream myfile ("/proc/bus/input/devices");
+  std::string device;
+  //Guess that the last mouse added is the mouse that is used to test
+  if (myfile.is_open()) {
+    for(std::string word; myfile >> word; )
+    if(word.compare(0,14,"Handlers=mouse") == 0) {
+      myfile >> word;
+      devices.insert(devices.begin(),"/dev/input/"+word);
+
+
+    }
+    myfile.close();
+  } else std::cerr << "Unable to open file" << std::endl;
+
+return devices;
 }

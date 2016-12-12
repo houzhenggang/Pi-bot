@@ -34,7 +34,6 @@
 #include <cstring>
 #include <iostream>
 #include <mutex>
-
 #include "json/json.h"
 
 
@@ -57,7 +56,8 @@ class WheelSensor
     bool getForward();
     void start();
     void stop();
-    virtual void update() = 0;
+    //virtual void update() = 0;
+    virtual void update() {};
     friend std::ostream& operator<<(std::ostream& stream,WheelSensor &ob);
     friend std::istream& operator>>(std::istream& stream,WheelSensor &ob);
     Json::Value getJSON();

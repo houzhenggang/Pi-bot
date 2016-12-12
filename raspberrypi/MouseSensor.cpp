@@ -94,7 +94,6 @@ void MouseSensor::update() {
 		if (_ie.type == EV_REL) {
 
 			if (_ie.code == REL_Y) {
-        std::cout << _ie.type << std::endl;
 				int deltaDistance = _ie.value;
         //std::cout <<" type:" <<_ie.type <<" code:"<<_ie.code <<" value:"<<_ie.value<< std::endl;
 

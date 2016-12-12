@@ -20,141 +20,134 @@
 
 cflag = -g -std=c++11
 cc = g++
-
-all: tests/TestPoint tests/TestPID tests/TestPIDAngle tests/TestPIDPoint  tests/TestInterInterface tests/TestSensor tests/TestMouseSensor test/TestWheelSensor test/TestWheelEncoder tests/TestWheel tests/TestRobot
-
-tests/TestRobot: tests/TestRobot.o Robot.o TractionControl.o Wheel.o WheelSensor.o WheelEncoder.o MouseSensor.o Sensor.o InterInterface.o tests/wiringPIDummy.o PIDPoint.o PIDAngle.o PID.o Point.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestRobot tests/TestRobot.o Robot.o Wheel.o TractionControl.o WheelSensor.o MouseSensor.o WheelEncoder.o Sensor.o InterInterface.o PIDAngle.o PIDPoint.o Point.o PID.o json/jsoncpp.o tests/wiringPIDummy.o -pthread
-
-tests/TestRobot.o: tests/TestRobot.cpp
-	$(cc) $(cflag) -c -o tests/TestRobot.o tests/TestRobot.cpp
-
-Robot.o: Robot.cpp Robot.hpp
-	$(cc) $(cflag) -c -o Robot.o Robot.cpp
+build = build
 
 
-tests/TestWheel: tests/TestWheel.o TractionControl.o Wheel.o WheelSensor.o WheelEncoder.o MouseSensor.o Sensor.o InterInterface.o tests/wiringPIDummy.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestWheel tests/TestWheel.o TractionControl.o Wheel.o WheelEncoder.o MouseSensor.o WheelSensor.o Sensor.o InterInterface.o json/jsoncpp.o tests/wiringPIDummy.o -pthread
+all: build/tests/TestPoint build/tests/TestPID build/tests/TestPIDAngle build/tests/TestPIDPoint  build/tests/TestInterInterface build/tests/TestSensor build/tests/TestMouseSensor build/tests/TestWheelSensor build/tests/TestWheelEncoder build/tests/TestWheel build/tests/TestRobot
 
-tests/TestWheel.o: tests/TestWheel.cpp
-	$(cc) $(cflag) -c -o tests/TestWheel.o tests/TestWheel.cpp
+build/tests/TestRobot: build/tests/TestRobot.o build/Robot.o build/TractionControl.o build/Wheel.o build/WheelSensor.o build/WheelEncoder.o build/MouseSensor.o build/Sensor.o build/InterInterface.o build/tests/wiringPIDummy.o build/PIDPoint.o build/PIDAngle.o build/PID.o build/Point.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestRobot build/tests/TestRobot.o build/Robot.o build/Wheel.o build/TractionControl.o build/WheelSensor.o build/MouseSensor.o build/WheelEncoder.o build/Sensor.o build/InterInterface.o build/PIDAngle.o build/PIDPoint.o build/Point.o build/PID.o build/jsoncpp.o build/tests/wiringPIDummy.o -pthread
 
-Wheel.o: Wheel.cpp Wheel.hpp
-	$(cc) $(cflag) -c -o Wheel.o Wheel.cpp
+build/tests/TestRobot.o: tests/TestRobot.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestRobot.o tests/TestRobot.cpp
+
+build/Robot.o: Robot.cpp Robot.hpp build
+	$(cc) $(cflag) -c -o build/Robot.o Robot.cpp
+
+build/tests/TestWheel: build/tests/TestWheel.o build/TractionControl.o build/Wheel.o build/WheelSensor.o build/WheelEncoder.o build/MouseSensor.o build/Sensor.o build/InterInterface.o build/tests/wiringPIDummy.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestWheel build/tests/TestWheel.o build/TractionControl.o build/Wheel.o build/WheelEncoder.o build/MouseSensor.o build/WheelSensor.o build/Sensor.o build/InterInterface.o build/jsoncpp.o build/tests/wiringPIDummy.o -pthread
+
+build/tests/TestWheel.o: tests/TestWheel.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestWheel.o tests/TestWheel.cpp
+
+build/Wheel.o: Wheel.cpp Wheel.hpp build
+	$(cc) $(cflag) -c -o build/Wheel.o Wheel.cpp
 
 #TODO fix linking issue
-TestTractionControl: tests/TestTractionControl.o TractionControl.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestTractionControl  tests/TestTractionControl.o json/jsoncpp.o TractionControl.o
+build/TestTractionControl: build/tests/TestTractionControl.o TractionControl.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestTractionControl  build/tests/TestTractionControl.o build/jsoncpp.o build/TractionControl.o
 
-tests/TestTractionControl.o: tests/TestTractionControl.cpp
-	$(cc) $(cflag) -c -o tests/TestTractionControl.o tests/TestTractionControl.cpp
+build/tests/TestTractionControl.o: tests/TestTractionControl.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestTractionControl.o tests/TestTractionControl.cpp
 
-TractionControl.o: TractionControl.cpp TractionControl.hpp
-	$(cc) $(cflag) -c -o TractionControl.o TractionControl.cpp
+build/TractionControl.o: TractionControl.cpp TractionControl.hpp build
+	$(cc) $(cflag) -c -o build/TractionControl.o TractionControl.cpp
 
-tests/TestWheelSensor: tests/TestWheelSensor.o WheelSensor.o Sensor.o InterInterface.o tests/wiringPIDummy.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestWheelSensor  tests/TestWheelSensor.o WheelSensor.o InterInterface.o json/jsoncpp.o tests/wiringPIDummy.o -pthread
+build/tests/TestWheelSensor: build/tests/TestWheelSensor.o build/WheelSensor.o build/Sensor.o build/InterInterface.o build/tests/wiringPIDummy.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestWheelSensor  build/tests/TestWheelSensor.o build/WheelSensor.o build/InterInterface.o build/jsoncpp.o build/tests/wiringPIDummy.o -pthread
 
-tests/TestWheelSensor.o: tests/TestWheelSensor.cpp
-	$(cc) $(cflag) -c -o tests/TestWheelSensor.o tests/TestWheelSensor.cpp
+build/tests/TestWheelSensor.o: tests/TestWheelSensor.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestWheelSensor.o tests/TestWheelSensor.cpp
 
-WheelSensor.o: WheelSensor.cpp WheelSensor.hpp
-	$(cc) $(cflag) -c -o WheelSensor.o WheelSensor.cpp
+build/WheelSensor.o: WheelSensor.cpp WheelSensor.hpp build
+	$(cc) $(cflag) -c -o build/WheelSensor.o WheelSensor.cpp
 
-tests/TestWheelEncoder: tests/TestWheelEncoder.o WheelEncoder.o WheelSensor.o Sensor.o InterInterface.o tests/wiringPIDummy.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestWheelEncoder  tests/TestWheelEncoder.o WheelEncoder.o WheelSensor.o Sensor.o InterInterface.o json/jsoncpp.o tests/wiringPIDummy.o -pthread
+build/tests/TestWheelEncoder: build/tests/TestWheelEncoder.o build/WheelEncoder.o build/WheelSensor.o build/Sensor.o build/InterInterface.o build/tests/wiringPIDummy.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestWheelEncoder  build/tests/TestWheelEncoder.o build/WheelEncoder.o build/WheelSensor.o build/Sensor.o build/InterInterface.o build/jsoncpp.o build/tests/wiringPIDummy.o -pthread
 
-tests/TestWheelEncoder.o: tests/TestWheelEncoder.cpp
-	$(cc) $(cflag) -c -o tests/TestWheelEncoder.o tests/TestWheelEncoder.cpp
+build/tests/TestWheelEncoder.o: tests/TestWheelEncoder.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestWheelEncoder.o tests/TestWheelEncoder.cpp
 
-WheelEncoder.o: WheelEncoder.cpp WheelEncoder.hpp
-	$(cc) $(cflag) -c -o WheelEncoder.o WheelEncoder.cpp
+build/WheelEncoder.o: WheelEncoder.cpp WheelEncoder.hpp build
+	$(cc) $(cflag) -c -o build/WheelEncoder.o WheelEncoder.cpp
 
-tests/TestSensor: tests/TestSensor.o Sensor.o InterInterface.o  tests/wiringPIDummy.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestSensor  tests/TestSensor.o Sensor.o InterInterface.o json/jsoncpp.o tests/wiringPIDummy.o -pthread
+build/tests/TestSensor: build/tests/TestSensor.o build/Sensor.o build/InterInterface.o  build/tests/wiringPIDummy.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestSensor  build/tests/TestSensor.o build/Sensor.o build/InterInterface.o build/jsoncpp.o build/tests/wiringPIDummy.o -pthread
 
-tests/TestSensor.o: tests/TestSensor.cpp
-	$(cc) $(cflag) -c -o tests/TestSensor.o tests/TestSensor.cpp
+build/tests/TestSensor.o: tests/TestSensor.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestSensor.o tests/TestSensor.cpp
 
-Sensor.o: Sensor.cpp  Sensor.hpp
-	$(cc) $(cflag) -c -o Sensor.o Sensor.cpp
+build/Sensor.o: Sensor.cpp  Sensor.hpp build
+	$(cc) $(cflag) -c -o build/Sensor.o Sensor.cpp
 
-tests/TestInterInterface: tests/TestInterInterface.o InterInterface.o tests/wiringPIDummy.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestInterInterface  tests/TestInterInterface.o InterInterface.o json/jsoncpp.o tests/wiringPIDummy.o -lpthread
+build/tests/TestInterInterface: build/tests/TestInterInterface.o build/InterInterface.o build/tests/wiringPIDummy.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestInterInterface  build/tests/TestInterInterface.o build/InterInterface.o build/jsoncpp.o build/tests/wiringPIDummy.o -lpthread
 
-tests/TestInterInterface.o: tests/TestInterInterface.cpp
-	$(cc) $(cflag) -c -o tests/TestInterInterface.o tests/TestInterInterface.cpp
+build/tests/TestInterInterface.o: tests/TestInterInterface.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestInterInterface.o tests/TestInterInterface.cpp
 
-InterInterface.o: InterInterface.cpp InterInterface.hpp
-	$(cc) $(cflag) -c -o InterInterface.o InterInterface.cpp
+build/InterInterface.o: InterInterface.cpp InterInterface.hpp build
+	$(cc) $(cflag) -c -o build/InterInterface.o InterInterface.cpp
 
-tests/wiringPIDummy.o: tests/wiringPIDummy.cpp
-	$(cc) $(cflag) -c -o tests/wiringPIDummy.o tests/wiringPIDummy.cpp
+build/tests/wiringPIDummy.o: tests/wiringPIDummy.cpp build
+	$(cc) $(cflag) -c -o build/tests/wiringPIDummy.o tests/wiringPIDummy.cpp
 
-tests/TestMouseSensor:  tests/TestMouseSensor.o WheelSensor.o MouseSensor.o json/jsoncpp.o  tests/wiringPIDummy.o
-	$(cc) $(cflag) -o tests/TestMouseSensor tests/TestMouseSensor.o WheelSensor.o MouseSensor.o json/jsoncpp.o  tests/wiringPIDummy.o -lpthread
+build/tests/TestMouseSensor: build/tests/TestMouseSensor.o build/WheelSensor.o build/MouseSensor.o build/jsoncpp.o  build/tests/wiringPIDummy.o
+	$(cc) $(cflag) -o build/tests/TestMouseSensor build/tests/TestMouseSensor.o build/WheelSensor.o build/MouseSensor.o build/jsoncpp.o  build/tests/wiringPIDummy.o -lpthread
 
-tests/TestMouseSensor.o: tests/TestMouseSensor.cpp
-	$(cc) $(cflag) -c -o tests/TestMouseSensor.o tests/TestMouseSensor.cpp
+build/tests/TestMouseSensor.o: tests/TestMouseSensor.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestMouseSensor.o tests/TestMouseSensor.cpp
 
-MouseSensor.o: MouseSensor.cpp MouseSensor.hpp
-	$(cc) $(cflag) -c -o MouseSensor.o MouseSensor.cpp
+build/MouseSensor.o: MouseSensor.cpp MouseSensor.hpp build
+	$(cc) $(cflag) -c -o build/MouseSensor.o MouseSensor.cpp
 
-tests/TestPIDPoint: tests/TestPIDPoint.o Point.o PID.o PIDPoint.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestPIDPoint  tests/TestPIDPoint.o Point.o PID.o PIDPoint.o json/jsoncpp.o
+build/tests/TestPIDPoint: build/tests/TestPIDPoint.o build/Point.o build/PID.o build/PIDPoint.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestPIDPoint  build/tests/TestPIDPoint.o build/Point.o build/PID.o build/PIDPoint.o build/jsoncpp.o
 
-tests/TestPIDPoint.o: tests/TestPIDPoint.cpp
-	$(cc) $(cflag) -c -o tests/TestPIDPoint.o  tests/TestPIDPoint.cpp
+build/tests/TestPIDPoint.o: tests/TestPIDPoint.cpp
+	$(cc) $(cflag) -c -o build/tests/TestPIDPoint.o  tests/TestPIDPoint.cpp
 
-PIDPoint.o: PIDPoint.cpp PIDPoint.hpp
-	$(cc) $(cflag) -c -std=c++11  PIDPoint.cpp -o PIDPoint.o
+build/PIDPoint.o: PIDPoint.cpp PIDPoint.hpp build
+	$(cc) $(cflag) -c -std=c++11  PIDPoint.cpp -o build/PIDPoint.o
 
-tests/TestPIDAngle: tests/TestPIDAngle.o PID.o PIDAngle.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestPIDAngle  tests/TestPIDAngle.o PID.o PIDAngle.o json/jsoncpp.o
+build/tests/TestPIDAngle: build/tests/TestPIDAngle.o build/PID.o build/PIDAngle.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestPIDAngle  build/tests/TestPIDAngle.o build/PID.o build/PIDAngle.o build/jsoncpp.o
 
-tests/TestPIDAngle.o: tests/TestPIDAngle.cpp
-	$(cc) $(cflag) -c -o tests/TestPIDAngle.o  tests/TestPIDAngle.cpp
+build/tests/TestPIDAngle.o: tests/TestPIDAngle.cpp build
+	$(cc) $(cflag) -c -o build/tests/TestPIDAngle.o  tests/TestPIDAngle.cpp
 
-PIDAngle.o: PIDAngle.cpp PIDAngle.hpp
-	$(cc) $(cflag) -c -std=c++11  PIDAngle.cpp -o PIDAngle.o
+build/PIDAngle.o: PIDAngle.cpp PIDAngle.hpp build
+	$(cc) $(cflag) -c -std=c++11  PIDAngle.cpp -o build/PIDAngle.o
 
-tests/TestPID: tests/TestPID.o PID.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestPID  tests/TestPID.o json/jsoncpp.o PID.o
+build/tests/TestPID: build/tests/TestPID.o build/PID.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestPID  build/tests/TestPID.o build/jsoncpp.o build/PID.o
 
-tests/TestPID.o: tests/TestPID.cpp PID.o
-	$(cc) $(cflag) -c  tests/TestPID.cpp -o tests/TestPID.o
+build/tests/TestPID.o: tests/TestPID.cpp build/PID.o build
+	$(cc) $(cflag) -c  tests/TestPID.cpp -o build/tests/TestPID.o
 
-PID.o: PID.hpp PID.cpp
-	$(cc) $(cflag) -c PID.cpp -o PID.o
+build/PID.o: PID.hpp PID.cpp build
+	$(cc) $(cflag) -c PID.cpp -o build/PID.o
 
-tests/TestPoint:  tests/TestPoint.o  Point.o json/jsoncpp.o
-	$(cc) $(cflag) -o tests/TestPoint  tests/TestPoint.o Point.o json/jsoncpp.o
+build/tests/TestPoint:  build/tests/TestPoint.o  build/Point.o build/jsoncpp.o build
+	$(cc) $(cflag) -o build/tests/TestPoint  build/tests/TestPoint.o build/Point.o build/jsoncpp.o
 
-tests/TestPoint.o: tests/TestPoint.cpp
-	$(cc) $(cflag) -c tests/TestPoint.cpp  -o tests/TestPoint.o
+build/tests/TestPoint.o: tests/TestPoint.cpp build
+	$(cc) $(cflag) -c tests/TestPoint.cpp  -o build/tests/TestPoint.o
 
-Point.o: Point.cpp Point.hpp
-	$(cc) $(cflag) -c Point.cpp -o Point.o
+build/Point.o: Point.cpp Point.hpp build
+	$(cc) $(cflag) -c Point.cpp -o build/Point.o
 
-json/jsoncpp.o: json/jsoncpp.cpp json/json.h
-	$(cc) $(cflag) -c json/jsoncpp.cpp -o json/jsoncpp.o
+build/jsoncpp.o: json/jsoncpp.cpp json/json.h build
+	$(cc) $(cflag) -c json/jsoncpp.cpp -o build/jsoncpp.o
 
-bot:  Pi-Bot.cpp  Robot.o Point.o Wheel.o MouseSensor.o WheelEncoder.o WheelSensor.o Sensor.o  InterInterface.o  PID.o PIDAngle.o  PIDPoint.o TractionControl.o json/jsoncpp.o
-	$(cc) $(cflag) -o  Pi-Bot -std=c++11  Pi-bot.cpp  Robot.o Point.o Wheel.o MouseSensor.o WheelEncoder.o WWheelSensor.o Sensor.o  InterInterface.o  PID.o PIDAngle.o  PIDPoint.o TractionControl.o json/jsoncpp.o -I/usr/local/include  -L/usr/local/lib  -lwiringPi  -lpthread
+build:
+	mkdir build
+	mkdir build/tests
+
+build/Pi-bot:  Pi-Bot.cpp  build/Robot.o build/Point.o build/Wheel.o build/MouseSensor.o build/WheelEncoder.o build/WheelSensor.o build/Sensor.o  build/InterInterface.o  build/PID.o build/PIDAngle.o  build/PIDPoint.o build/TractionControl.o build/jsoncpp.o build
+	$(cc) $(cflag) -o  build/Pi-Bot  Pi-bot.cpp  build/Robot.o build/Point.o build/Wheel.o buidl/MouseSensor.o build/WheelEncoder.o build/WheelSensor.o build/Sensor.o  build/InterInterface.o  build/PID.o build/PIDAngle.o  build/PIDPoint.o build/TractionControl.o build/jsoncpp.o -I/usr/local/include  -L/usr/local/lib  -lwiringPi  -lpthread
 
 
 #TODO only remove files that exist
 clean:
-	-rm *o tests/*o json/*o
-	-rm tests/TestPoint
-	-rm tests/TestPID
-	-rm tests/TestPIDAngle
-	-rm tests/TestPIDPoint
-	-rm tests/TestInterInterface
-	-rm tests/TestSensor
-	-rm tests/TestWheelSensor
-	-rm tests/TestMouseSensor
-	-rm tests/TestWheelEncoder
-	-rm tests/TestTractionControl
-	-rm tests/TestWheel
-	-rm tests/TestRobot
+	-rm -r build

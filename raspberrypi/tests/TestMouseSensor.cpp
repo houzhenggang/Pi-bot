@@ -32,29 +32,10 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
-#include <fstream>
+#include <thread>
 #include <string>
 
-std::vector<std::string> getMouseDevices() {
-  std::vector<std::string> devices;
-  std::string line;
-  //This file has detials of the input devices attached to the system
-  std::ifstream myfile ("/proc/bus/input/devices");
-  std::string device;
-  //Guess that the last mouse added is the mouse that is used to test
-  if (myfile.is_open()) {
-    for(std::string word; myfile >> word; )
-    if(word.compare(0,14,"Handlers=mouse") == 0) {
-      myfile >> word;
-      devices.push_back(word);
 
-
-    }
-    myfile.close();
-  } else std::cerr << "Unable to open file" << std::endl;
-
-return devices;
-}
 
 
 
@@ -163,12 +144,12 @@ TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
   double distance = 120;
   double velocity = 69;
   double omega = 23;
-  MouseSensor *test = new MouseSensor("/dev/input/"+s[0],diameter,updatetime,dpi);
+  MouseSensor *test = new MouseSensor(s[0],diameter,updatetime,dpi);
   test->setDistance(distance);
   test->setVelocity(velocity);
   test->setOmega(omega);
 
-  MouseSensor *test2 = new MouseSensor("/dev/input/"+s[0]);
+  MouseSensor *test2 = new MouseSensor(s[1]);
 
   SECTION( "Test stream out method" )  {
     std::stringstream sstream;
@@ -176,7 +157,7 @@ TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
     sstream << *test;
     sstream >> root;
 
-    REQUIRE(root.get("path","").asString() ==  "/dev/input/"+s[0]);
+    REQUIRE(root.get("path","").asString() ==  s[0]);
     REQUIRE(root.get("dpi",0).asInt() == dpi );
     REQUIRE(root.get("distance",0).asDouble() == distance );
     REQUIRE(root.get("velocity",0).asDouble() == velocity );
@@ -188,7 +169,7 @@ TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
     Json::Value root;
 
     std::stringstream ss;
-    ss <<  "{ \"path\" : \"/dev/input/"+s[1]+"\" ,";
+    ss <<  "{ \"path\" : \""+s[1]+"\" ,";
     ss <<  " \"dpi\" : 211,";
     ss <<  " \"distance\" : 13,";
     ss <<  " \"velocity\" : 5.3, ";
@@ -202,7 +183,7 @@ TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
     ss << *test2;
 
     ss >> root;
-    REQUIRE(root.get("path","").asString() == "/dev/input/"+s[1] );
+    REQUIRE(root.get("path","").asString() == s[1] );
     REQUIRE(root.get("dpi",0).asInt() == 211 );
     REQUIRE(root.get("distance",0).asDouble() == 13 );
     REQUIRE(root.get("velocity",0).asDouble() == 5.3 );
@@ -216,12 +197,12 @@ TEST_CASE( "Wheel Encoder stream", "streem methods" ) {
     ss << *test;
     std::cout << ss.str();
     ss >> *test2;
-/*
+
     //test get
     REQUIRE( test2->getVelocity() == velocity );
     REQUIRE( test2->getDistance() == distance );
     REQUIRE( test2->getOmega() == omega);
     REQUIRE( test2->getDPI() == dpi);
-    REQUIRE( test2->getDiameter() == diameter );*/
+    REQUIRE( test2->getDiameter() == diameter );
   }
 }

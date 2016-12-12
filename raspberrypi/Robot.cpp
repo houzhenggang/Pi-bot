@@ -23,14 +23,11 @@
 
 #include "Robot.hpp"
 
-Robot::Robot()
+Robot::Robot(double wheelbase, Wheel* left, Wheel* right)
 {
 
-
-
-
   _state = None;
-  _wheel_base = 0.155;
+  _wheel_base = wheelbase;
 
   //_target_omega = 0;
   _target_angle = 0;
@@ -40,24 +37,11 @@ Robot::Robot()
   int sensor_left_1 = 8;
   int sensor_left_2 = 7;
   int sensor_center = 4;
-
-  int wheel_left_reverse = 6;
-  int wheel_right_reverse = 5;
-
   int sensor_right_1 = 2;
   int sensor_right_2 = 3;
 
-  int wheel_right_forward = 10;
-  int wheel_left_forward = 9;
-
-  int wheel_sensor_left = 12;
-  int wheel_sensor_right = 11;
-
-
   _distance= 0;
   _angle  = 0;
-
-
 
   _position = new Point(0,0);
 
@@ -67,10 +51,10 @@ Robot::Robot()
   _pid = new PID(100,1,1);
 
   double wheel_diameter = 0.065;
-  int wheel_ticks = 40;
 
-  _left = new Wheel(wheel_left_forward,wheel_left_reverse, new WheelEncoder(wheel_sensor_left,wheel_ticks,wheel_diameter));
-  _right = new Wheel(wheel_right_forward,wheel_right_reverse,new WheelEncoder(wheel_sensor_right,wheel_ticks,wheel_diameter));
+  _left = left;
+  _right = right;
+
   _left_1 = new Sensor(sensor_left_1);
   _left_2 = new Sensor(sensor_left_2);
   _center = new Sensor(sensor_center);
@@ -78,13 +62,14 @@ Robot::Robot()
   _right_2 = new Sensor(sensor_right_2);
 
 
+
+
   time_between_updates = 100;
-  update_mtx.lock();
   running = true;
-  update_mtx.unlock();
   std::thread t2(std::bind(&Robot::heartbeat,this));
   t1 = std::move(t2);
 
+  start();
 }
 
 /*
@@ -206,8 +191,7 @@ void Robot::goTo(double x, double y) {
 */
 
 void Robot::start() {
-  //_left->getSensor()->start();
-  //_right->getSensor()->start();
+
 
 }
 /*
@@ -215,9 +199,7 @@ void Robot::start() {
 */
 
 void Robot::stop() {
-  update_mtx.lock();
-  running = false;
-  update_mtx.unlock();
+
   mtxState.lock();
   _state = None;
   mtxState.unlock();
@@ -225,8 +207,6 @@ void Robot::stop() {
   _left->stop();
   _right->stop();
   update_mtx.unlock();
-  _left->getSensor()->stop();
-  _right->getSensor()->stop();
 }
 /*
 * rotate the robot to the angle, in radians
@@ -245,14 +225,10 @@ void Robot::rotateTo(double angle) {
 */
 
 void Robot::forwardTo(double distance) {
-  mtxDistance.lock();
-  _target_distance = distance+_distance;
-  mtxDistance.unlock();
-  mtxAngle.lock();
-  mtxTargetAngle.lock();
-  _target_angle = _angle;
-  mtxTargetAngle.unlock();
-  mtxAngle.unlock();
+
+  _target_distance = getDistance()+distance;
+
+  _target_angle = getTargetAngle();
   mtxState.lock();
   _state = Forward;
   mtxState.unlock();
@@ -266,10 +242,8 @@ void Robot::forwardTo(double distance) {
 
 
 void Robot::drive(int frequency) {
-  update_mtx.lock();
-  _left->setFrequency(frequency);
-  _right->setFrequency(frequency);
-  update_mtx.unlock();
+  wheelLeft(frequency);
+  wheelRight(frequency);
 }
 /*
 * set the left wheels to go with the frequency
@@ -293,15 +267,11 @@ void Robot::wheelRight(int frequency) {
 
 void Robot::updateObserver() {
 
-  //previous left distance
-  double pld = _left->getDistance();
-  _left->update();
-  double ldist =_left->getDistance() -pld;
+  double ldist = _left->getDistance();
+  _left->setDistance(0);
 
-
-  double prd = _right->getDistance();
-  _right->update();
-  double rdist =_right->getDistance() -prd;
+  double rdist = _right->getDistance();
+  _right->setDistance(0);
 
 
   //distance travelled since last update is
@@ -318,6 +288,7 @@ void Robot::updateObserver() {
     _angle = _angle + 2*M_PI;
   }
   mtxAngle.unlock();
+
   mtxDistance.lock();
   _distance = deltaDistance + _distance;
   mtxDistance.unlock();
@@ -391,14 +362,15 @@ void Robot::rotate() {
 
 
 void Robot::go() {
-
+  mtxPoint.lock();
   mtxTargets.lock();
   if(_targets.empty()) {
     mtxTargets.unlock();
+    mtxPoint.unlock();
     stop();
     return;
   }
-  mtxPoint.lock();
+
   double freq_velocity = _pointPID->next(_position,_targets.front());;
   mtxTargets.unlock();
   if(freq_velocity>100)
@@ -420,7 +392,7 @@ void Robot::go() {
   double lf = freq_velocity-freq_omega;
   double rf = freq_velocity+freq_omega;
 
-  if(xdiff*xdiff+ydiff*ydiff>0.01) {
+  if(xdiff*xdiff+ydiff*ydiff>0.001) {
     update_mtx.lock();
     _left->setFrequency(lf);
     _right->setFrequency(rf);
@@ -648,6 +620,9 @@ Robot::~Robot() {
 
   //wait for thread to finish (all variables should still be accessable to destructor has finished)
   stop();
+  update_mtx.lock();
+  running = false;
+  update_mtx.unlock();
 
   if(t1.joinable())
   t1.join();

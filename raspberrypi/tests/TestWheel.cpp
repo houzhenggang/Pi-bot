@@ -197,6 +197,69 @@ TEST_CASE( "Test threading of sensors wheels", "test methods" ) {
 
   }
 }
+
+TEST_CASE( "Test mouse sensor", "test mouse sensor" ) {
+  //Test the constructor
+  std::vector<std::string> devices = getMouseDevices();
+
+  int forwardpin = 1;
+  int backwardpin = 2;
+  int sensorPin1 = 4;
+  sensorPin[forwardpin] = sensorPin1;
+  sensorPin[backwardpin] = sensorPin1;
+  ticks[sensorPin1] =20;
+
+  int forwardpin2 = 11;
+  int backwardpin2 = 12;
+  int sensorPin2 = 13;
+  sensorPin[forwardpin2] = sensorPin2;
+  sensorPin[backwardpin2] = sensorPin2;
+  ticks[sensorPin2] =20;
+
+  float diameter = 0.73;
+  hardware_mouse_event[forwardpin] = devices[0];
+  hardware_mouse_event[backwardpin] = devices[0];
+
+  hardware_mouse_event[forwardpin2] = devices[1];
+  hardware_mouse_event[backwardpin2] = devices[1];
+
+
+  Wheel *test = new Wheel(forwardpin,backwardpin,new MouseSensor(devices[0],diameter));
+
+  Wheel *test2 = new Wheel(forwardpin2,backwardpin2,new MouseSensor(devices[1],diameter));
+  SECTION ("Test two wheels concurrently") {
+    test->getSensor()->start();
+    test2->getSensor()->start();
+    test->setFrequency(50);
+    test2->setFrequency(100);
+    for(int i = 0; i < 10;i++){
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    test->getSensor()->stop();
+    test2->getSensor()->stop();
+
+    //maximum rate is5 revolutions per second
+    std::cout <<*test;
+    std::cout <<*test2;
+
+    REQUIRE(test2->getDistance() == Approx( (double)200*100*0.0254/800 ).epsilon( 0.01 ));
+    REQUIRE(test->getDistance() == Approx( (double)200*50*0.0254/800).epsilon( 0.01 ));
+    REQUIRE(test2->getVelocity() == Approx( (double)200*100*0.0254/800 ).epsilon( 0.01 ));
+    REQUIRE(test->getVelocity() == Approx( (double)200*50*0.0254/800 ).epsilon( 0.01 ));
+
+    test->setFrequency(0);
+    test2->setFrequency(0);
+    delete test;
+    delete test2;
+
+  }
+}
+
+
+
+
+
+
 TEST_CASE( "Wheel stream", "streem methods" ) {
   //test the stream out method
   double diameter1 = 0.1;

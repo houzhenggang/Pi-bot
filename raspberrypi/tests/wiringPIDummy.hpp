@@ -34,6 +34,10 @@
 #include <linux/input.h> // needed for event
 #include <cstring> //beed for memset
 
+#include <fstream> //needed for finding the mouses
+#include <vector>
+#include <array>
+
 #define TESTING
 
 #ifndef WIRINGDUMMY_HPP
@@ -105,4 +109,5 @@ void pullUpDnControl(int pin, int control);
 void softPwmCreate (int pin , int initialValue, int  pwmRange) ;
 void softPwmWrite (int pin,int duty) ;
 void writeEvent(int x,int y,std::string mouse);
+std::vector<std::string> getMouseDevices();
 #endif

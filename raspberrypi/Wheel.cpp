@@ -42,6 +42,7 @@ Wheel::Wheel(int motorPinForward,int motorPinReverse,WheelSensor *sensor)
     int pwmRange = MAX_FREQUENCY;
     softPwmCreate (_motorPinForward , 0, pwmRange) ;
     softPwmCreate (_motorPinReverse , 0, pwmRange) ;
+    _sensor->start();
 
 }
 /*
@@ -80,6 +81,18 @@ void Wheel::update() {
 double Wheel::getDistance() {
   return _sensor ->getDistance();
 }
+
+/*
+*
+*Set the distance travelled by the wheel
+*
+*/
+
+void Wheel::setDistance(double distance) {
+  _sensor->setDistance(distance);
+}
+
+
 
 /*
 *
@@ -185,5 +198,8 @@ std::istream& operator>>(std::istream& stream,Wheel  &ob)
 
 }
 Wheel::~Wheel() {
+  _sensor->stop();
   stop();
+
+
 }
