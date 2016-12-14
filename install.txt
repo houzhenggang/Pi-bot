@@ -1,0 +1,12 @@
+
+
+at the pi command prompt
+
+download from github
+
+1> git clone https://github.com/kieranwyse/Rover
+change to the directory
+
+compile the program
+
+3> make
